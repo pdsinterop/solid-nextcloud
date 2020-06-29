@@ -1,10 +1,5 @@
-<ul>
-	<li><a href="#">First level entry</a></li>
-	<li>
-		<a href="#">First level container</a>
-		<ul>
-			<li><a href="#">Second level entry</a></li>
-			<li><a href="#">Second level entry</a></li>
-		</ul>
-	</li>
+<ul class="with-icon">
+    <li><a class="icon-home" href="#">Home</a></li>
+    <li><a class="icon-user" href="@admin/">Profile</a></li>
+	<li><a class="icon-settings" href="#">Settings</a></li>
 </ul>

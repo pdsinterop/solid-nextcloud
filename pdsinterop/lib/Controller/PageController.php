@@ -28,4 +28,12 @@ class PageController extends Controller {
 		return new TemplateResponse('pdsinterop', 'index');  // templates/index.php
 	}
 
+	/**
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function profile() {
+		return new TemplateResponse('pdsinterop', 'profile');
+	}
+
 }
