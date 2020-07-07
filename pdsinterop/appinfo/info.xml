@@ -14,7 +14,7 @@ This app gives you a WebID URL and login flow to connect to a Solid App with you
     <category>integration</category>
     <bugs>https://github.com/pdsinterop/solid-nextcloud/issues</bugs>
     <dependencies>
-        <nextcloud min-version="15" max-version="15"/>
+        <nextcloud min-version="15" max-version="19"/>
     </dependencies>
     <navigations>
         <navigation>
