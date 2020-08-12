@@ -1,0 +1,45 @@
+---
+baseurl: /solid-nextcloud
+description: A plugin to make Nextcloud compatible with Solid 
+repository: pdsinterop/solid-nextcloud
+title: Solid Nextcloud
+url: https://pdsinterop.org
+
+permalink: pretty
+remote_theme: Potherca/extend-the-docs@v0.3.0
+
+exclude:
+  - "src/"
+  - "tests/"
+  - "Gemfile"
+  - "*.json"
+  - "*.lock"
+
+plugins:
+  - github-pages
+
+# Extend the Docs settings (see https://pother.ca/extend-the-docs/)
+nav:
+  cross_repository:
+    exclude:
+      - jekyll-theme
+      - pdsinterop.github.io
+    show_archived: true
+    show_homepage: false
+  exclude:
+    - /
+    - /404.html
+  favicon_ico : /favicon.ico
+  main_title:
+    link: '/'
+  recurse: true
+
+# Just the Docs settings (see https://pmarsceill.github.io/just-the-docs/docs/configuration/)
+aux_links:
+  "PDS Interop on GitHub":
+    - https://github.com/pdsinterop
+footer_content: Copyright © 2020 PDS Interop. Distributed under a <a href="https://pdsinterop.org/license/">MIT license.</a>
+gh_edit_link: true
+gh_edit_repository: https://github.com/pdsinterop/solid-nextcloud
+logo: https://avatars3.githubusercontent.com/u/65920341
+search_enabled: true
