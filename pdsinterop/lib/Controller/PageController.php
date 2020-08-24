@@ -29,6 +29,7 @@ class PageController extends Controller {
 	}
 
 	/**
+	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
@@ -36,4 +37,13 @@ class PageController extends Controller {
 		return new TemplateResponse('pdsinterop', 'profile');
 	}
 
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function turtleProfile() {
+		return new TemplateResponse('pdsinterop', 'turtle-profile', [], 'blank');
+	}
 }
