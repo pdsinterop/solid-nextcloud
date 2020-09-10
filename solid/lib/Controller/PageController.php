@@ -55,7 +55,10 @@ class PageController extends Controller {
 	 */
 	public function openid() {
 		return new JSONResponse(
-			array( 'issuer' => 'https://localhost' )
+			array(
+				'issuer' => 'https://localhost',
+				'authorization_endpoint' => 'https://localhost/apps/solid/authorize'
+				)
 		);
 	}
 }
