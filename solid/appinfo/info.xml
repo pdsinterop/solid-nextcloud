@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
-    <id>pdsinterop</id>
-    <name>PDS-Interop</name>
+    <id>solid</id>
+    <name>Solid</name>
     <summary>A WebID-OIDC Identity Provider, to allow interoperability with SolidProject.org</summary>
     <description><![CDATA[# WebID-openID Connect identity Provider
 
@@ -10,7 +10,7 @@ This app gives you a WebID URL and login flow to connect to a Solid App with you
     <version>0.0.1</version>
     <licence>agpl</licence>
     <author mail="auke@muze.nl" >Auke van Slooten</author>
-    <namespace>PDSInterop</namespace>
+    <namespace>Solid</namespace>
     <category>integration</category>
     <bugs>https://github.com/pdsinterop/solid-nextcloud/issues</bugs>
     <dependencies>
@@ -18,8 +18,8 @@ This app gives you a WebID URL and login flow to connect to a Solid App with you
     </dependencies>
     <navigations>
         <navigation>
-            <name>PDS-Interop</name>
-            <route>pdsinterop.page.index</route>
+            <name>Solid</name>
+            <route>solid.page.index</route>
         </navigation>
     </navigations>
 </info>

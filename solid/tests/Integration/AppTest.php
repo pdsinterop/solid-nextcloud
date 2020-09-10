@@ -17,13 +17,13 @@ class AppTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        $app = new App('pdsinterop');
+        $app = new App('solid');
         $this->container = $app->getContainer();
     }
 
     public function testAppInstalled() {
         $appManager = $this->container->query('OCP\App\IAppManager');
-        $this->assertTrue($appManager->isInstalled('pdsinterop'));
+        $this->assertTrue($appManager->isInstalled('solid'));
     }
 
 }
