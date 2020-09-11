@@ -5,6 +5,7 @@ use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\JSONResponse;
 
 class PageController extends Controller {
 	private $userId;
@@ -45,5 +46,19 @@ class PageController extends Controller {
 	 */
 	public function turtleProfile() {
 		return new TemplateResponse('solid', 'turtle-profile', [], 'blank');
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function openid() {
+		return new JSONResponse(
+			array(
+				'issuer' => 'https://localhost',
+				'authorization_endpoint' => 'https://localhost/apps/solid/authorize'
+				)
+		);
 	}
 }
