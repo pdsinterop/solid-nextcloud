@@ -16,6 +16,9 @@ This app gives you a WebID URL and login flow to connect to a Solid App with you
     <dependencies>
         <nextcloud min-version="15" max-version="19"/>
     </dependencies>
+    <settings>
+        <admin>\OCA\Solid\Settings</admin>
+    </settings>
     <navigations>
         <navigation>
             <name>Solid</name>
