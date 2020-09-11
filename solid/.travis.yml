@@ -35,7 +35,7 @@ before_install:
     # install core
     - cd ../
     - git clone https://github.com/nextcloud/server.git --recursive --depth 1 -b $CORE_BRANCH nextcloud
-    - mv "$TRAVIS_BUILD_DIR" nextcloud/apps/pdsinterop
+    - mv "$TRAVIS_BUILD_DIR" nextcloud/apps/solid
 
 before_script:
     - if [[ "$DB" == 'pgsql' ]]; then createuser -U travis -s oc_autotest; fi
@@ -45,9 +45,9 @@ before_script:
     - cd nextcloud
     - mkdir data
     - ./occ maintenance:install --database-name oc_autotest --database-user oc_autotest --admin-user admin --admin-pass admin --database $DB --database-pass=''
-    - ./occ app:enable pdsinterop
+    - ./occ app:enable solid
     - php -S localhost:8080 &
-    - cd apps/pdsinterop
+    - cd apps/solid
 
 script:
     - make test

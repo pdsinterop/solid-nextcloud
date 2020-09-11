@@ -1,10 +1,11 @@
 <?php
-namespace OCA\PDSInterop\Controller;
+namespace OCA\Solid\Controller;
 
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\JSONResponse;
 
 class PageController extends Controller {
 	private $userId;
@@ -25,7 +26,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		return new TemplateResponse('pdsinterop', 'index');  // templates/index.php
+		return new TemplateResponse('solid', 'index');  // templates/index.php
 	}
 
 	/**
@@ -34,7 +35,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function profile() {
-		return new TemplateResponse('pdsinterop', 'profile');
+		return new TemplateResponse('solid', 'profile');
 	}
 
 
@@ -44,6 +45,20 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function turtleProfile() {
-		return new TemplateResponse('pdsinterop', 'turtle-profile', [], 'blank');
+		return new TemplateResponse('solid', 'turtle-profile', [], 'blank');
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function openid() {
+		return new JSONResponse(
+			array(
+				'issuer' => 'https://localhost',
+				'authorization_endpoint' => 'https://localhost/apps/solid/authorize'
+				)
+		);
 	}
 }
