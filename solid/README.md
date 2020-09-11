@@ -1,4 +1,4 @@
-# P D S Interop
+# Solid 
 Place this app in **nextcloud/apps/**
 
 ## Building the app

@@ -1,6 +1,6 @@
 <?php
-script('pdsinterop', 'script');
-style('pdsinterop', 'style');
+script('solid', 'script');
+style('solid', 'style');
 ?>
 
 <div id="app">
@@ -11,7 +11,7 @@ style('pdsinterop', 'style');
 
 	<div id="app-content">
 		<div id="app-content-wrapper">
-			<?php print_unescaped($this->inc('profile/index')); ?>
+			<?php print_unescaped($this->inc('content/index')); ?>
 		</div>
 	</div>
 </div>

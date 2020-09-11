@@ -1,12 +1,12 @@
 <?php
 
-namespace OCA\PDSInterop\Tests\Unit\Controller;
+namespace OCA\Solid\Tests\Unit\Controller;
 
 use PHPUnit_Framework_TestCase;
 
 use OCP\AppFramework\Http\TemplateResponse;
 
-use OCA\PDSInterop\Controller\PageController;
+use OCA\Solid\Controller\PageController;
 
 
 class PageControllerTest extends PHPUnit_Framework_TestCase {
@@ -17,7 +17,7 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 		$request = $this->getMockBuilder('OCP\IRequest')->getMock();
 
 		$this->controller = new PageController(
-			'pdsinterop', $request, $this->userId
+			'solid', $request, $this->userId
 		);
 	}
 

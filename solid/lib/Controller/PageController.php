@@ -1,5 +1,5 @@
 <?php
-namespace OCA\PDSInterop\Controller;
+namespace OCA\Solid\Controller;
 
 use OCP\IRequest;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -25,7 +25,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		return new TemplateResponse('pdsinterop', 'index');  // templates/index.php
+		return new TemplateResponse('solid', 'index');  // templates/index.php
 	}
 
 	/**
@@ -34,7 +34,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function profile() {
-		return new TemplateResponse('pdsinterop', 'profile');
+		return new TemplateResponse('solid', 'profile');
 	}
 
 
@@ -44,6 +44,6 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function turtleProfile() {
-		return new TemplateResponse('pdsinterop', 'turtle-profile', [], 'blank');
+		return new TemplateResponse('solid', 'turtle-profile', [], 'blank');
 	}
 }
