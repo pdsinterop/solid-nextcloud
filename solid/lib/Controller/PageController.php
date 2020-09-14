@@ -3,6 +3,7 @@ namespace OCA\Solid\Controller;
 
 use OCP\IRequest;
 use OCP\IUserManager;
+use OCP\IURLGenerator;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
@@ -13,12 +14,14 @@ use OCP\AppFramework\Http\ContentSecurityPolicy;
 class PageController extends Controller {
 	private $userId;
 	private $userManager;
+	private $urlGenerator;
 
-	public function __construct($AppName, IRequest $request, IUserManager $userManager, $userId){
+	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->request     = $request;
+		$this->urlGenerator = $urlGenerator;
 	}
 
 	/**
@@ -93,13 +96,14 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
+	 * @CORS
 	 */
 	public function openid() {
 		return new JSONResponse(
 			array(
-				'issuer' => 'https://localhost',
-				'authorization_endpoint' => 'https://localhost/apps/solid/authorize'
-				)
+				'issuer' => $this->urlGenerator->getBaseURL(),
+				'authorization_endpoint' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.authorize"))
+			)
 		);
 	}	
 }

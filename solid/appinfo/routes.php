@@ -10,6 +10,7 @@
 return [
     'routes' => [
         ['name' => 'page#openid', 'url' => '/openid', 'verb' => 'GET'],
+        ['name' => 'page#authorize', 'url' => '/authorize', 'verb' => 'GET'],
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'page#do_echo', 'url' => '/echo', 'verb' => 'POST'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
