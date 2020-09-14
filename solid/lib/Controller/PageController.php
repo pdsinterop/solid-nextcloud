@@ -2,17 +2,23 @@
 namespace OCA\Solid\Controller;
 
 use OCP\IRequest;
+use OCP\IUserManager;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\ContentSecurityPolicy;
 
 class PageController extends Controller {
 	private $userId;
+	private $userManager;
 
-	public function __construct($AppName, IRequest $request, $UserId){
+	public function __construct($AppName, IRequest $request, IUserManager $userManager, $userId){
 		parent::__construct($AppName, $request);
-		$this->userId = $UserId;
+		$this->userId = $userId;
+		$this->userManager = $userManager;
+		$this->request     = $request;
 	}
 
 	/**
@@ -29,13 +35,33 @@ class PageController extends Controller {
 		return new TemplateResponse('solid', 'index');  // templates/index.php
 	}
 
+	private function getUserProfile($userId) {
+		if ($this->userManager->userExists($userId)) {
+			$user = $this->userManager->get($userId);
+			$profile = array(
+				'id' => $userId,
+				'displayName' => $user->getDisplayName(),
+				'profileUri'  => 'http://nextcloud.local/apps/solid/@' . $userId . '/turtle#me'
+			);
+			return $profile;
+		}
+		return false;
+	}
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function profile() {
-		return new TemplateResponse('solid', 'profile');
+	public function profile($userId) {
+		$profile = $this->getUserProfile($userId);
+		if (!$profile) {
+		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+        }
+		$templateResponse = new TemplateResponse('solid', 'profile', $profile);
+		$policy = new ContentSecurityPolicy();
+		$policy->addAllowedStyleDomain("data:");
+		$templateResponse->setContentSecurityPolicy($policy);
+		return $templateResponse;
 	}
 
 
@@ -43,9 +69,24 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
+     * @CORS
+     */
+	public function turtleProfile($userId) {
+		$profile = $this->getUserProfile($userId);
+		if (!$profile) {
+		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+        }
+		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @CORS
 	 */
-	public function turtleProfile() {
-		return new TemplateResponse('solid', 'turtle-profile', [], 'blank');
+	public function cors($path) {
+		return true;
 	}
 
 	/**
@@ -60,5 +101,5 @@ class PageController extends Controller {
 				'authorization_endpoint' => 'https://localhost/apps/solid/authorize'
 				)
 		);
-	}
+	}	
 }
