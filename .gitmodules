@@ -1,0 +1,3 @@
+[submodule "php-solid-auth"]
+	path = php-solid-auth
+	url = https://github.com/pdsinterop/php-solid-auth
