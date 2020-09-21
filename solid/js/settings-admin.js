@@ -1,11 +1,11 @@
 $(document).ready(function() {
 
-	$('#pdsinterop-private-key').change(function(el) {
-		OCP.AppConfig.setValue('pdsinterop','privateKey',this.value);
+	$('#solid-private-key').change(function(el) {
+		OCP.AppConfig.setValue('solid','privateKey',this.value);
 	});
 
-	$('#pdsinterop-public-key').change(function(el) {
-		OCP.AppConfig.setValue('pdsinterop','publicKey',this.value);
+	$('#solid-public-key').change(function(el) {
+		OCP.AppConfig.setValue('solid','publicKey',this.value);
 	});
 
 });

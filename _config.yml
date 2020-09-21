@@ -3,7 +3,7 @@ baseurl: /solid-nextcloud
 description: A plugin to make Nextcloud compatible with Solid 
 repository: pdsinterop/solid-nextcloud
 title: Solid Nextcloud
-url: https://pdsinterop.org/solid-nextcloud/
+url: https://pdsinterop.org/
 
 permalink: pretty
 remote_theme: Potherca/extend-the-docs@v0.3.0

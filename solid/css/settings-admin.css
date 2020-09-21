@@ -1,12 +1,12 @@
-#pdsinterop-admin label {
+#solid-admin label {
 	width: 160px;
 	vertical-align: top;
-	display: inline-block;
+	display: block;
 }
-#pdsinterop-admin input {
+#solid-admin input {
 	width: 480px;
 }
-#pdsinterop-admin textarea {
+#solid-admin textarea {
 	width: 480px;
 	height: 240px;
 	font-size: 12px;
