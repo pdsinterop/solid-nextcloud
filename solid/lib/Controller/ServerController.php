@@ -1,6 +1,7 @@
 <?php
 namespace OCA\Solid\Controller;
 
+use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
@@ -8,23 +9,34 @@ use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Controller;
 
 class ServerController extends Controller {
 	private $userId;
+
+	/* @var IUserManager */
 	private $userManager;
+
+	/* @var IURLGenerator */
 	private $urlGenerator;
 
-	private $keyPair;
+	/* @var ServerConfig */
+	private $config;
+	
+	/* @var array */
 	private $openIdConfiguration;
+	
+	/* @var Pdsinterop\Solid\Auth\Config */
 	private $authServerConfig;
+	
+	/* @var Pdsinterop\Solid\Auth\Server */
 	private $authServer;
 	
-	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
+		$this->config = $config;
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->request     = $request;
@@ -39,7 +51,7 @@ class ServerController extends Controller {
 	}
 
 	private function getOpenIdConfiguration() {
-		return array(
+		return [
 			'issuer' => $this->urlGenerator->getBaseURL(),
 			'authorization_endpoint' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.authorize")),
 			'jwks_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.jwks")),
@@ -63,50 +75,19 @@ class ServerController extends Controller {
 			"token_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.token")),
 			"userinfo_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.userinfo")),
 			"registration_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.register"))
-		);
+		];
 	}
 
 	private function getKeys() {
-		// FIXME: read these from the solid config in nextcloud;
-		$encryptionKey = 'P76gcBVeXsVzrHiYp4IIwore5rQz4cotdZ2j9GV5V04=';
-		$privateKey = <<<EOF
------BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEAvqb0htUFZaZ+z5rn7cHWg0VzsSoVnusbtJvwWtHfD0T0s6Hb
-OqzE5h2fgdGbB49HRtc21SNHx6jeEStGv03yyqYkLUKrJJSg+ksrL+pT3Nd0h25q
-sx7YUoPPxnm6sbd3XTg5efCb2yyV2dOoAegUPjK46Ra6PqUvmICQWDsjnv0VJIx+
-TdDWmKY2xElk0T6CVNMD08OZVTHPwJgpGdRZyCK/SSmrvmAZ6K3ocKySJdKgYriR
-bVMdx9NsczRkYU9b7tUpPmLu3IvsLboTbfRN23Y70Gx3Z8fuI1FRn23sEuQSIRW+
-NsAi7l+AEdJ7MdYn0xSY6YMNJ0/aGXi55gagQwIDAQABAoIBAQCz8CNNtnPXkqKR
-EmTfk1kAoGYmyc+KI+AMQDlDnlzmrnA9sf+Vi0Zy4XaQMeId6m6dP7Yyx4+Rs6GT
-lsK4/7qs5M20If4hEl40nQlvubvY7UjAIch2sh/9EQbjDjTUUpJH2y70FdEjtRrh
-cdBZrE6evYSkCZ1STtlzF7QkcfyWqilTHEntrHRaM3N+B6F74Yi5g6VyGE9uqKEM
-EuGDHVSXizdUjauTTVEa4o7pxTh+eTIdQsfRewer7iuxFPo2vBNOTU2O/obNUsVK
-mgmGM4QDjurgXLL2XPr0dVVo3eiFvIdmtZgGVyLfL/vUXH7bwUIfkV6qWyRmdBiY
-Dfsm8BJBAoGBAOGebDUVnP3NgFacWVYrtvBXcH2Q6X1W6JEAxctDDsnjchTdyG9E
-zcsMVM/gFKXIDF5VeNoSt2pwCTBL6K0oPC31c01clActbHStaJWOOCuifzrvmu4n
-X51TNGoKggbbSVx1UTifKte2t6SPRaZ26EqVrmO44fGkA3ip6TRYnSFzAoGBANhT
-J47EieRWiNflq9XqDAZ1fZzo3AHB+b+pO4r8GZr3Dw0ShCAnQXv7Gb2JAJvE3UrC
-Aq5r3yZMM7nI+n/OT06+UcJ3/vDGAPx9trNrpWkwmcWBmoBfp86vDRhT0kEIiKbO
-wLYMmSNLHNkmQQdBX2ytnsRxRyCWtQmm09bzOJHxAoGBAKEB/nSPnP5elfS5FOPy
-xFWWANgK/yWMTOGV7JFWpIocvz/22d/V+QqrHSdP4UxBi9oSIvF1I+FYXKZTtZNE
-wFWH8SXHKHhKyTgmvBjmal1xVFyJu0WzYX+TbjcykoI0IZFSw4ilxdw1L67G88yM
-1M7NLKtLuCpKgpOspZjOmCvTAoGAGji6KswYCt2SaNkmIx/jpUTInSR8xpnEtD7H
-QOmeEPKxmFwON/eKMIUXcaoRsNAEIvOxb4MT4YiLHJIIC0XuxxS6xF/XP0hBBloW
-s1jxC/cgLJixKa5uoNcHN1OxwMBQECgvo+GTDnwkWw4QA9kgwAOroxQ4EvMxrqHS
-O9Pvn4ECgYA7xr/3Sz8n+BhgOdABW0m91P144rK9QDYiaClSxAha1KiFunmAy3pB
-Uxdl4yTCTA9yKIH7X3bShDXnj+RmEZ+SkwzpPuKvAE8ZkZQuXv41anFrZYkR2PZy
-oYiERqXgH5yS/mkDeXRFx1nWsVxjoLWfd/Vi7Lr43cuYFy4UjqXZdg==
------END RSA PRIVATE KEY-----
-EOF;
-
-		$key = openssl_pkey_get_private($privateKey);
-		$publicKey = openssl_pkey_get_details($key)['key'];
-		
-		return array(
+		$encryptionKey = $this->config->getEncryptionKey();
+		$privateKey    = $this->config->getPrivateKey();		
+		$key           = openssl_pkey_get_private($privateKey);
+		$publicKey     = openssl_pkey_get_details($key)['key'];
+		return [
 			"encryptionKey" => $encryptionKey,
-			"privateKey" => $privateKey,
-			"publicKey" => $publicKey
-		);
+			"privateKey"    => $privateKey,
+			"publicKey"     => $publicKey
+		];
 	}
 	
 	private function createConfig() {
@@ -145,7 +126,7 @@ EOF;
 	public function openid() {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
-		$response = json_decode($server->respondToWellKnownRequest()->getBody()->getContents());
+		$response = json_decode($server->respondToOpenIdMetadataRequest()->getBody()->getContents());
 		return new JSONResponse($response);
 	}
 	
