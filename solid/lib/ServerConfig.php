@@ -1,5 +1,5 @@
 <?php
-	namespace OCA\Pdsinterop;
+	namespace OCA\Solid;
 
 	use OCP\IConfig;
 
