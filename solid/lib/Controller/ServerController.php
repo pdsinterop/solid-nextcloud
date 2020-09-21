@@ -33,7 +33,8 @@ class ServerController extends Controller {
 	/* @var Pdsinterop\Solid\Auth\Server */
 	private $authServer;
 	
-	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config) {
+	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
+	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = $config;
@@ -48,6 +49,8 @@ class ServerController extends Controller {
 		$this->authServerConfig = $this->createConfig();
 
 		$this->authServer = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
+
+		$this->userService = $UserService;
 	}
 
 	private function getOpenIdConfiguration() {
@@ -158,7 +161,8 @@ class ServerController extends Controller {
 	 * @NoCSRFRequired
 	 * @CORS
 	 */
-	public function session() {
+	public function session($user, $password) {
+		$this->userService->login($user, $password);
 		return new JSONResponse("ok");
 	}
 	
@@ -189,6 +193,7 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function logout() {
+		$this->userService->logout();
 		return new JSONResponse("ok");
 	}
 				
