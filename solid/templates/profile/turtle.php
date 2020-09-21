@@ -1,7 +1,6 @@
 <?php
 	header("Content-type: text/turtle");
-?>
-@prefix : <#>.
+?>@prefix : <#>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
 @prefix pro: <./>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.

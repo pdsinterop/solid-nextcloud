@@ -13,7 +13,7 @@
     ],
     "require": {
         "easyrdf/easyrdf": "^1.0",
-        "pdsinterop/solid-auth": "^0.4.0",
+        "pdsinterop/solid-auth": "dev-feature/implicit-grant",
         "laminas/laminas-diactoros": "^2.4"
     },
     "require-dev": {

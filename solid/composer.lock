@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a9c8f469778c9018e5bf1e1493acbaa",
+    "content-hash": "1556f4e61f32c9829e6d2cd12757cb3d",
     "packages": [
         {
             "name": "defuse/php-encryption",
@@ -510,16 +510,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.4.0",
+            "version": "dev-feature/implicit-grant",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "e5ee5596a464e869291572563bc4835c3317e40c"
+                "reference": "64e2ecfa42b856d1dd9e32df38887cccc6dec5b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/e5ee5596a464e869291572563bc4835c3317e40c",
-                "reference": "e5ee5596a464e869291572563bc4835c3317e40c",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/64e2ecfa42b856d1dd9e32df38887cccc6dec5b4",
+                "reference": "64e2ecfa42b856d1dd9e32df38887cccc6dec5b4",
                 "shasum": ""
             },
             "require": {
@@ -550,7 +550,7 @@
                 "MIT"
             ],
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
-            "time": "2020-09-21T09:03:11+00:00"
+            "time": "2020-09-21T13:44:09+00:00"
         },
         {
             "name": "psr/http-factory",
@@ -2081,7 +2081,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "pdsinterop/solid-auth": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

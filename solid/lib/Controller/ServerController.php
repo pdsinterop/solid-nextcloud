@@ -16,7 +16,7 @@ class ServerController extends Controller {
 	private $userManager;
 	private $urlGenerator;
 
-	private $keyPair;
+	private $keys;
 	private $openIdConfiguration;
 	private $authServerConfig;
 	private $authServer;
@@ -33,7 +33,6 @@ class ServerController extends Controller {
 		$this->openIdConfiguration = $this->getOpenIdConfiguration();
 		
 		$this->authServerConfig = $this->createConfig();
-
 		$this->authServer = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 	}
 
@@ -109,10 +108,13 @@ EOF;
 	}
 	
 	private function createConfig() {
+		// if (isset($_GET['client_id'])) {
+			$clientId = $_GET['client_id'];
+			$client = $this->getClient($clientId);
+		// }
 		try {
 			$config = (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
-				'',
-				'',
+				$client,
 				$this->keys['encryptionKey'],
 				$this->keys['privateKey'],
 				$this->keys['publicKey'],
@@ -144,8 +146,8 @@ EOF;
 	public function openid() {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
-		$response = json_decode($server->respondToWellKnownRequest()->getBody()->getContents());
-		return new JSONResponse($response);
+		$response = $server->respondToOpenIdMetadataRequest();
+		return $this->respond($response);
 	}
 	
 	/**
@@ -154,20 +156,37 @@ EOF;
 	 */
 	public function authorize() {
 		// Create a request
-		$url = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.authorize"));
-		$url .= "?" . $_SERVER['QUERY_STRING'];
+		if (!$this->userManager->userExists($this->userId)) {
+			$result = new JSONResponse('Authorization required');
+			$result->setStatus(401);
+			return $result;
+		}
 
-		$request = (new \Laminas\Diactoros\ServerRequest())
-			->withUri(new \Laminas\Diactoros\Uri($url))
-			->withMethod($_SERVER['REQUEST_METHOD']);
+		$user = new \Pdsinterop\Solid\Auth\Entity\User();
+		$user->setIdentifier('https://nextcloud.local/index.php/apps/solid/@' . $this->userId . '/turtle#me');
 
+		$getVars = $_GET;
+		if (!isset($getVars['grant_type'])) {
+			$getVars['grant_type'] = 'implicit';
+		}
+		$getVars['response_type'] = 'token';
+		$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login';
+
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
-		//$response = json_decode(
-		$response = $server->respondToAuthorizationRequest($request);
-		//->getBody()->getContents());
 
-		return new JSONResponse($response);
+		// FIXME: check if the user has approved - if not, show approval screen;
+		$approval = \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
+		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
+
+		$response->getBody()->rewind();
+		$body = json_decode($response->getBody()->getContents(), true);
+	//	var_dump($body);
+		$headers = $response->getHeaders();
+	//	print_r($headers);
+
+		return $this->respond($response);
 	}
 
 	/**
@@ -234,7 +253,55 @@ EOF;
 	public function jwks() {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
-		$response = json_decode($server->respondToJwksRequest()->getBody()->getContents());
-		return new JSONResponse($response);
-	}	
+		$response = $server->respondToJwksMetadataRequest();
+		return $this->respond($response);
+	}
+
+	private function respond($response) {
+//		var_dump($response);
+
+		$statusCode = $response->getStatusCode();
+		$response->getBody()->rewind();
+		$headers = $response->getHeaders();
+
+		$body = json_decode($response->getBody()->getContents());
+		if ($statusCode > 399) {
+			var_dump($body);
+			$reason = $response->getReasonPhrase();
+			$result = new JSONResponse($reason, $statusCode);
+			return $result;
+		}
+		
+		$result = new JSONResponse($body);
+		foreach ($headers as $header => $values) {
+			foreach ($values as $value) {
+				$result->addHeader($header, $value);
+			}
+		}
+		$result->setStatus($statusCode);
+		return $result;
+	}
+
+	private function getClient($clientId) {
+		if (!$clientId) {
+			$clientId = 'e477202ff4046470e329bfe091e030b1';
+		}
+		if ($clientId) { // FIXME: and check that we know this client and get the client secret/client name for this client;
+			$clientSecret = "super-secret-secret-squirrel";
+			$clientRedirectUris = array(
+				$this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.token")),
+				'https://solid.community/.well-known/solid/login'
+			);
+			$clientName = "Nextcloud";
+
+			return new \Pdsinterop\Solid\Auth\Config\Client(
+				$clientId,
+				$clientSecret,
+				$clientRedirectUris,
+				$clientName
+			);
+		} else {
+			return new \Pdsinterop\Solid\Auth\Config\Client('','',array(),'');
+		}
+	}
 }
