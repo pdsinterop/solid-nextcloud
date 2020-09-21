@@ -4,7 +4,7 @@
 	use OCP\IConfig;
 
 	/**
-	 * @package OCA\Pdsinterop
+	 * @package OCA\Solid
 	 */
 	class ServerConfig {
 
@@ -20,21 +20,21 @@
 		}
 
 		public function getPrivateKey() {
-			return $this->config->getAppValue('pdsinterop','privateKey');
+			return $this->config->getAppValue('solid','privateKey');
 		}
 
 		/** @param string $privateKey */
 		public function setPrivateKey($privateKey) {
-			$this->config->setAppValue('pdsinterop','privateKey',$privateKey);
+			$this->config->setAppValue('solid','privateKey',$privateKey);
 		}
 
-		public function getPublicKey() {
-			return $this->config->getAppValue('pdsinterop','publicKey');
+		public function getEncryptionKey() {
+			return $this->config->getAppValue('solid','encryptionKey');
 		}
 
 		/** @param string $publicKey */
-		public function setPublicKey($publicKey) {
-			$this->config->setAppValue('pdsinterop','publicKey',$publicKey);
+		public function setEncryptionKey($encryptionKey) {
+			$this->config->setAppValue('solid','encryptionKey',$publicKey);
 		}
 
 	}

@@ -8,12 +8,12 @@
 	<p>
 		<label>
 			<span><?php p($l->t('Private Key')); ?></span>
-			<textarea id="solid-private-key" type="text" value="<?php p($_['privateKey']); ?>"></textarea>
+			<textarea id="solid-private-key" type="text"><?php p($_['privateKey']); ?></textarea>
 		</label>
 
 		<label>
-			<span><?php p($l->t('Public Key')); ?></span>
-			<textarea id="solid-public-key" type="text" value="<?php p($_['publicKey']); ?>"></textarea>
+			<span><?php p($l->t('Encryption Key')); ?></span>
+			<textarea id="solid-encryption-key" type="text"><?php p($_['encryptionKey']); ?></textarea>
 		</label>
-	</div>
+	</p>
 </div>
