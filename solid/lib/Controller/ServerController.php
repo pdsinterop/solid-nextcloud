@@ -209,9 +209,9 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function session() {
+	public function session($user, $password) {
+		$this->userService->login($user, $password);
 		return new JSONResponse("ok");
 	}
 	
