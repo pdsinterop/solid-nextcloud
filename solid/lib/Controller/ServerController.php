@@ -52,9 +52,7 @@ class ServerController extends Controller {
 		$this->authServerConfig = $this->createConfig();
 		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 		
-
-
-		session_start();
+		session_start(); // FIXME: nextcloud probably has some nice session options we can use instead of PHP native.
 	}
 
 	private function getOpenIdConfiguration() {
@@ -172,7 +170,7 @@ class ServerController extends Controller {
 		$getVars['scope'] = "openid";
 		
 		if (!isset($getVars['redirect_uri'])) {
-			$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login';
+			$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login'; // FIXME: a default could be in the registration, but if none is there we should probably just fail with a 400 bad request;
 		}
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
@@ -389,6 +387,7 @@ class ServerController extends Controller {
 	}
 	
 	private function generateAccessTokenHash($accessToken) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		// generate at_hash
 		$atHash = hash('sha256', $accessToken);
 		$atHash = substr($atHash, 0, 32);
@@ -402,6 +401,7 @@ class ServerController extends Controller {
 	}
 	
 	private function generateIdToken($accessToken) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
 		$publicKey = $this->getKeys()['publicKey'];
 		$clientId = $this->getClientId();
@@ -415,9 +415,7 @@ class ServerController extends Controller {
 		)), true);
 		$jwks['keys'][0]['key_ops'] = array("verify");
 		
-		// var_dump($jwks);
-
-		$atHash = $this->generateAccessTokenHash($accessToken);
+		$tokenHash = $this->generateTokenHash($accessToken);
 		
 		$builder = new \Lcobucci\JWT\Builder();
 		$token = $builder
@@ -429,9 +427,9 @@ class ServerController extends Controller {
 			->set("azp", $clientId)
 			->set("sub", $subject)
 			->set("jti", "f5c26b8d481a98c7") // FIXME: should be a generated token identifier
-			->set("nonce", $_SESSION['nonce'])
-			->set("at_hash", $atHash) //FIXME: at_hash should only be added if the response_type is a token
-			->set("c_hash", $atHash) // FIXME: c_hash should only be added if the response_type is a code
+			->set("nonce", $_SESSION['nonce']) 
+			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
+			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
 			->set("cnf", array(
 				"jwk" => $jwks['keys'][0]
 			))
@@ -439,17 +437,16 @@ class ServerController extends Controller {
 			->sign($signer, $keychain->getPrivateKey($privateKey))
 			->getToken();
 		$result = $token->__toString();
-//		echo $result;
 		return $result;
 	}
 	
 	private function generateRegistrationAccessToken($clientId) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
+		
 		// Create JWT
 		$signer = new \Lcobucci\JWT\Signer\Rsa\Sha256();
-		$keychain = new \Lcobucci\JWT\Signer\Keychain();		
-		// var_dump($jwks);
-		
+		$keychain = new \Lcobucci\JWT\Signer\Keychain();				
 		$builder = new \Lcobucci\JWT\Builder();
 		$token = $builder
 			->setIssuer($this->urlGenerator->getBaseUrl())
@@ -458,7 +455,6 @@ class ServerController extends Controller {
 			->sign($signer, $keychain->getPrivateKey($privateKey))
 			->getToken();
 		$result = $token->__toString();
-//		echo $result;
 		return $token->__toString();
 	}	
 }
