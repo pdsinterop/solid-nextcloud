@@ -4,8 +4,8 @@ $(document).ready(function() {
 		OCP.AppConfig.setValue('solid','privateKey',this.value);
 	});
 
-	$('#solid-public-key').change(function(el) {
-		OCP.AppConfig.setValue('solid','publicKey',this.value);
+	$('#solid-encryption-key').change(function(el) {
+		OCP.AppConfig.setValue('solid','encryptionKey',this.value);
 	});
 
 });

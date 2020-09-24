@@ -18,7 +18,7 @@ class Settings implements ISettings {
 		$response = new TemplateResponse('solid', 'admin');
 		$response->setParams([
 			'privateKey' => $this->config->getPrivateKey(),
-			'publicKey' => $this->config->getPublicKey()
+			'encryptionKey' => $this->config->getEncryptionKey()
 		]);
 		return $response;
 	}

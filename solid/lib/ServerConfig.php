@@ -4,7 +4,7 @@
 	use OCP\IConfig;
 
 	/**
-	 * @package OCA\Pdsinterop
+	 * @package OCA\Solid
 	 */
 	class ServerConfig {
 
@@ -12,29 +12,106 @@
 		private $config;
 
 		/**
-		 * Config constructor
 		 * @param IConfig $config
 		 */
 		public function __construct(IConfig $config) {
 			$this->config = $config;
 		}
 
+		/**
+		 * @return string
+		 */
 		public function getPrivateKey() {
-			return $this->config->getAppValue('pdsinterop','privateKey');
+			return $this->config->getAppValue('solid','privateKey');
 		}
 
-		/** @param string $privateKey */
+		/**
+		 * @param string $privateKey
+		 */
 		public function setPrivateKey($privateKey) {
-			$this->config->setAppValue('pdsinterop','privateKey',$privateKey);
+			$this->config->setAppValue('solid','privateKey',$privateKey);
 		}
 
-		public function getPublicKey() {
-			return $this->config->getAppValue('pdsinterop','publicKey');
+		/**
+		 * @return string
+		 */
+		public function getEncryptionKey() {
+			return $this->config->getAppValue('solid','encryptionKey');
 		}
 
-		/** @param string $publicKey */
-		public function setPublicKey($publicKey) {
-			$this->config->setAppValue('pdsinterop','publicKey',$publicKey);
+		/**
+		 * @param string $publicKey
+		 */
+		public function setEncryptionKey($encryptionKey) {
+			$this->config->setAppValue('solid','encryptionKey',$publicKey);
+		}
+
+		/**
+		 * @param string $clientId
+		 * @return array
+		 */
+		public function getClientConfigById($clientId) {
+			$clients = (array)$this->config->getAppValue('solid','clients');
+			if (array_key_exists($clientId, $clients)) {
+				return $clients[$clientId];
+			}
+			return null;
+		}
+
+		/**
+		 * @param array $clientConfig
+		 * @return string
+		 */
+		public function saveClientConfig($clientConfig) {
+			$clients = (array)$this->config->getAppValue('solid', 'clients');
+			$clientId = uuidv4();
+			$clients[$clientId] = $clientConfig;
+			$this->config->setAppValue('solid','clients', $clients);
+			return $clientId;
+		}
+
+		/**
+		 * @param string $clientId
+		 * @param array $scopes
+		 */
+		public function addScopesToClient($clientId, $scopes) {
+			$clientScopes = $this->getClientScopes($clientId);
+			$clientScopes = array_unique(array_merge($clientScopes, $scopes));
+			$this->setClientScopes($clientId, $clientScopes);
+		}
+
+		/**
+		 * @param string $clientId
+		 * @param array $scopes
+		 */
+		public function setClientScopes($clientId, $scopes) {
+			$clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
+			$clientScopes[$clientId] = $scopes;
+			$this->config->setAppValue('solid', 'clientScopes', $clientScopes);
+		}
+
+		/**
+		 * @param string $clientId
+		 * @return array
+		 */
+		public function getClientScopes($clientId) {
+			$clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
+			if (array_key_exists($clientId, $clientScopes)) {
+				return $clientScopes[$clientId];
+			}
+			return [];
+		}
+
+		/**
+		 * @param string $clientId
+		 */
+		public function removeClientConfig($clientId) {
+			$clients = (array)$this->config->getAppValue('solid', 'clients');
+			unset($clients[$clientId]);
+			$this->config->setAppValue('solid','clients', $clients);
+			$scopes = (array)$this->config->getAppValue('solid', 'clientScopes');
+			unset($scopes[$clientId]);
+			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
 
 	}
