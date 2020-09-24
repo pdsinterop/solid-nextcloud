@@ -19,7 +19,7 @@ class ServerController extends Controller {
 	private $keys;
 	private $openIdConfiguration;
 	private $authServerConfig;
-	private $authServer;
+	private $authServerFactory;
 	
 	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
@@ -33,7 +33,7 @@ class ServerController extends Controller {
 		$this->openIdConfiguration = $this->getOpenIdConfiguration();
 		
 		$this->authServerConfig = $this->createConfig();
-		$this->authServer = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
+		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 		
 		session_start();
 	}
@@ -148,7 +148,7 @@ EOF;
 	 */
 	public function openid() {
 		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToOpenIdMetadataRequest();
 		return $this->respond($response);
 	}
@@ -184,7 +184,7 @@ EOF;
 		}
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		if (!$this->checkApproval()) {
 			$result = new JSONResponse('Approval required');
@@ -295,7 +295,7 @@ EOF;
 	 */
 	public function jwks() {
 //		$response = new \Laminas\Diactoros\Response();
-//		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServer, $this->authServerConfig, $response);
+//		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 //		$response = $server->respondToJwksMetadataRequest();
 //		return $this->respond($response);
 		$publicKey = $this->getKeys()['publicKey'];
