@@ -285,7 +285,7 @@ class ServerController extends Controller {
 			'registration_access_token' => $this->generateRegistrationAccessToken($clientId),
 			'client_id' => $clientId,
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
-			'client_id_issued_at' => time()
+			'client_id_issued_at' => time() // FIXME: should the the time that this client registered, not the current time;
 		);
 		
 		return new JSONResponse($registration);
@@ -313,6 +313,8 @@ class ServerController extends Controller {
 //		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 //		$response = $server->respondToJwksMetadataRequest();
 //		return $this->respond($response);
+
+		// FIXME: this should be the code in Solid\Auth\Server reponseToJwksMetadataRequest, which is currently missing the key_ops;
 		$publicKey = $this->getKeys()['publicKey'];
         $jwks = json_decode(json_encode(new \Pdsinterop\Solid\Auth\Utils\Jwks(
 			new \Lcobucci\JWT\Signer\Key($publicKey)
@@ -339,7 +341,8 @@ class ServerController extends Controller {
 		}
 		$result = new JSONResponse($body);
 		foreach ($headers as $header => $values) {
-			foreach ($values as $value) {		
+			foreach ($values as $value) {
+				// FIXME: this should be done in a more specific piece of code just for the final authorize() result;
 				if (preg_match("/#access_token=(.*?)&/", $value, $matches)) {
 					$idToken = $this->generateIdToken($matches[1]);
 					$value = preg_replace("/#access_token=(.*?)&/", "#access_token=\$1&id_token=$idToken&", $value);
@@ -355,7 +358,7 @@ class ServerController extends Controller {
 	}
 
 	private function getClientId() {
-			return "CoolApp";
+			return "CoolApp"; // FIXME: this should be the generated clientId from the registration
 	}
 	private function getClient($clientId) {
 		if (!$clientId) {
@@ -363,7 +366,7 @@ class ServerController extends Controller {
 		}
 		
 		if ($clientId) { // FIXME: and check that we know this client and get the client secret/client name for this client;
-			$clientSecret = "super-secret-secret-squirrel";
+			$clientSecret = "super-secret-secret-squirrel"; // FIXME: should be generated on registration instead of hard-coded;
 			
 			// FIXME: use the redirect URIs as indicated by the client;
 			$clientRedirectUris = array(
@@ -425,10 +428,10 @@ class ServerController extends Controller {
 			->setExpiration(time() + 14*24*60*60)
 			->set("azp", $clientId)
 			->set("sub", $subject)
-			->set("jti", "f5c26b8d481a98c7") // fixme: should be generated
+			->set("jti", "f5c26b8d481a98c7") // FIXME: should be a generated token identifier
 			->set("nonce", $_SESSION['nonce'])
-			->set("at_hash", $atHash)
-			->set("c_hash", $atHash)
+			->set("at_hash", $atHash) //FIXME: at_hash should only be added if the response_type is a token
+			->set("c_hash", $atHash) // FIXME: c_hash should only be added if the response_type is a code
 			->set("cnf", array(
 				"jwk" => $jwks['keys'][0]
 			))
