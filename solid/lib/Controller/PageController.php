@@ -77,13 +77,14 @@ class PageController extends Controller {
 	 * @CORS
 	 */
 	public function approval($clientId) {
-		$clientRegistration = array( // FIXME: read from the registered clients;
+		$clientRegistration = $this->config->getClientRegistration($clientId);
+		$params = array(
 			"clientId" => $clientId,
-			"clientName" => "Solid.community",
+			"clientName" => $clientRegistration['client_name'],
 			"serverName" => "Nextcloud",
 			"returnUrl" => $_GET['returnUrl'],
 		);
-		$templateResponse = new TemplateResponse('solid', 'sharing', $clientRegistration);
+		$templateResponse = new TemplateResponse('solid', 'sharing', $params);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
 		$templateResponse->setContentSecurityPolicy($policy);

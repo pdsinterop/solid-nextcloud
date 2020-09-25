@@ -171,16 +171,21 @@ class ServerController extends Controller {
 		}
 		$getVars['response_type'] = $this->getResponseType();
 		$getVars['scope'] = "openid";
-		
+
 		if (!isset($getVars['redirect_uri'])) {
-			$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login'; // FIXME: a default could be in the registration, but if none is there we should probably just fail with a 400 bad request;
+			try {
+				$getVars['redirect_uri'] = $token->getClaim("redirect_uri");
+			} catch(\Exception $e) {
+				$result = new JSONResponse('Bad request, missing redirect uri');
+				$result->setStatus(400);
+				return $result;
+			}
 		}
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
-		$clientId = $this->getClientId();
-
+		$clientId = $getVars['client_id'];
 		$approval = $this->checkApproval($clientId);	
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
@@ -271,10 +276,18 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function register() {
-		$clientId = $this->getClientId();
-		
+		$clientData = file_get_contents('php://input');
+		$clientData = json_decode($clientData, true);
+		if (!$clientData['redirect_uris']) {
+			return new JSONReponse("Missing redirect URIs");
+		}
+		$clientData['client_id_issued_at'] = time();
+
+		$origin = $_SERVER['HTTP_ORIGIN'];
+		$clientId = $this->config->saveClientRegistration($origin, $clientData);
+
 		$registration = array(
-			'redirect_uris' => array('https://solid.community/.well-known/solid/login'), // FIXME: grab from registration request
+			'redirect_uris' => $clientData['redirect_uris'],
 			'response_types' => array("id_token token"),
 			'grant_types' => array("implicit"),
 			'application_type' => 'web',
@@ -283,7 +296,7 @@ class ServerController extends Controller {
 			'registration_access_token' => $this->generateRegistrationAccessToken($clientId),
 			'client_id' => $clientId,
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
-			'client_id_issued_at' => time() // FIXME: should the the time that this client registered, not the current time;
+			'client_id_issued_at' => $clientData['client_id_issued_at']
 		);
 		
 		return new JSONResponse($registration);
@@ -296,7 +309,9 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function registeredClient($clientId) {
-		return new JSONResponse("ok $clientId");
+		$clientRegistration = getClientRegistration($clientId);
+		unset($clientRegistration['client_secret']);
+		return new JSONResponse($clientRegistration);
 	}
 	
 
@@ -355,31 +370,15 @@ class ServerController extends Controller {
 		return $result;
 	}
 
-	private function getClientId() {
-			return "CoolApp"; // FIXME: this should be the generated clientId from the registration
-	}
 	private function getClient($clientId) {
-		if (!$clientId) {
-			$clientId = $this->getClientId(); // FIXME: only continue if a clientId is set;
-		}
-		
-		if ($clientId) { // FIXME: and check that we know this client and get the client secret/client name for this client;
-			$clientSecret = "super-secret-secret-squirrel"; // FIXME: should be generated on registration instead of hard-coded;
-			
-			// FIXME: use the redirect URIs as indicated by the client;
-			$clientRedirectUris = array(
-				$this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.token")),
-				'https://solid.community/.well-known/solid/login',
-				'http://localhost:3001/redirect',
-				'http://localhost:3002/redirect'
-			);
-			$clientName = "Nextcloud";
+		$clientRegistration = $this->config->getClientRegistration($clientId);
 
+		if ($clientId && sizeof($clientRegistration)) {
 			return new \Pdsinterop\Solid\Auth\Config\Client(
 				$clientId,
-				$clientSecret,
-				$clientRedirectUris,
-				$clientName
+				$clientRegistration['client_secret'],
+				$clientRegistration['redirect_uris'],
+				$clientRegistration['client_name']
 			);
 		} else {
 			return new \Pdsinterop\Solid\Auth\Config\Client('','',array(),'');
@@ -404,7 +403,7 @@ class ServerController extends Controller {
 		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
 		$publicKey = $this->getKeys()['publicKey'];
-		$clientId = $this->getClientId();
+		$clientId = $_GET['client_id'];
 		$subject = $this->getProfilePage();
 
 		// Create JWT
