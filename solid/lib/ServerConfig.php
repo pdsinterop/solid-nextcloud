@@ -120,7 +120,6 @@
 			unset($scopes[$clientId]);
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
-
 		public function getAllowedClients($userId) {
 			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
 		}
@@ -165,7 +164,6 @@
 
 			// Extract the private key from $key to $privateKey
 			openssl_pkey_export($key, $privateKey);
-
 			$encryptionKey = base64_encode(random_bytes(32));
 			$result = array(
 				"privateKey" => $privateKey,
