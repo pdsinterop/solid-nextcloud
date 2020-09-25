@@ -131,12 +131,25 @@
 
 			// Extract the private key from $key to $privateKey
 			openssl_pkey_export($key, $privateKey);
-
 			$encryptionKey = base64_encode(random_bytes(32));
 			$result = array(
 				"privateKey" => $privateKey,
 				"encryptionKey" => $encryptionKey
 			);
 			return $result;
+		}
+		public function getAllowedClients($userId) {
+			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
+		}
+
+		public function addAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients[] = $clientId;
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
+		public function removeAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients = array_diff($allowedClients, array($clientId));
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
 		}
 	}
