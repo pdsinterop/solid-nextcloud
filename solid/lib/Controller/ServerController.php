@@ -52,7 +52,7 @@ class ServerController extends Controller {
 		$this->authServerConfig = $this->createConfig();
 		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 		
-		session_start();
+		session_start(); // FIXME: nextcloud probably has some nice session options we can use instead of PHP native.
 	}
 
 	private function getOpenIdConfiguration() {
@@ -151,21 +151,26 @@ class ServerController extends Controller {
 		}
 
 		$parser = new \Lcobucci\JWT\Parser();
-		$token = $parser->parse($_GET['request']);
-		$_SESSION['token'] = $token;
-	
+
+		try {
+			$token = $parser->parse($_GET['request']);
+			$_SESSION['nonce'] = $token->getClaim('nonce');
+		} catch(\Exception $e) {
+			$_SESSION['nonce'] = $_GET['nonce'];
+		}
+
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
-		$user->setIdentifier('https://nextcloud.local/index.php/apps/solid/@' . $this->userId . '/turtle#me');
+		$user->setIdentifier($this->getProfilePage());
 
 		$getVars = $_GET;
 		if (!isset($getVars['grant_type'])) {
 			$getVars['grant_type'] = 'implicit';
 		}
-		$getVars['response_type'] = 'token';
+		$getVars['response_type'] = $this->getResponseType();
 		$getVars['scope'] = "openid";
 		
 		if (!isset($getVars['redirect_uri'])) {
-			$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login';
+			$getVars['redirect_uri'] = 'https://solid.community/.well-known/solid/login'; // FIXME: a default could be in the registration, but if none is there we should probably just fail with a 400 bad request;
 		}
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
@@ -190,6 +195,25 @@ class ServerController extends Controller {
 		return true;
 	}
 	
+	private function getProfilePage() {
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $this->userId))) . "#me";
+	}
+
+	private function getResponseType() {
+		$responseTypes = explode(" ", $_GET['response_type']);
+		foreach ($responseTypes as $responseType) {
+			switch ($responseType) {
+				case "token":
+					return "token";
+				break;
+				case "code":
+					return "code";
+				break;
+			}
+		}
+		return "token"; // default to token response type;
+	}
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -247,19 +271,22 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function register() {
-		$data = json_decode('{"redirect_uris":["https://solid.community/.well-known/solid/login"],"client_id":"e477202ff4046470e329bfe091e030b1","response_types":["id_token token"],"grant_types":["implicit"],"application_type":"web","id_token_signed_response_alg":"RS256","token_endpoint_auth_method":"client_secret_basic","registration_access_token":"eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3NvbGlkLmNvbW11bml0eSIsImF1ZCI6ImU0NzcyMDJmZjQwNDY0NzBlMzI5YmZlMDkxZTAzMGIxIiwic3ViIjoiZTQ3NzIwMmZmNDA0NjQ3MGUzMjliZmUwOTFlMDMwYjEifQ.IPxCVHnV7mmncngdIWjsr5WLEpNgAytj_m5XyuLut-EjZEwFhOWmdekxFE_xuHEdGgRbP-uqUEXZh1hBqQPHQAMmzIYUA8RT0mLWsZ9-RMXssrCkD8OvFyY6ZY5BJJ-fBViirDXjVlEWfeQQWHGA3LTMvRcyVFZ-4e6xwKfL094jnXaFKb0-mWKwZz8qHFD2_QDEDiQznIj-zLX-z6TZmCzvRns8MKDdncE-Xqu0Wooit4qihO4jGtwzctywl-qgSx31XCNLGuWkzzFS7B1MYjUgbw_uH-KV3ph-QDAHIljQsNPmY8P5JhFUCn8dn2odrj7R9k01-hQQ-pamzkzv8Q","registration_client_uri":"https://solid.community/register/e477202ff4046470e329bfe091e030b1","client_id_issued_at":1600201359}', true);
-		
 		$clientId = $this->getClientId();
-		$data['registration_access_token'] = $this->generateRegistrationAccessToken($clientId);
-		$data['client_id'] = $clientId;		
-		$data['registration_client_uri'] = 'https://nextcloud.local/index.php/apps/solid/register/' . $clientId;
-		$data['client_id_issued_at'] = time();
 		
-		return new JSONResponse($data);
+		$registration = array(
+			'redirect_uris' => array('https://solid.community/.well-known/solid/login'), // FIXME: grab from registration request
+			'response_types' => array("id_token token"),
+			'grant_types' => array("implicit"),
+			'application_type' => 'web',
+			'id_token_signed_response_alg' => "RS256",
+			'token_endpoint_auth_method' => 'client_secret_basic',
+			'registration_access_token' => $this->generateRegistrationAccessToken($clientId),
+			'client_id' => $clientId,
+			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
+			'client_id_issued_at' => time() // FIXME: should the the time that this client registered, not the current time;
+		);
 		
-		$data['client_id_issued_at'] = time();
-		
-		return new JSONResponse($data);
+		return new JSONResponse($registration);
 	}
 	
 	/**
@@ -284,6 +311,8 @@ class ServerController extends Controller {
 //		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 //		$response = $server->respondToJwksMetadataRequest();
 //		return $this->respond($response);
+
+		// FIXME: this should be the code in Solid\Auth\Server reponseToJwksMetadataRequest, which is currently missing the key_ops;
 		$publicKey = $this->getKeys()['publicKey'];
         $jwks = json_decode(json_encode(new \Pdsinterop\Solid\Auth\Utils\Jwks(
 			new \Lcobucci\JWT\Signer\Key($publicKey)
@@ -293,8 +322,6 @@ class ServerController extends Controller {
 	}
 
 	private function respond($response) {
-//		var_dump($response);
-
 		$statusCode = $response->getStatusCode();
 		$response->getBody()->rewind();
 		$headers = $response->getHeaders();
@@ -307,27 +334,21 @@ class ServerController extends Controller {
 			return $result;
 		}
 
-/*
-$tokenStub = 'access_token=
-eyJhbGciOiJSUzI1NiIsImtpZCI6ImNxS1pYT0JnSGtBIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNvbW11bml0eSIsImF1ZCI6WyJlYjgwMTEwZGUyZjkyZGIwNjAwMGFjNjAxNjdiZTQ0NCJdLCJzdWIiOiJodHRwczovL3lsZWJyZS5zb2xpZC5jb21tdW5pdHkvcHJvZmlsZS9jYXJkI21lIiwiZXhwIjoxNjAxOTA2NTA0LCJpYXQiOjE2MDA2OTY5MDQsImp0aSI6Ijk4NThmNzZkYTJiN2EwMGUiLCJzY29wZSI6Im9wZW5pZCJ9.mBkFqOUWal8hluLKe2-xuaTRPJXtYd_a6LEvH3YfmfYBrUd_cCJgT48k4WMKfe0jZE72qPZUy0XjeXHrZZkPOP3j9Cyxoo7GQiImKmr_vftIDzvYeXP3yKy1T_M8gmsPrz-32y7CbrNTKPCa40i20sEyMnP2kSmmtI6GFF76HCgN29mZztFinqnb8mI7u2gvlh126lv25_lqaRGAPalgJ2uc_fb2rb1v8xnndano26EzPEh_PmtkvyB8JhEFkZKHwHpyIUgYQkCiONQZPnpkrPiTP38kG1SW1DMfbDuycE3ngWyZ-xxjHXGxjOUs594KXNaPIuRINXlOevKzzbmSkg
-&
-id_token=
-eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNvbW11bml0eSIsImF1ZCI6ImViODAxMTBkZTJmOTJkYjA2MDAwYWM2MDE2N2JlNDQ0IiwiYXpwIjoiZWI4MDExMGRlMmY5MmRiMDYwMDBhYzYwMTY3YmU0NDQiLCJzdWIiOiJodHRwczovL3lsZWJyZS5zb2xpZC5jb21tdW5pdHkvcHJvZmlsZS9jYXJkI21lIiwiZXhwIjoxNjAxOTA2NTA0LCJpYXQiOjE2MDA2OTY5MDQsImp0aSI6ImY1YzI2YjhkNDgxYTk4YzciLCJub25jZSI6ImZ6M2xaZkU3MUtnZGVYeFNlTXBQWlRvVXphb0w2bmVrclRQT1dqQzJWcU0iLCJhdF9oYXNoIjoiVXNNRTgwZlczT0k0aURwbUVVR0UwUSIsImNuZiI6eyJqd2siOnsiYWxnIjoiUlMyNTYiLCJlIjoiQVFBQiIsImV4dCI6dHJ1ZSwia2V5X29wcyI6WyJ2ZXJpZnkiXSwia3R5IjoiUlNBIiwibiI6Ijc1R3FHVEZvaFY5Y2tzbkplZ3Y2SncwR05SOERUV2xIRnRxa0llSkJvdnBUUlB0dzh2Q3FxTUtTRXFmaVJydUpkMlByNllaYzNSUl9jQ3pOdGZXeEZ1b0VXNFd1NzhvcEctemFZVFhHVVNRNUdNV1J6cktsdTFvTFp3aUhwMHIzZU4tSTdfaGlyZ1hHRWRYaWsyOXZBWjlOeVJVMkcydXRleW9CNjhCX2xQMHhSeFNQemctWjU5cnNRQTJrTFBLcFc4aDQ3TTZDZy1hdUVHYXJNa3hOVGYwVXdSSl9HanNubUYwM0pjTDZNRV9oVUpyS1A2NHdmUy1tdTRNSlo1M0pRRmlja2kzQTlUMlduMkZtQWZHQ1p2LVZHdVI5OW1Na1F5N0ZYZFlMblZNeWZlR0pjRDJRaVkzc0hZUWM4a0FObHY4SXNqRi04aEhzcXVZVlRQSkdvdyJ9fX0.NORg9O94ulaHZeiXW1Bs6ZyrUNQPrL3EM6DjcOZOcrLAYgWSpp0uwX0m18qiv2_pnjOihQ3QrQgb0YRYuqahxj-nshQBd-axuETvcW3iOo-eVFEkBUk6hGVcLr_1GUXgNkkNbDpyEvlqcTRNx7pXEhLb0A74PrUxj8OqF4wHtj-4EzAnCq5ffqSj5VVsCYppwnesz7EJyVjqlIgjH8zRmsVKdarhrIWL1IzwQjroSsIOSuXvlCoX8xBS2ndlFZXY12euknK2Epuo_tlxCyVQUbUxmwzV_JHWGGGBIi_3L3ok8gcfrrHpz6tB_tF2wmaMhcgUAulLzQVfRNOg4YY0vQ
-&';
-*/
 		if ($body == null) {
 			$body = 'ok';
 		}
 		$result = new JSONResponse($body);
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
+				// FIXME: this should be done in a more specific piece of code just for the final authorize() result;
 				if (preg_match("/#access_token=(.*?)&/", $value, $matches)) {
 					$idToken = $this->generateIdToken($matches[1]);
 					$value = preg_replace("/#access_token=(.*?)&/", "#access_token=\$1&id_token=$idToken&", $value);
+				} else if (preg_match("/code=(.*?)&/", $value, $matches)) {
+					$idToken = $this->generateIdToken($matches[1]);
+					$value = preg_replace("/code=(.*?)&/", "code=\$1&id_token=$idToken&", $value);
 				}
-//				$value = preg_replace("/#access_token=(.*?)&/", "#" . $tokenStub, $value);
 				$result->addHeader($header, $value);
-// echo $value;
 			}
 		}
 		$result->setStatus($statusCode);
@@ -335,7 +356,7 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 	}
 
 	private function getClientId() {
-			return "CoolApp";
+			return "CoolApp"; // FIXME: this should be the generated clientId from the registration
 	}
 	private function getClient($clientId) {
 		if (!$clientId) {
@@ -343,13 +364,14 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 		}
 		
 		if ($clientId) { // FIXME: and check that we know this client and get the client secret/client name for this client;
-			$clientSecret = "super-secret-secret-squirrel";
+			$clientSecret = "super-secret-secret-squirrel"; // FIXME: should be generated on registration instead of hard-coded;
 			
 			// FIXME: use the redirect URIs as indicated by the client;
 			$clientRedirectUris = array(
 				$this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.token")),
 				'https://solid.community/.well-known/solid/login',
-				'http://localhost:3001/redirect'
+				'http://localhost:3001/redirect',
+				'http://localhost:3002/redirect'
 			);
 			$clientName = "Nextcloud";
 
@@ -365,6 +387,7 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 	}
 	
 	private function generateAccessTokenHash($accessToken) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		// generate at_hash
 		$atHash = hash('sha256', $accessToken);
 		$atHash = substr($atHash, 0, 32);
@@ -378,10 +401,11 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 	}
 	
 	private function generateIdToken($accessToken) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
 		$publicKey = $this->getKeys()['publicKey'];
 		$clientId = $this->getClientId();
-		$subject = 'https://nextcloud.local/index.php/apps/solid/@' . $this->userId . '/turtle#me';
+		$subject = $this->getProfilePage();
 
 		// Create JWT
 		$signer = new \Lcobucci\JWT\Signer\Rsa\Sha256();
@@ -391,24 +415,21 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 		)), true);
 		$jwks['keys'][0]['key_ops'] = array("verify");
 		
-		// var_dump($jwks);
-
-		$atHash = $this->generateAccessTokenHash($accessToken);
-		
-		$requestToken = $_SESSION['token'];
+		$tokenHash = $this->generateAccessTokenHash($accessToken);
 		
 		$builder = new \Lcobucci\JWT\Builder();
 		$token = $builder
-			->setIssuer("https://nextcloud.local")
+			->setIssuer($this->urlGenerator->getBaseUrl())
             ->permittedFor($clientId)
 			->setIssuedAt(time())
 			->setNotBefore(time() - 1)
-			->setExpiration(time() + 7*24*60*60)
+			->setExpiration(time() + 14*24*60*60)
 			->set("azp", $clientId)
 			->set("sub", $subject)
-			->set("jti", "f5c26b8d481a98c7")
-			->set("nonce", $requestToken->getClaim('nonce'))
-			->set("at_hash", $atHash)
+			->set("jti", "f5c26b8d481a98c7") // FIXME: should be a generated token identifier
+			->set("nonce", $_SESSION['nonce']) 
+			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
+			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
 			->set("cnf", array(
 				"jwk" => $jwks['keys'][0]
 			))
@@ -416,26 +437,24 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImpxeGVGdHhtSXNRIn0.eyJpc3MiOiJodHRwczovL3NvbGlkLmNv
 			->sign($signer, $keychain->getPrivateKey($privateKey))
 			->getToken();
 		$result = $token->__toString();
-//		echo $result;
 		return $result;
 	}
 	
 	private function generateRegistrationAccessToken($clientId) {
+		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
+		
 		// Create JWT
 		$signer = new \Lcobucci\JWT\Signer\Rsa\Sha256();
-		$keychain = new \Lcobucci\JWT\Signer\Keychain();		
-		// var_dump($jwks);
-		
+		$keychain = new \Lcobucci\JWT\Signer\Keychain();				
 		$builder = new \Lcobucci\JWT\Builder();
 		$token = $builder
-			->setIssuer("https://nextcloud.local")
+			->setIssuer($this->urlGenerator->getBaseUrl())
             ->permittedFor($clientId)
 			->set("sub", $clientId)
 			->sign($signer, $keychain->getPrivateKey($privateKey))
 			->getToken();
 		$result = $token->__toString();
-//		echo $result;
 		return $token->__toString();
 	}	
 }
