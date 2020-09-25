@@ -5,6 +5,7 @@ use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
+use OCP\ISession;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\JSONResponse;
@@ -24,7 +25,10 @@ class ServerController extends Controller {
 	/* @var ServerConfig */
 	private $config;
 
-  /* @var array */
+	/* @var ISession */
+	private $session;
+
+	/* @var array */
 	private $keys;
 
 	/* @var array */
@@ -36,7 +40,7 @@ class ServerController extends Controller {
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
 	
-	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
+	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
 	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
@@ -45,14 +49,13 @@ class ServerController extends Controller {
 		$this->userManager = $userManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
+		$this->session = $session;
 
 		$this->keys = $this->getKeys();
 		$this->openIdConfiguration = $this->getOpenIdConfiguration();
 		
 		$this->authServerConfig = $this->createConfig();
 		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
-		
-		session_start(); // FIXME: nextcloud probably has some nice session options we can use instead of PHP native.
 	}
 
 	private function getOpenIdConfiguration() {
@@ -154,9 +157,9 @@ class ServerController extends Controller {
 
 		try {
 			$token = $parser->parse($_GET['request']);
-			$_SESSION['nonce'] = $token->getClaim('nonce');
+			$this->session->set("nonce", $token->getClaim('nonce'));
 		} catch(\Exception $e) {
-			$_SESSION['nonce'] = $_GET['nonce'];
+			$this->session->set("nonce", $_GET['nonce']);
 		}
 
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
@@ -176,23 +179,29 @@ class ServerController extends Controller {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
-		if (!$this->checkApproval()) {
+		$clientId = $this->getClientId();
+
+		$approval = $this->checkApproval($clientId);	
+		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
-			$result->addHeader("Location", $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.sharing")));
+			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
+			$result->addHeader("Location", $approvalUrl);
 			return $result;
 		}
 
-		// FIXME: check if the user has approved - if not, show approval screen;
-		$approval = \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
-//		$approval = false;
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
-
 		return $this->respond($response);
 	}
 
-	private function checkApproval() {
-		return true;
+	private function checkApproval($clientId) {
+		$allowedClients = $this->config->getAllowedClients($this->userId);
+
+		if (in_array($clientId, $allowedClients)) {
+			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
+		} else {
+			return \Pdsinterop\Solid\Auth\Enum\Authorization::DENIED;
+		}
 	}
 	
 	private function getProfilePage() {
@@ -255,15 +264,6 @@ class ServerController extends Controller {
 		return new JSONResponse("ok");
 	}
 				
-	/**
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 * @CORS
-	 */
-	public function sharing() {
-		return new JSONResponse("ok");
-	}
-
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -386,7 +386,7 @@ class ServerController extends Controller {
 		}
 	}
 	
-	private function generateAccessTokenHash($accessToken) {
+	private function generateTokenHash($accessToken) {
 		// FIXME: this function should be provided by Solid\Auth\Server
 		// generate at_hash
 		$atHash = hash('sha256', $accessToken);
@@ -427,7 +427,7 @@ class ServerController extends Controller {
 			->set("azp", $clientId)
 			->set("sub", $subject)
 			->set("jti", "f5c26b8d481a98c7") // FIXME: should be a generated token identifier
-			->set("nonce", $_SESSION['nonce']) 
+			->set("nonce", $this->session->get("nonce"))
 			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
 			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
 			->set("cnf", array(

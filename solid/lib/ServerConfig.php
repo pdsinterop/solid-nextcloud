@@ -114,4 +114,18 @@
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
 
+		public function getAllowedClients($userId) {
+			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
+		}
+
+		public function addAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients[] = $clientId;
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
+		public function removeAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients = array_diff($allowedClients, array($clientId));
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
 	}
