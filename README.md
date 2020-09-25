@@ -7,8 +7,8 @@ First of all, we don't have a good way to programmatically log in to Nextcloud y
 so for now, you'll have to follow the "[running with manually harvested cookie](https://github.com/pdsinterop/test-suites#running-with-manually-harvested-cookie)"
 instructions from the PDS Interop test suites repo.
 
-Second, we don't have a way to programmatically generate the IDP key pair yet,
-so for now, you'll also have to follow the "configuring IDP key pair" instructions below:
+Second, we don't have a way to programmatically generate the IDP keys yet,
+so for now, you'll also have to follow the "configuring IDP keys" instructions below:
 
 ## Configuring IDP keys
 
