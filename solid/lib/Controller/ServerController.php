@@ -99,10 +99,9 @@ class ServerController extends Controller {
 	}
 	
 	private function createConfig() {
-		// if (isset($_GET['client_id'])) {
-			$clientId = $_GET['client_id'];
-			$client = $this->getClient($clientId);
-		// }
+		$clientId = $_GET['client_id'];
+		$client = $this->getClient($clientId);
+
 		try {
 			$config = (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
 				$client,
