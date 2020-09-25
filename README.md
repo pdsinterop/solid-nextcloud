@@ -10,7 +10,7 @@ instructions from the PDS Interop test suites repo.
 Second, we don't have a way to programmatically generate the IDP key pair yet,
 so for now, you'll also have to follow the "configuring IDP key pair" instructions below:
 
-## Configuring IDP key pair
+## Configuring IDP keys
 
 If you followed the instructions from "[running with manually harvested cookie](https://github.com/pdsinterop/test-suites#running-with-manually-harvested-cookie)"
 then you'll now be logged in as Alice on https://localhost.
