@@ -120,6 +120,39 @@
 			unset($scopes[$clientId]);
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
+		public function getAllowedClients($userId) {
+			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
+		}
+
+		public function addAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients[] = $clientId;
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
+		public function removeAllowedClient($userId, $clientId) {
+			$allowedClients = $this->getAllowedClients($userId);
+			$allowedClients = array_diff($allowedClients, array($clientId));
+			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
+
+		public function saveClientRegistration($origin, $clientData) {
+			$originHash = md5($origin);
+			$existingRegistration = $this->getClientRegistration($originHash);
+			if ($existingRegistration && isset($existingRegistration['client_name'])) {
+				return $originHash;
+			}
+
+			$clientData['client_name'] = $origin;
+			$clientData['client_secret'] = md5(random_bytes(32));
+			$this->config->setAppValue('solid', "client-" . $originHash, json_encode($clientData));
+			return $originHash;
+		}
+
+		public function getClientRegistration($clientId) {
+			$data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
+			return json_decode($data, true);
+		}
+
 		private function generateKeySet() {
 			$config = array(
 				"digest_alg" => "sha256",
@@ -137,19 +170,5 @@
 				"encryptionKey" => $encryptionKey
 			);
 			return $result;
-		}
-		public function getAllowedClients($userId) {
-			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
-		}
-
-		public function addAllowedClient($userId, $clientId) {
-			$allowedClients = $this->getAllowedClients($userId);
-			$allowedClients[] = $clientId;
-			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
-		}
-		public function removeAllowedClient($userId, $clientId) {
-			$allowedClients = $this->getAllowedClients($userId);
-			$allowedClients = array_diff($allowedClients, array($clientId));
-			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
 		}
 	}
