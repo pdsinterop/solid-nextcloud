@@ -415,7 +415,7 @@ class ServerController extends Controller {
 		)), true);
 		$jwks['keys'][0]['key_ops'] = array("verify");
 		
-		$tokenHash = $this->generateTokenHash($accessToken);
+		$tokenHash = $this->generateAccessTokenHash($accessToken);
 		
 		$builder = new \Lcobucci\JWT\Builder();
 		$token = $builder
