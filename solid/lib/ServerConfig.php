@@ -22,6 +22,13 @@
 		 * @return string
 		 */
 		public function getPrivateKey() {
+			$result = $this->config->getAppValue('solid','privateKey');
+			if (!$result) {
+				// generate and save a new set if we don't have a private key;
+				$keys = $this->generateKeySet();
+				$this->config->setAppValue('solid','privateKey',$keys['privateKey']);
+				$this->config->setAppValue('solid','encryptionKey',$keys['encryptionKey']);
+			}
 			return $this->config->getAppValue('solid','privateKey');
 		}
 
@@ -127,5 +134,24 @@
 			$allowedClients = $this->getAllowedClients($userId);
 			$allowedClients = array_diff($allowedClients, array($clientId));
 			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
+		}
+		private function generateKeySet() {
+			$config = array(
+				"digest_alg" => "sha256",
+				"private_key_bits" => 2048,
+				"private_key_type" => OPENSSL_KEYTYPE_RSA,
+			);
+			// Create the private and public key
+			$key = openssl_pkey_new($config);
+
+			// Extract the private key from $key to $privateKey
+			openssl_pkey_export($key, $privateKey);
+
+			$encryptionKey = base64_encode(random_bytes(32));
+			$result = array(
+				"privateKey" => $privateKey,
+				"encryptionKey" => $encryptionKey
+			);
+			return $result;
 		}
 	}
