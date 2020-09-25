@@ -120,7 +120,24 @@
 			unset($scopes[$clientId]);
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
+		private function generateKeySet() {
+			$config = array(
+				"digest_alg" => "sha256",
+				"private_key_bits" => 2048,
+				"private_key_type" => OPENSSL_KEYTYPE_RSA,
+			);
+			// Create the private and public key
+			$key = openssl_pkey_new($config);
 
+			// Extract the private key from $key to $privateKey
+			openssl_pkey_export($key, $privateKey);
+			$encryptionKey = base64_encode(random_bytes(32));
+			$result = array(
+				"privateKey" => $privateKey,
+				"encryptionKey" => $encryptionKey
+			);
+			return $result;
+		}
 		public function getAllowedClients($userId) {
 			return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
 		}
@@ -134,24 +151,5 @@
 			$allowedClients = $this->getAllowedClients($userId);
 			$allowedClients = array_diff($allowedClients, array($clientId));
 			$this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
-		}
-		private function generateKeySet() {
-			$config = array(
-				"digest_alg" => "sha256",
-				"private_key_bits" => 2048,
-				"private_key_type" => OPENSSL_KEYTYPE_RSA,
-			);
-			// Create the private and public key
-			$key = openssl_pkey_new($config);
-
-			// Extract the private key from $key to $privateKey
-			openssl_pkey_export($key, $privateKey);
-
-			$encryptionKey = base64_encode(random_bytes(32));
-			$result = array(
-				"privateKey" => $privateKey,
-				"encryptionKey" => $encryptionKey
-			);
-			return $result;
 		}
 	}
