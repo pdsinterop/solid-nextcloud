@@ -47,7 +47,7 @@ class PageController extends Controller {
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $this->userId))) . "#me"
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me"
 			);
 			return $profile;
 		}
