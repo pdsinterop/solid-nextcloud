@@ -426,7 +426,7 @@ class ServerController extends Controller {
 			->setExpiration(time() + 14*24*60*60)
 			->set("azp", $clientId)
 			->set("sub", $subject)
-			->set("jti", $this->generateJti()
+			->set("jti", $this->generateJti())
 			->set("nonce", $this->session->get("nonce"))
 			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
 			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
