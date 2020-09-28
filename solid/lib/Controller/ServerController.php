@@ -282,12 +282,9 @@ class ServerController extends Controller {
 		}
 		$clientData['client_id_issued_at'] = time();
 
-		$origin = $_SERVER['HTTP_ORIGIN'];
-		if (!$origin) {
-			$origin = $clientData['redirect_uris'][0];
-			$parsedOrigin = parse_url($origin);
-			$origin = $parsedOrigin['host'];
-		}
+		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
+		$origin = $parsedOrigin['host'];
+
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
 
 		$registration = array(
