@@ -283,6 +283,11 @@ class ServerController extends Controller {
 		$clientData['client_id_issued_at'] = time();
 
 		$origin = $_SERVER['HTTP_ORIGIN'];
+		if (!$origin) {
+			$origin = $clientData['redirect_uris'][0];
+			$parsedOrigin = parse_url($origin);
+			$origin = $parsedOrigin['host'];
+		}
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
 
 		$registration = array(
@@ -424,6 +429,7 @@ class ServerController extends Controller {
 			->setExpiration(time() + 14*24*60*60)
 			->set("azp", $clientId)
 			->set("sub", $subject)
+			->set("jti", $this->generateJti()
 			->set("nonce", $this->session->get("nonce"))
 			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
 			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
@@ -437,6 +443,9 @@ class ServerController extends Controller {
 		return $result;
 	}
 	
+	private function generateJti() {
+		return substr(md5(time()), 12); // FIXME: generate unique jti values
+	}
 	private function generateRegistrationAccessToken($clientId) {
 		// FIXME: this function should be provided by Solid\Auth\Server
 		$privateKey = $this->getKeys()['privateKey'];
