@@ -161,9 +161,6 @@ class ServerController extends Controller {
 			$this->session->set("nonce", $_GET['nonce']);
 		}
 
-		$user = new \Pdsinterop\Solid\Auth\Entity\User();
-		$user->setIdentifier($this->getProfilePage());
-
 		$getVars = $_GET;
 		if (!isset($getVars['grant_type'])) {
 			$getVars['grant_type'] = 'implicit';
@@ -180,10 +177,6 @@ class ServerController extends Controller {
 				return $result;
 			}
 		}
-		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
-		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-
 		$clientId = $getVars['client_id'];
 		$approval = $this->checkApproval($clientId);	
 		if (!$approval) {
@@ -193,6 +186,13 @@ class ServerController extends Controller {
 			$result->addHeader("Location", $approvalUrl);
 			return $result;
 		}
+
+		$user = new \Pdsinterop\Solid\Auth\Entity\User();
+		$user->setIdentifier($this->getProfilePage());
+
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
+		$response = new \Laminas\Diactoros\Response();
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		return $this->respond($response);
