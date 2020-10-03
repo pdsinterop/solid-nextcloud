@@ -226,7 +226,21 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function token() {
-		return new JSONResponse("ok");
+		$clientId = $_POST['client_id'];
+		$approval = $this->checkApproval($clientId);
+
+		if (!$approval) {
+			return new JSONResponse("This client is not approved");
+		}
+
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$response = new \Laminas\Diactoros\Response();
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+
+		$response = $server->respondToAccessTokenRequest($request, $user, $approval);
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
+
+		return $this->respond($response);
 	}
 
 	/**
