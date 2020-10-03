@@ -28,17 +28,14 @@ class ServerController extends Controller {
 	/* @var ISession */
 	private $session;
 
-	/* @var array */
-	private $keys;
-
-	/* @var array */
-	private $openIdConfiguration;
-	
 	/* @var Pdsinterop\Solid\Auth\Config */
 	private $authServerConfig;
 
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
+	
+	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
+	private $tokenGenerator;
 	
 	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
 	{
@@ -51,33 +48,16 @@ class ServerController extends Controller {
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
-		$this->keys = $this->getKeys();
-		$this->openIdConfiguration = $this->getOpenIdConfiguration();
-		
-		$this->authServerConfig = $this->createConfig();
-		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
+		$this->authServerConfig = $this->createAuthServerConfig(); 
+		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();		
+		$this->tokenGenerator = (new \Pdsinterop\Solid\Auth\TokenGenerator($this->authServerConfig));
 	}
 
-	private function getOpenIdConfiguration() {
+	private function getOpenIdEndpoints() {
 		return [
 			'issuer' => $this->urlGenerator->getBaseURL(),
 			'authorization_endpoint' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.authorize")),
 			'jwks_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.jwks")),
-			"response_types_supported" => array("code","code token","code id_token","id_token code","id_token","id_token token","code id_token token","none"),
-			"token_types_supported" => array("legacyPop","dpop"),
-			"response_modes_supported" => array("query","fragment"),
-			"grant_types_supported" => array("authorization_code","implicit","refresh_token","client_credentials"),
-			"subject_types_supported" => ["public"],
-			"id_token_signing_alg_values_supported" => ["RS256"],
-			"token_endpoint_auth_methods_supported" => "client_secret_basic",
-			"token_endpoint_auth_signing_alg_values_supported" => ["RS256"],
-			"display_values_supported" => [],
-			"claim_types_supported" => ["normal"],
-			"claims_supported" => [],
-			"claims_parameter_supported" => false,
-			"request_parameter_supported" => true,
-			"request_uri_parameter_supported" => false,
-			"require_request_uri_registration" => false,
 			"check_session_iframe" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.session")),
 			"end_session_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.logout")),
 			"token_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.token")),
@@ -85,7 +65,7 @@ class ServerController extends Controller {
 			"registration_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.register"))
 		];
 	}
-
+	
 	private function getKeys() {
 		$encryptionKey = $this->config->getEncryptionKey();
 		$privateKey    = $this->config->getPrivateKey();		
@@ -98,17 +78,17 @@ class ServerController extends Controller {
 		];
 	}
 	
-	private function createConfig() {
+	private function createAuthServerConfig() {
 		$clientId = $_GET['client_id'];
 		$client = $this->getClient($clientId);
-
+		$keys = $this->getKeys();
 		try {
 			$config = (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
 				$client,
-				$this->keys['encryptionKey'],
-				$this->keys['privateKey'],
-				$this->keys['publicKey'],
-				$this->openIdConfiguration
+				$keys['encryptionKey'],
+				$keys['privateKey'],
+				$keys['publicKey'],
+				$this->getOpenIdEndpoints()
 			))->create();
 		} catch(\Throwable $e) {
 			var_dump($e);
@@ -161,15 +141,12 @@ class ServerController extends Controller {
 			$this->session->set("nonce", $_GET['nonce']);
 		}
 
-		$user = new \Pdsinterop\Solid\Auth\Entity\User();
-		$user->setIdentifier($this->getProfilePage());
-
 		$getVars = $_GET;
 		if (!isset($getVars['grant_type'])) {
 			$getVars['grant_type'] = 'implicit';
 		}
 		$getVars['response_type'] = $this->getResponseType();
-		$getVars['scope'] = "openid";
+		$getVars['scope'] = "openid" ;
 
 		if (!isset($getVars['redirect_uri'])) {
 			try {
@@ -180,10 +157,6 @@ class ServerController extends Controller {
 				return $result;
 			}
 		}
-		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
-		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-
 		$clientId = $getVars['client_id'];
 		$approval = $this->checkApproval($clientId);	
 		if (!$approval) {
@@ -194,7 +167,16 @@ class ServerController extends Controller {
 			return $result;
 		}
 
+		$user = new \Pdsinterop\Solid\Auth\Entity\User();
+		$user->setIdentifier($this->getProfilePage());
+
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
+		$response = new \Laminas\Diactoros\Response();
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
+		
 		return $this->respond($response);
 	}
 
@@ -281,24 +263,19 @@ class ServerController extends Controller {
 			return new JSONReponse("Missing redirect URIs");
 		}
 		$clientData['client_id_issued_at'] = time();
-
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
 		$origin = $parsedOrigin['host'];
 
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
-
+		
 		$registration = array(
-			'redirect_uris' => $clientData['redirect_uris'],
-			'response_types' => array("id_token token"),
-			'grant_types' => array("implicit"),
-			'application_type' => 'web',
-			'id_token_signed_response_alg' => "RS256",
-			'token_endpoint_auth_method' => 'client_secret_basic',
-			'registration_access_token' => $this->generateRegistrationAccessToken($clientId),
 			'client_id' => $clientId,
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
-			'client_id_issued_at' => $clientData['client_id_issued_at']
+			'client_id_issued_at' => $clientData['client_id_issued_at'],
+			'redirect_uris' => $clientData['redirect_uris'],
 		);
+		
+		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		
 		return new JSONResponse($registration);
 	}
@@ -310,7 +287,7 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function registeredClient($clientId) {
-		$clientRegistration = getClientRegistration($clientId);
+		$clientRegistration = $this->config->getClientRegistration($clientId);
 		unset($clientRegistration['client_secret']);
 		return new JSONResponse($clientRegistration);
 	}
@@ -323,18 +300,10 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function jwks() {
-//		$response = new \Laminas\Diactoros\Response();
-//		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-//		$response = $server->respondToJwksMetadataRequest();
-//		return $this->respond($response);
-
-		// FIXME: this should be the code in Solid\Auth\Server reponseToJwksMetadataRequest, which is currently missing the key_ops;
-		$publicKey = $this->getKeys()['publicKey'];
-        $jwks = json_decode(json_encode(new \Pdsinterop\Solid\Auth\Utils\Jwks(
-			new \Lcobucci\JWT\Signer\Key($publicKey)
-		)), true);
-		$jwks['keys'][0]['key_ops'] = array("verify");
-		return new JSONResponse($jwks);
+		$response = new \Laminas\Diactoros\Response();
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+		$response = $server->respondToJwksMetadataRequest();
+		return $this->respond($response);
 	}
 
 	private function respond($response) {
@@ -354,16 +323,9 @@ class ServerController extends Controller {
 			$body = 'ok';
 		}
 		$result = new JSONResponse($body);
+		
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
-				// FIXME: this should be done in a more specific piece of code just for the final authorize() result;
-				if (preg_match("/#access_token=(.*?)&/", $value, $matches)) {
-					$idToken = $this->generateIdToken($matches[1]);
-					$value = preg_replace("/#access_token=(.*?)&/", "#access_token=\$1&id_token=$idToken&", $value);
-				} else if (preg_match("/code=(.*?)&/", $value, $matches)) {
-					$idToken = $this->generateIdToken($matches[1]);
-					$value = preg_replace("/code=(.*?)&/", "code=\$1&id_token=$idToken&", $value);
-				}
 				$result->addHeader($header, $value);
 			}
 		}
@@ -385,79 +347,4 @@ class ServerController extends Controller {
 			return new \Pdsinterop\Solid\Auth\Config\Client('','',array(),'');
 		}
 	}
-	
-	private function generateTokenHash($accessToken) {
-		// FIXME: this function should be provided by Solid\Auth\Server
-		// generate at_hash
-		$atHash = hash('sha256', $accessToken);
-		$atHash = substr($atHash, 0, 32);
-		$atHash = hex2bin($atHash);
-		$atHash = base64_encode($atHash);
-		$atHash = rtrim($atHash, '=');
-		$atHash = str_replace('/', '_', $atHash);
-		$atHash = str_replace('+', '-', $atHash);
-
-		return $atHash;
-	}
-	
-	private function generateIdToken($accessToken) {
-		// FIXME: this function should be provided by Solid\Auth\Server
-		$privateKey = $this->getKeys()['privateKey'];
-		$publicKey = $this->getKeys()['publicKey'];
-		$clientId = $_GET['client_id'];
-		$subject = $this->getProfilePage();
-
-		// Create JWT
-		$signer = new \Lcobucci\JWT\Signer\Rsa\Sha256();
-		$keychain = new \Lcobucci\JWT\Signer\Keychain();
-        $jwks = json_decode(json_encode(new \Pdsinterop\Solid\Auth\Utils\Jwks(
-			new \Lcobucci\JWT\Signer\Key($publicKey)
-		)), true);
-		$jwks['keys'][0]['key_ops'] = array("verify");
-		
-		$tokenHash = $this->generateTokenHash($accessToken);
-		
-		$builder = new \Lcobucci\JWT\Builder();
-		$token = $builder
-			->setIssuer($this->urlGenerator->getBaseUrl())
-            ->permittedFor($clientId)
-			->setIssuedAt(time())
-			->setNotBefore(time() - 1)
-			->setExpiration(time() + 14*24*60*60)
-			->set("azp", $clientId)
-			->set("sub", $subject)
-			->set("jti", $this->generateJti())
-			->set("nonce", $this->session->get("nonce"))
-			->set("at_hash", $tokenHash) //FIXME: at_hash should only be added if the response_type is a token
-			->set("c_hash", $tokenHash) // FIXME: c_hash should only be added if the response_type is a code
-			->set("cnf", array(
-				"jwk" => $jwks['keys'][0]
-			))
-			->withHeader('kid', $jwks['keys'][0]['kid'])
-			->sign($signer, $keychain->getPrivateKey($privateKey))
-			->getToken();
-		$result = $token->__toString();
-		return $result;
-	}
-	
-	private function generateJti() {
-		return substr(md5(time()), 12); // FIXME: generate unique jti values
-	}
-	private function generateRegistrationAccessToken($clientId) {
-		// FIXME: this function should be provided by Solid\Auth\Server
-		$privateKey = $this->getKeys()['privateKey'];
-		
-		// Create JWT
-		$signer = new \Lcobucci\JWT\Signer\Rsa\Sha256();
-		$keychain = new \Lcobucci\JWT\Signer\Keychain();				
-		$builder = new \Lcobucci\JWT\Builder();
-		$token = $builder
-			->setIssuer($this->urlGenerator->getBaseUrl())
-            ->permittedFor($clientId)
-			->set("sub", $clientId)
-			->sign($signer, $keychain->getPrivateKey($privateKey))
-			->getToken();
-		$result = $token->__toString();
-		return $token->__toString();
-	}	
 }
