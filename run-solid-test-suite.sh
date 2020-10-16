@@ -3,9 +3,10 @@ set -e
 
 # Run the Solid test-suite
 docker network create testnet
-docker build -t base https://github.com/pdsinterop/test-suites.git#master:/servers/nextcloud-server/base
-docker build -t nextcloud-server https://github.com/pdsinterop/test-suites.git#master:/servers/nextcloud-server/server
-docker run -d --name server --network=testnet nextcloud-server
+
+# Build and start Nextcloud server with code from current repo contents:
+docker build -t server .
+docker run -d --name server --network=testnet server
 
 docker build -t webid-provider https://github.com/pdsinterop/test-suites.git#master:/testers/webid-provider
 docker build -t cookie         https://github.com/pdsinterop/test-suites.git#master:servers/nextcloud-server/cookie
@@ -25,6 +26,7 @@ docker exec -u root -it server service apache2 reload
 
 echo Getting cookie...
 export COOKIE="`docker run --cap-add=SYS_ADMIN --network=testnet --env-file /tmp/env-vars-for-test-image.list cookie`"
+echo "Running webid-provider tests with cookie $COOKIE"
 docker run --rm --network=testnet --env COOKIE="$COOKIE" --env-file /tmp/env-vars-for-test-image.list webid-provider
 # rm /tmp/env-vars-for-test-image.list
 # docker stop server
