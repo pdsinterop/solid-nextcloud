@@ -1,3 +1,9 @@
+# Note this is the auto-generated .travis.yml,
+# we also have our own one in the repo root
+# that runs the PDS Interop test suites
+# using Docker against a Nextcloud instance
+# with this Nextcloud app installed
+
 sudo: false
 dist: trusty
 language: php
