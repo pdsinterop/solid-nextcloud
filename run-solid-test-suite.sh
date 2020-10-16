@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # Run the Solid test-suite
 docker network create testnet
 docker build -t base https://github.com/pdsinterop/test-suites.git#master:/servers/nextcloud-server/base
