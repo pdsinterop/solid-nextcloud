@@ -1,6 +1,7 @@
 <?php
 namespace OCA\Solid\Controller;
 
+use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
@@ -15,13 +16,15 @@ class PageController extends Controller {
 	private $userId;
 	private $userManager;
 	private $urlGenerator;
+	private $config;
 
-	public function __construct($AppName, IRequest $request, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
+		$this->config = $config;
 	}
 
 	/**
@@ -44,7 +47,7 @@ class PageController extends Controller {
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
-				'profileUri'  => 'http://nextcloud.local/apps/solid/@' . $userId . '/turtle#me'
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me"
 			);
 			return $profile;
 		}
@@ -67,6 +70,59 @@ class PageController extends Controller {
 		return $templateResponse;
 	}
 
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @CORS
+	 */
+	public function approval($clientId) {
+		$clientRegistration = $this->config->getClientRegistration($clientId);
+		$params = array(
+			"clientId" => $clientId,
+			"clientName" => $clientRegistration['client_name'],
+			"serverName" => "Nextcloud",
+			"returnUrl" => $_GET['returnUrl'],
+		);
+		$templateResponse = new TemplateResponse('solid', 'sharing', $params);
+		$policy = new ContentSecurityPolicy();
+		$policy->addAllowedStyleDomain("data:");
+		$templateResponse->setContentSecurityPolicy($policy);
+		return $templateResponse;
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @CORS
+	 */
+	public function handleApproval($clientId) {
+		$approval = $_POST['approval'];
+		if ($approval == "allow") {
+			$this->config->addAllowedClient($this->userId, $clientId);
+		} else {
+			$this->config->removeAllowedClient($this->userId, $clientId);
+		}
+		$authUrl = $_POST['returnUrl'];
+
+		$result = new JSONResponse("ok");
+		$result->setStatus("302");
+		$result->addHeader("Location", $authUrl);
+		return $result;
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 * @CORS
+	 */
+	public function handleRevoke($clientId) {
+		$this->config->removeAllowedClient($this->userId, $clientId);
+		$result = new JSONResponse("ok");
+		return $result;
+	}
 
 	/**
 	 * @PublicPage

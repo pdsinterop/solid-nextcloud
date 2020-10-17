@@ -13,6 +13,9 @@ return [
         ['name' => 'page#do_echo', 'url' => '/echo', 'verb' => 'POST'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
         ['name' => 'page#turtleProfile', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
+        ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
+        ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
+        ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
         ['name' => 'page#dataJson', 'url' => '/@{userId}/data.json', 'verb' => 'GET' ],
 		
         ['name' => 'server#openid', 'url' => '/openid', 'verb' => 'GET'],
@@ -23,7 +26,6 @@ return [
         ['name' => 'server#logout', 'url' => '/logout', 'verb' => 'GET'],
         ['name' => 'server#token', 'url' => '/token', 'verb' => 'GET'],
         ['name' => 'server#userinfo', 'url' => '/userinfo', 'verb' => 'GET'],
-        ['name' => 'server#sharing', 'url' => '/sharing', 'verb' => 'GET'],
         ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
         ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET']
     ]
