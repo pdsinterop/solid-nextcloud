@@ -226,7 +226,21 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function token() {
-		return new JSONResponse("ok");
+		$clientId = $_POST['client_id'];
+		$code = $_POST['code'];
+
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$response = new \Laminas\Diactoros\Response();
+		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+
+		$response = $server->respondToAccessTokenRequest($request, $user, $approval);
+
+		// FIXME: not sure if decoding this here is the way to go.
+		// FIXME: because this is a public page, the nonce from the session is not available here.
+		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey());
+
+		return $this->respond($response);
 	}
 
 	/**

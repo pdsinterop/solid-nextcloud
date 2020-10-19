@@ -24,7 +24,7 @@ return [
         ['name' => 'server#jwks', 'url' => '/jwks', 'verb' => 'GET'],
         ['name' => 'server#session', 'url' => '/session', 'verb' => 'GET'],
         ['name' => 'server#logout', 'url' => '/logout', 'verb' => 'GET'],
-        ['name' => 'server#token', 'url' => '/token', 'verb' => 'GET'],
+        ['name' => 'server#token', 'url' => '/token', 'verb' => 'POST'],
         ['name' => 'server#userinfo', 'url' => '/userinfo', 'verb' => 'GET'],
         ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
         ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET']
