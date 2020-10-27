@@ -4,6 +4,7 @@ namespace OCA\Solid\Controller;
 use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
+use OCP\IContactsManager;
 use OCP\IURLGenerator;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -18,10 +19,11 @@ class PageController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IContactsManager $contactsManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
+		$this->contactsManager = $contactsManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = $config;
