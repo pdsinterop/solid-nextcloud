@@ -46,16 +46,26 @@ class PageController extends Controller {
 	private function getUserProfile($userId) {
 		if ($this->userManager->userExists($userId)) {
 			$user = $this->userManager->get($userId);
+			$addressBooks = $this->contactsManager->getAddressBooks();
+			$addressBooks = $this->contactsManager->getUserAddressBooks();
+			$friends = [];
+			foreach($addressBooks as $k => $v) {
+			        $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
+			        foreach($results as $found) {
+			                array_push($friends, $found['URL'][0]['value']);
+			        }
+			}
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
 				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me",
-				'friends' => json_encode($this->contactsManager)
+				'friends' => $friends
 			);
 			return $profile;
 		}
 		return false;
 	}
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired

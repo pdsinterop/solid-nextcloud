@@ -27,4 +27,4 @@ pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me
     solid:privateTypeIndex </settings/privateTypeIndex.ttl>;
     solid:publicTypeIndex </settings/publicTypeIndex.ttl>;
     foaf:name "<?php p($_['displayName']); ?>";
-    foaf:knows <<?php p($_['friends']); ?>>.
+    foaf:knows <<?php p($_['friends'][0]); ?>>.
