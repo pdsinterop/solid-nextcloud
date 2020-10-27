@@ -4,6 +4,7 @@ namespace OCA\Solid\Controller;
 use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
+use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -18,10 +19,11 @@ class PageController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
+		$this->contactsManager = $contactsManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = $config;
@@ -44,15 +46,28 @@ class PageController extends Controller {
 	private function getUserProfile($userId) {
 		if ($this->userManager->userExists($userId)) {
 			$user = $this->userManager->get($userId);
+			$addressBooks = $this->contactsManager->getAddressBooks();
+			$addressBooks = $this->contactsManager->getUserAddressBooks();
+			$friends = [];
+			foreach($addressBooks as $k => $v) {
+			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
+			  foreach($results as $found) {
+				  foreach($found['URL'] as $i => $obj) {
+				    array_push($friends, $obj['value']);
+				  }
+				}
+			}
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me"
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me",
+				'friends' => $friends
 			);
 			return $profile;
 		}
 		return false;
 	}
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
