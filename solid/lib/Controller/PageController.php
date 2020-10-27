@@ -50,10 +50,12 @@ class PageController extends Controller {
 			$addressBooks = $this->contactsManager->getUserAddressBooks();
 			$friends = [];
 			foreach($addressBooks as $k => $v) {
-			        $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
-			        foreach($results as $found) {
-			                array_push($friends, $found['URL'][0]['value']);
-			        }
+			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
+			  foreach($results as $found) {
+				  foreach($found['URL'] as $i => $obj) {
+				    array_push($friends, $obj['value']);
+				  }
+				}
 			}
 			$profile = array(
 				'id' => $userId,
