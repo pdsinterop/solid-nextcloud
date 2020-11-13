@@ -5,6 +5,7 @@ function setup {
   docker network create testnet
   docker build -t solid-nextcloud .
   docker pull michielbdejong/nextcloud-cookie
+  docker pull solidtestsuite/webid-provider-tests:v1.1.0
 }
 function teardown {
   docker stop `docker ps --filter network=testnet -q`
@@ -31,7 +32,6 @@ function startSolidNextcloud {
 }
 
 function runTests {
-  docker pull solidtestsuite/$1-tests
   echo "Running $1 tests against server with cookie $COOKIE_server"
   docker run --rm --network=testnet \
     --env COOKIE="$COOKIE_server" \
