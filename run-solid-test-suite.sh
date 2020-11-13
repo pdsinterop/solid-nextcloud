@@ -46,6 +46,6 @@ setup
 startSolidNextcloud server
 runTests webid-provider
 # runTests solid-crud
-# startSolidNextcloud thirdparty
-# runTests web-access-control
+startSolidNextcloud thirdparty
+runTests web-access-control
 teardown
