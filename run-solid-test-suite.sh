@@ -45,7 +45,7 @@ teardown || true
 setup
 startSolidNextcloud server
 runTests webid-provider
-# runTests solid-crud
+runTests solid-crud
 # startSolidNextcloud thirdparty
 # runTests web-access-control
 teardown
