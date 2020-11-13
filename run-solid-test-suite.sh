@@ -5,7 +5,7 @@ function setup {
   docker network create testnet
   docker build -t solid-nextcloud .
   docker pull michielbdejong/nextcloud-cookie
-  docker pull solidtestsuite/webid-provider-tests:v1.1.0
+  docker pull solidtestsuite/webid-provider-tests:v1.2.0
 }
 function teardown {
   docker stop `docker ps --filter network=testnet -q`
