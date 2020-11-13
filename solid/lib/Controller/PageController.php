@@ -150,6 +150,8 @@ class PageController extends Controller {
 		if (!$profile) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
         }
+		header("Access-Control-Allow-Headers: authorization");
+		header("Access-Control-Allow-Credentials: true");
 		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
 	}
 }
