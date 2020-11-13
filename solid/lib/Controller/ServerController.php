@@ -103,7 +103,8 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function cors($path) {
-		header("Access-Control-Allow-Headers: *");
+		header("Access-Control-Allow-Headers: authorization, content-type, dpop");
+		header("Access-Control-Allow-Credentials: true");
 		return true;
 	}
 
