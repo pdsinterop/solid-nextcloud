@@ -13,7 +13,7 @@ function teardown {
 }
 
 function startSolidNextcloud {
-  docker run -d --name $1 --network=testnet solid-nextcloud
+  docker run -d --name $1 --network=testnet --env-file ./env-vars-$1.list solid-nextcloud
   until docker run --rm --network=testnet solidtestsuite/webid-provider-tests curl -kI https://$1 2> /dev/null > /dev/null
   do
     echo Waiting for $1 to start, this can take up to a minute ...

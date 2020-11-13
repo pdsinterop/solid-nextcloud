@@ -1,2 +1,5 @@
+SERVER_ROOT=https://server
 ALICE_WEBID=https://server/apps/solid/@alice/turtle#me
 COOKIE_TYPE=nextcloud-compatible
+USERNAME=alice
+PASSWORD=alice123
