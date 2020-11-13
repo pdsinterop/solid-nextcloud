@@ -5,3 +5,6 @@ WEBID_BOB=https://thirdparty/apps/solid/@alice/turtle#me
 OIDC_ISSUER_BOB=https://thirdparty
 STORAGE_ROOT_BOB=https://thirdparty/
 ALICE_WEBID=https://server/apps/solid/@alice/turtle#me
+SERVER_ROOT_ESCAPED=https:\/\/server
+SERVER_ROOT=https://server
+STORAGE_ROOT=https://server/storage
