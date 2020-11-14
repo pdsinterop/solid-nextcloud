@@ -29,11 +29,11 @@ return [
         ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
         ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
 		
-        ['name' => 'storage#handleGet', 'url' => '/storage{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePost', 'url' => '/storage{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePut', 'url' => '/storage{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handleDelete', 'url' => '/storage{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePatch', 'url' => '/storage{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handleHead', 'url' => '/storage{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handleGet', 'url' => '/@{userId}/storage{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handlePost', 'url' => '/@{userId}/storage{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handlePut', 'url' => '/@{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handleDelete', 'url' => '/@{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handlePatch', 'url' => '/@{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
+        ['name' => 'storage#handleHead', 'url' => '/@{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
     ]
 ];
