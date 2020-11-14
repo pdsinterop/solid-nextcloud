@@ -283,7 +283,8 @@ class ServerController extends Controller {
 
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
 		if ($origin == "https://tester") {
-			// Exception for https://tester, this is directly added to allowed clients to help with testing;
+			// FIXME: this is an exception for https://tester, this is directly added to allowed clients to help with testing;
+			// make sure this is not a security problem.
 			$this->config->addAllowedClient($this->userId, $clientId);
 		}
 		$registration = array(
