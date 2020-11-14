@@ -65,16 +65,8 @@ class PlainResponse extends Response {
 }
 
 class StorageController extends Controller {
-	private $userId;
-
-	/* @var IUserManager */
-	private $userManager;
-
 	/* @var IURLGenerator */
 	private $urlGenerator;
-
-	/* @var ServerConfig */
-	private $config;
 
 	/* @var ISession */
 	private $session;
@@ -84,21 +76,10 @@ class StorageController extends Controller {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = $config;
-		$this->userId = $userId;
-		$this->userManager = $userManager;
 		$this->rootFolder = $rootFolder;
-		$this->userFolder = $rootFolder->getUserFolder($userId);
-		$this->solidFolder = $this->userFolder->get("solid");
-//		$this->homeStorage = $homeStorage;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
-
-		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		
-		$this->response = new \Laminas\Diactoros\Response();
-		$this->filesystem = $this->getFileSystem();
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
 	}
 
 	private function getFileSystem() {
@@ -131,14 +112,22 @@ class StorageController extends Controller {
 
 		return $filesystem;
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handleRequest($path) {
+	public function handleRequest($userId, $path) {
+		$this->userFolder = $this->rootFolder->getUserFolder($userId);
+		$this->solidFolder = $this->userFolder->get("solid");
+
+		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$this->response = new \Laminas\Diactoros\Response();
+
+		$this->filesystem = $this->getFileSystem();
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+
 		$uri = $this->urlGenerator->getBaseURL() . "/" . $path;
 		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
 		$request = $this->rawRequest->withUri($this->serverRequest->getUri());
@@ -150,51 +139,56 @@ class StorageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handleGet($path) {
-		return $this->handleRequest($path);
+	public function handleGet($userId, $path) {	
+		return $this->handleRequest($userId, $path);
 	}
 	
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handlePost($path) {
-		return $this->handleRequest($path);
+	public function handlePost($userId, $path) {
+		return $this->handleRequest($userId, $path);
 	}
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handlePut($path) {
-		return $this->handleRequest($path);
+	public function handlePut() { // $userId, $path) {
+		// FIXME: Adding the correct variables in the function name will make nextcloud
+		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
+		
+		// because we got here, the request uri should look like:
+		// /index.php/apps/solid/@{userId}/storage{path}
+		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
+		$pathInfo = explode("/", $pathInfo[1], 2);
+		$userId = $pathInfo[0];
+		$path = $pathInfo[1];
+		$path = preg_replace("/^storage/", "", $path);
+		
+		return $this->handleRequest($userId, $path);
 	}
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handleDelete($path) {
-		return $this->handleRequest($path);
+	public function handleDelete($userId, $path) {
+		return $this->handleRequest($userId, $path);
 	}
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
-	public function handleHead($path) {
-		return $this->handleRequest($path);
+	public function handleHead($userId, $path) {
+		return $this->handleRequest($userId, $path);
 	}
 
 	private function respond($response) {
-	
 		$statusCode = $response->getStatusCode();
 		$response->getBody()->rewind();
 		$headers = $response->getHeaders();
