@@ -120,6 +120,9 @@ class StorageController extends Controller {
 	 */
 	public function handleRequest($userId, $path) {
 		$this->userFolder = $this->rootFolder->getUserFolder($userId);
+		if (!$this->userFolder->nodeExists("solid")) {
+			$this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
+		}
 		$this->solidFolder = $this->userFolder->get("solid");
 
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -131,6 +134,7 @@ class StorageController extends Controller {
 		$uri = $this->urlGenerator->getBaseURL() . "/" . $path;
 		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
 		$request = $this->rawRequest->withUri($this->serverRequest->getUri());
+		
 		$response = $this->resourceServer->respondToRequest($request);	
 		return $this->respond($response);
 	}
