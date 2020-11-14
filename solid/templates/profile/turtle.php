@@ -9,7 +9,7 @@
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
 @prefix inbox: </inbox/>.
 @prefix sp: <http://www.w3.org/ns/pim/space#>.
-@prefix ser: </>.
+@prefix ser: </storage/>.
 
 pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
