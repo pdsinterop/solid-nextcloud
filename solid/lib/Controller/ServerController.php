@@ -282,7 +282,10 @@ class ServerController extends Controller {
 		$origin = $parsedOrigin['host'];
 
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
-		
+		if ($origin == "https://tester") {
+			// Exception for https://tester, this is directly added to allowed clients to help with testing;
+			$this->config->addAllowedClient($this->userId, $clientId);
+		}
 		$registration = array(
 			'client_id' => $clientId,
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
