@@ -135,6 +135,12 @@ class StorageController extends Controller {
 		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
 		$request = $this->rawRequest->withUri($this->serverRequest->getUri());
 		
+		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
+		$baseUrl = preg_replace('/foo$/', '', $baseUrl);
+		$this->resourceServer->setBaseUrl($baseUrl);
+		$pubsub = getenv('PUBSUB_URL') ?: ("http://" . $request->getServerParams()["SERVER_NAME"] . ":8080/");
+		$this->resourceServer->setPubSubUrl($pubsub);
+
 		$response = $this->resourceServer->respondToRequest($request);	
 		return $this->respond($response);
 	}
@@ -189,6 +195,14 @@ class StorageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function handleHead($userId, $path) {
+		return $this->handleRequest($userId, $path);
+	}
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function handlePatch($userId, $path) {
 		return $this->handleRequest($userId, $path);
 	}
 
