@@ -4,6 +4,7 @@ set -e
 function setup {
   docker network create testnet
   docker build -t solid-nextcloud .
+  docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#master
   docker pull michielbdejong/nextcloud-cookie
   docker pull solidtestsuite/webid-provider-tests:v1.2.0
 }
@@ -14,6 +15,7 @@ function teardown {
 }
 
 function startSolidNextcloud {
+  docker run -d --name pubsub --network=testnet pubsub-server
   docker run -d --name $1 --network=testnet --env-file ./env-vars-$1.list solid-nextcloud
   until docker run --rm --network=testnet solidtestsuite/webid-provider-tests curl -kI https://$1 2> /dev/null > /dev/null
   do
@@ -45,7 +47,7 @@ teardown || true
 setup
 startSolidNextcloud server
 runTests webid-provider
-# runTests solid-crud
+runTests solid-crud
 # startSolidNextcloud thirdparty
 # runTests web-access-control
 teardown

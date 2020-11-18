@@ -12,8 +12,10 @@
 		}
     ],
     "require": {
-        "easyrdf/easyrdf": "^1.0",
-        "pdsinterop/solid-auth": "dev-feature/token-endpoint",
+        "easyrdf/easyrdf": "^0.9.1",
+        "pdsinterop/flysystem-rdf": "dev-master",
+        "pdsinterop/solid-auth": "dev-master",
+        "pdsinterop/solid-crud": "dev-master",
         "laminas/laminas-diactoros": "^2.4"
     },
     "require-dev": {
