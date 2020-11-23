@@ -102,8 +102,6 @@ class StorageController extends Controller {
 
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
-		$filesystem = new \League\Flysystem\Filesystem($adapter);
-
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
 		
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
