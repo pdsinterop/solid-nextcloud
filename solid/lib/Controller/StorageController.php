@@ -83,11 +83,8 @@ class StorageController extends Controller {
 	}
 
 	private function getFileSystem() {
-		// FIXME: this should be replaced with a nextcloud flysystem adapter with the correct path;
-		$filesystemRoot = __DIR__ . '/../../../../data' . $this->solidFolder->getPath();
-
-		$adapter = new \League\Flysystem\Adapter\Local($filesystemRoot);
-
+		// Create the Nextcloud Adapter
+		$adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
 		$graph = new \EasyRdf_Graph();
 
 		// Create Formats objects
@@ -102,8 +99,10 @@ class StorageController extends Controller {
 			$formats,
 			$serverUri
 		);
-		
+
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
+
+		$filesystem = new \League\Flysystem\Filesystem($adapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
 		

@@ -16,7 +16,8 @@
         "pdsinterop/flysystem-rdf": "dev-master",
         "pdsinterop/solid-auth": "dev-master",
         "pdsinterop/solid-crud": "dev-master",
-        "laminas/laminas-diactoros": "^2.4"
+        "pdsinterop/flysystem-nextcloud":"dev-master",
+	"laminas/laminas-diactoros": "^2.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.4"
