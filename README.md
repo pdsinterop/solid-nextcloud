@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020, Michiel de Jong <<michiel@unhosted.org>>
+SPDX-License-Identifier: MIT
+-->
+
+
 # solid-nextcloud
 A plugin to make Nextcloud compatible with Solid
 

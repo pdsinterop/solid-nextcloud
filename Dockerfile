@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2020, Michiel de Jong <michiel@unhosted.org>
+# SPDX-License-Identifier: MIT
+
+
+
 FROM nextcloud:latest
 COPY site.conf /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod ssl
