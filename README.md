@@ -46,3 +46,7 @@ Grant access to co-editor https://your-nextcloud-server.com/apps/solid/@your-use
 For instance if you're using the [development install](#development-install), that would be https://localhost/apps/solid/@alice/turtle#me
 Now in a separate browser window, log in to  https://generator.inrupt.com/text-editor with https://your-nextcloud-server.com.
 You should be able to edit the file as a co-author now, using your Nextcloud account as a webid identity provider.
+
+## License
+
+This project is under MIT licese. However, some elements are being licensed under AGPL-3.0. For accurate information, please check individual files.
