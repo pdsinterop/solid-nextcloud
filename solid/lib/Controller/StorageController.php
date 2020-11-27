@@ -135,7 +135,7 @@ class StorageController extends Controller {
 		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
 		$baseUrl = preg_replace('/foo$/', '', $baseUrl);
 		$this->resourceServer->setBaseUrl($baseUrl);
-		$pubsub = getenv('PUBSUB_URL') ?: ("http://" . $request->getServerParams()["SERVER_NAME"] . ":8080/");
+		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
 		$response = $this->resourceServer->respondToRequest($request);	
