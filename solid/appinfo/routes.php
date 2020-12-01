@@ -1,3 +1,13 @@
+/*
+SPDX-FileCopyrightText: 2020, Michiel de Jong <<michiel@unhosted.org>>
+*
+SPDX-License-Identifier: MIT
+*/
+
+
+
+
+
 <?php
 /**
  * Create your routes in here. The name is the lowercase name of the controller

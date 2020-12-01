@@ -1,3 +1,8 @@
+#SPDX-FileCopyrightText: 2020, Michiel de Jong <<michiel@unhosted.org>>
+#SPDX-License-Identifier: MIT
+
+
+
 #!/bin/bash
 php console.php maintenance:install --admin-user alice --admin-pass alice123
 php console.php status

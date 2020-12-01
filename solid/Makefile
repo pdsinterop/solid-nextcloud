@@ -1,7 +1,8 @@
-# This file is licensed under the Affero General Public License version 3 or
-# later. See the COPYING file.
-# @author Bernhard Posselt <dev@bernhard-posselt.com>
-# @copyright Bernhard Posselt 2016
+
+#SPDX-FileCopyrightText: 2016, Bernhard Posselt <dev@bernhard-posselt.com>
+#SPDX-License-Identifier:  AGPL-3.0-or-later
+
+
 
 # Generic Makefile for building and packaging a Nextcloud app which uses npm and
 # Composer.

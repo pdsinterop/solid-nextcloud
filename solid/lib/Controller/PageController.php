@@ -1,3 +1,12 @@
+/*
+SPDX-FileCopyrightText: 2020, Michiel de Jong <<michiel@unhosted.org>>
+*
+SPDX-License-Identifier: MIT
+*/
+
+
+
+
 <?php
 namespace OCA\Solid\Controller;
 

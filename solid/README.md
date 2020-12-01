@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2020, Michiel de Jong <michiel@unhosted.org>
+SPDX-License-Identifier: MIT
+-->
+
+
 # Solid 
 Place this app in **nextcloud/apps/**
 
