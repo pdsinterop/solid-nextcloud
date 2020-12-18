@@ -12,6 +12,7 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
+use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
 
 class ServerController extends Controller {
 	private $userId;
@@ -229,19 +230,29 @@ class ServerController extends Controller {
 	 * @CORS
 	 */
 	public function token() {
-		$clientId = $_POST['client_id'];
-		$code = $_POST['code'];
-
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$code = $request->getParsedBody()['code'];
+		$clientId = $request->getParsedBody()['client_id'];
+
+		$response = new \Laminas\Diactoros\Response();
+
+		$DPop = new DPop();
+		$dpop = $request->getServerParams()['HTTP_DPOP'];
+		try {
+			$dpopKey = $DPop->getDPopKey($dpop, $request);
+		} catch(\Exception $e) {
+			$response = $response->withStatus(409, "Invalid token");
+			return $this->respond($response);
+		}
+
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-
 		$response = $server->respondToAccessTokenRequest($request, $user, $approval);
 
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey());
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey(), $dpopKey);
 
 		return $this->respond($response);
 	}

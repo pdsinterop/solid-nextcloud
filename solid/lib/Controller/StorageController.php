@@ -15,6 +15,8 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
+use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
+use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class PlainResponse extends Response {
 	// FIXME: We might as well add a PSRResponse class to handle those;
@@ -127,6 +129,8 @@ class StorageController extends Controller {
 
 		$this->filesystem = $this->getFileSystem();
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->WAC = new WAC($this->filesystem);
+		$this->DPop = new DPop();
 
 		$uri = $this->urlGenerator->getBaseURL() . "/" . $path;
 		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
@@ -138,7 +142,18 @@ class StorageController extends Controller {
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
+		try {
+			$webId = $this->DPop->getWebId($request);
+		} catch(\Exception $e) {
+			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+			return $this->respond($response);
+		}
+		if (!$this->WAC->isAllowed($request, $webId)) {
+			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
+			return $this->respond($response);
+		}
 		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
 	
