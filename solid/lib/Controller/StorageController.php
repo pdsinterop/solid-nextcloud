@@ -133,13 +133,12 @@ class StorageController extends Controller {
 		$this->WAC = new WAC($this->filesystem);
 		$this->DPop = new DPop();
 
-		$uri = $this->urlGenerator->getBaseURL() . "/" . $path;
-		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
-		$request = $this->rawRequest->withUri($this->serverRequest->getUri());
+		$request = $this->rawRequest;
 		
 		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
 		$baseUrl = preg_replace('/foo$/', '', $baseUrl);
 		$this->resourceServer->setBaseUrl($baseUrl);
+		$this->WAC->setBaseUrl($baseUrl);
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
