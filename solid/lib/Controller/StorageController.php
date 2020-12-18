@@ -121,6 +121,7 @@ class StorageController extends Controller {
 		$this->userFolder = $this->rootFolder->getUserFolder($userId);
 		if (!$this->userFolder->nodeExists("solid")) {
 			$this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
+			// FIXME: Also add a default .acl granting the user full access;
 		}
 		$this->solidFolder = $this->userFolder->get("solid");
 
