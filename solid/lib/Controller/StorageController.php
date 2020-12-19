@@ -112,6 +112,35 @@ class StorageController extends Controller {
 		return $filesystem;
 	}
 
+	private function getUserProfile($userId) {
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me";
+	}
+
+	private function generateDefaultAcl($userId) {
+		$profileUri = $this->getUserProfile($userId);
+		$defaultProfile = <<< EOF
+# Root ACL resource for the user account
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+# The owner has full access to every resource in their pod.
+# Other agents have no access rights,
+# unless specifically authorized in other .acl resources.
+<#owner>
+	a acl:Authorization;
+	acl:agent {user-profile-uri};
+	# Set the access to the root storage folder itself
+	acl:accessTo </>;
+	# All resources will inherit this authorization, by default
+	acl:default </>;
+	# The owner has all of the access modes allowed
+	acl:mode
+		acl:Read, acl:Write, acl:Control.
+EOF;
+
+		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
+	}
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -121,7 +150,6 @@ class StorageController extends Controller {
 		$this->userFolder = $this->rootFolder->getUserFolder($userId);
 		if (!$this->userFolder->nodeExists("solid")) {
 			$this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
-			// FIXME: Also add a default .acl granting the user full access;
 		}
 		$this->solidFolder = $this->userFolder->get("solid");
 
@@ -129,6 +157,14 @@ class StorageController extends Controller {
 		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem();
+
+		// Make sure the root folder has an acl file, as is required by the spec;
+		// Generate a default file granting the owner full access if there is nothing there.
+		if ($this->filesystem->has("/.acl")) {
+			$defaultAcl = $this->generateDefaultAcl($userId);
+			$this->filesystem->write("/.acl", $defaultAcl);
+		}
+
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
 		$this->WAC = new WAC($this->filesystem);
 		$this->DPop = new DPop();
