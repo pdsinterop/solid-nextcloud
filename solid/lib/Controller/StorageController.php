@@ -115,13 +115,29 @@ class StorageController extends Controller {
 	private function getUserProfile($userId) {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me";
 	}
-
+	private function getStorageUrl($userId) {
+		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
+		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+		return $storageUrl;
+	}
+	private function getStoragePath($userId) {
+		$baseUrl = $this->urlGenerator->getBaseURL();
+		$storageUrl = $this->getStorageUrl($userId);
+		$storagePath = str_replace($baseUrl, "", $storageUrl);
+		return $storagePath;
+	}
 	private function generateDefaultAcl($userId) {
-		$profileUri = $this->getUserProfile($userId);
 		$defaultProfile = <<< EOF
 # Root ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+<#public>
+        a acl:Authorization;
+        acl:agentClass foaf:Agent;
+        acl:accessTo <{storage-path}>;
+        acl:mode
+				acl:Read.
 
 # The owner has full access to every resource in their pod.
 # Other agents have no access rights,
@@ -138,6 +154,10 @@ class StorageController extends Controller {
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
+		$profileUri = $this->getUserProfile($userId);
+		$storagePath = $this->getStoragePath($userId);
+
+		$defaultProfile = str_replace("{storage-path}", $storagePath, $defaultProfile);
 		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
 		return $defaultProfile;
 	}
@@ -171,9 +191,7 @@ EOF;
 		$this->DPop = new DPop();
 
 		$request = $this->rawRequest;
-		
-		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$baseUrl = preg_replace('/foo$/', '', $baseUrl);
+		$baseUrl = $this->getStorageUrl($userId);		
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
