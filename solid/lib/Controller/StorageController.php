@@ -120,12 +120,6 @@ class StorageController extends Controller {
 		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
 		return $storageUrl;
 	}
-	private function getStoragePath($userId) {
-		$baseUrl = $this->urlGenerator->getBaseURL();
-		$storageUrl = $this->getStorageUrl($userId);
-		$storagePath = str_replace($baseUrl, "", $storageUrl);
-		return $storagePath;
-	}
 	private function generateDefaultAcl($userId) {
 		$defaultProfile = <<< EOF
 # Root ACL resource for the user account
@@ -135,7 +129,8 @@ class StorageController extends Controller {
 <#public>
         a acl:Authorization;
         acl:agentClass foaf:Agent;
-        acl:accessTo <{storage-path}>;
+        acl:accessTo </>;
+        acl:default </>;
         acl:mode
 				acl:Read.
 
@@ -155,9 +150,6 @@ class StorageController extends Controller {
 EOF;
 
 		$profileUri = $this->getUserProfile($userId);
-		$storagePath = $this->getStoragePath($userId);
-
-		$defaultProfile = str_replace("{storage-path}", $storagePath, $defaultProfile);
 		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
 		return $defaultProfile;
 	}
