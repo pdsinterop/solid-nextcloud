@@ -128,7 +128,7 @@ class StorageController extends Controller {
 # unless specifically authorized in other .acl resources.
 <#owner>
 	a acl:Authorization;
-	acl:agent {user-profile-uri};
+	acl:agent <{user-profile-uri}>;
 	# Set the access to the root storage folder itself
 	acl:accessTo </>;
 	# All resources will inherit this authorization, by default
@@ -139,6 +139,7 @@ class StorageController extends Controller {
 EOF;
 
 		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
+		return $defaultProfile;
 	}
 
 	/**
@@ -160,7 +161,7 @@ EOF;
 
 		// Make sure the root folder has an acl file, as is required by the spec;
 		// Generate a default file granting the owner full access if there is nothing there.
-		if ($this->filesystem->has("/.acl")) {
+		if (!$this->filesystem->has("/.acl")) {
 			$defaultAcl = $this->generateDefaultAcl($userId);
 			$this->filesystem->write("/.acl", $defaultAcl);
 		}
