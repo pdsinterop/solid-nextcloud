@@ -46,6 +46,7 @@ function runTests {
 teardown || true
 setup
 startSolidNextcloud server
+startSolidNextcloud thirdparty
 runTests webid-provider
 runTests solid-crud
 runTests web-access-control
