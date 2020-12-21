@@ -15,6 +15,8 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
+use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
+use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class PlainResponse extends Response {
 	// FIXME: We might as well add a PSRResponse class to handle those;
@@ -110,6 +112,48 @@ class StorageController extends Controller {
 		return $filesystem;
 	}
 
+	private function getUserProfile($userId) {
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me";
+	}
+	private function getStorageUrl($userId) {
+		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
+		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+		return $storageUrl;
+	}
+	private function generateDefaultAcl($userId) {
+		$defaultProfile = <<< EOF
+# Root ACL resource for the user account
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+<#public>
+        a acl:Authorization;
+        acl:agentClass foaf:Agent;
+        acl:accessTo </>;
+        acl:default </>;
+        acl:mode
+				acl:Read.
+
+# The owner has full access to every resource in their pod.
+# Other agents have no access rights,
+# unless specifically authorized in other .acl resources.
+<#owner>
+	a acl:Authorization;
+	acl:agent <{user-profile-uri}>;
+	# Set the access to the root storage folder itself
+	acl:accessTo </>;
+	# All resources will inherit this authorization, by default
+	acl:default </>;
+	# The owner has all of the access modes allowed
+	acl:mode
+		acl:Read, acl:Write, acl:Control.
+EOF;
+
+		$profileUri = $this->getUserProfile($userId);
+		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
+		return $defaultProfile;
+	}
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -126,19 +170,37 @@ class StorageController extends Controller {
 		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem();
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
 
-		$uri = $this->urlGenerator->getBaseURL() . "/" . $path;
-		$this->serverRequest = new \Laminas\Diactoros\ServerRequest(array(),array(), $uri);
-		$request = $this->rawRequest->withUri($this->serverRequest->getUri());
-		
-		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$baseUrl = preg_replace('/foo$/', '', $baseUrl);
+		// Make sure the root folder has an acl file, as is required by the spec;
+		// Generate a default file granting the owner full access if there is nothing there.
+		if (!$this->filesystem->has("/.acl")) {
+			$defaultAcl = $this->generateDefaultAcl($userId);
+			$this->filesystem->write("/.acl", $defaultAcl);
+		}
+
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->WAC = new WAC($this->filesystem);
+		$this->DPop = new DPop();
+
+		$request = $this->rawRequest;
+		$baseUrl = $this->getStorageUrl($userId);		
 		$this->resourceServer->setBaseUrl($baseUrl);
+		$this->WAC->setBaseUrl($baseUrl);
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
+		try {
+			$webId = $this->DPop->getWebId($request);
+		} catch(\Exception $e) {
+			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+			return $this->respond($response);
+		}
+		if (!$this->WAC->isAllowed($request, $webId)) {
+			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
+			return $this->respond($response);
+		}
 		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
 	

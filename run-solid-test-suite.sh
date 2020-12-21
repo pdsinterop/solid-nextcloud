@@ -14,8 +14,11 @@ function teardown {
   docker network remove testnet
 }
 
-function startSolidNextcloud {
+function startPubSub {
   docker run -d --name pubsub --network=testnet pubsub-server
+}
+
+function startSolidNextcloud {
   docker run -d --name $1 --network=testnet --env-file ./env-vars-$1.list solid-nextcloud
   until docker run --rm --network=testnet solidtestsuite/webid-provider-tests curl -kI https://$1 2> /dev/null > /dev/null
   do
@@ -45,9 +48,10 @@ function runTests {
 # ...
 teardown || true
 setup
+startPubSub
 startSolidNextcloud server
+startSolidNextcloud thirdparty
 runTests webid-provider
 runTests solid-crud
-# startSolidNextcloud thirdparty
-# runTests web-access-control
+runTests web-access-control
 teardown
