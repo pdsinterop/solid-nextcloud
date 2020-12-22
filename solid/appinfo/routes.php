@@ -35,5 +35,12 @@ return [
         ['name' => 'storage#handleDelete', 'url' => '/@{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handlePatch', 'url' => '/@{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handleHead', 'url' => '/@{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+
+        ['name' => 'calendar#handleGet', 'url' => '/@{userId}/calendar{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
+        ['name' => 'calendar#handlePost', 'url' => '/@{userId}/calendar{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
+        ['name' => 'calendar#handlePut', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
+        ['name' => 'calendar#handleDelete', 'url' => '/@{userId}/calendar{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
+        ['name' => 'calendar#handlePatch', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
+        ['name' => 'calendar#handleHead', 'url' => '/@{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
     ]
 ];
