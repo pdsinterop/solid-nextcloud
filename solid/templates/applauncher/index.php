@@ -61,6 +61,7 @@
 								data-simply-attributes="data-solid-url"
 							>Launch</button>
 						</template>
+					</div>
 				</li>
 			</template>
 		</ul>
