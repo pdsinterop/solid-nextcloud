@@ -35,5 +35,7 @@ return [
         ['name' => 'storage#handleDelete', 'url' => '/@{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handlePatch', 'url' => '/@{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handleHead', 'url' => '/@{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+
+        ['name' => 'app#appLauncher', 'url' => '/launcher/', 'verb' => 'GET'],
     ]
 ];

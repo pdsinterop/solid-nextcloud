@@ -1,0 +1,57 @@
+[
+    {
+        "name": "Notepod",
+        "tagline": "A note-taking app for Solid",
+        "launchUrl": "https://notepod.vincenttunru.com/",
+        "requirements": [
+            {
+                "type": "class",
+                "class": "schema.TextDigitalDocument",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write"],
+                "defaultFilename": "notes",
+                "public": true
+            }
+        ]
+    },
+    {
+        "name": "Poddit",
+        "tagline": "Private bookmarking",
+        "launchUrl": "https://poddit.app",
+        "requirements": [
+            {
+                "type": "class",
+                "class": "http://www.w3.org/2002/01/bookmark#Bookmark",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write"],
+                "defaultFilename": "bookmarks",
+                "public": true
+            }
+        ]
+    },
+    {
+        "name": "Generator demo",
+        "tagline": "Output of Inrupt's generator for Solid React Applications",
+        "launchUrl": "https://generator.inrupt.com/",
+        "requirements": [
+            {
+                "type": "podWide",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            },
+            {
+                "type": "container",
+                "container": "tictactoe",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            }
+        ]
+    },
+    {
+        "name": "Focus",
+        "tagline": "Solid Task Manager",
+        "launchUrl": "https://noeldemartin.github.io/solid-focus/",
+        "requirements": [
+            {
+                "type": "podWide",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            }
+        ]
+    }
+]
