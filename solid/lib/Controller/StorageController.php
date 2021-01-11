@@ -289,6 +289,18 @@ EOF;
 		if (!$this->filesystem->has("/settings")) {
 			$this->filesystem->createDir("/settings");
 		}
+		if (!$this->filesystem->has("/settings/privateTypeIndex.ttl")) {
+			$privateTypeIndex = $this->generateDefaultPrivateTypeIndex();
+			$this->filesystem->write("/settings/privateTypeIndex.ttl", $privateTypeIndex);
+		}
+		if (!$this->filesystem->has("/settings/publicTypeIndex.ttl")) {
+			$publicTypeIndex = $this->generateDefaultPublicTypeIndex();
+			$this->filesystem->write("/settings/publicTypeIndex.ttl", $publicTypeIndex);
+		}
+		if (!$this->filesystem->has("/settings/preferences.ttl")) {
+			$preferences = $this->generateDefaultPreferences($userId);
+			$this->filesystem->write("/settings/preferences.ttl", $preferences);
+		}
 		if (!$this->filesystem->has("/public")) {
 			$this->filesystem->createDir("/public");
 		}
