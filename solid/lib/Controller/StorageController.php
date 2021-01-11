@@ -146,7 +146,7 @@ EOF;
 		return $defaultAcl;
 	}
 
-	private function generatePublicAppendAcl() {
+	private function generatePublicAppendAcl($userId) {
 		$publicAppendAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -177,7 +177,7 @@ EOF;
 		return $publicAppendAcl;
 	}
 
-	private function generatePublicReadAcl() {
+	private function generatePublicReadAcl($userId) {
 		$publicReadAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -276,7 +276,7 @@ EOF;
 			$this->filesystem->createDir("/inbox");
 		}
 		if (!$this->filesystem->has("/inbox/.acl")) {
-			$inboxAcl = $this->generatePublicAppendAcl();
+			$inboxAcl = $this->generatePublicAppendAcl($userId);
 			$this->filesystem->write("/inbox/.acl", $inboxAcl);
 		}
 		if (!$this->filesystem->has("/settings")) {
@@ -286,7 +286,7 @@ EOF;
 			$this->filesystem->createDir("/public");
 		}
 		if (!$this->filesystem->has("/public/.acl")) {
-			$publicAcl = $this->generatePublicReadAcl();
+			$publicAcl = $this->generatePublicReadAcl($userId);
 			$this->filesystem->write("/public/.acl", $publicAcl);
 		}
 		if (!$this->filesystem->has("/private")) {
@@ -299,10 +299,10 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-		$this->initializeStorage($userId);
-
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
+
+		$this->initializeStorage($userId);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
 		$this->WAC = new WAC($this->filesystem);
