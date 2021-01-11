@@ -329,7 +329,11 @@ EOF;
 			return $this->respond($response);
 		}
 		if (!$this->WAC->isAllowed($request, $webId)) {
-			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
+			$response = $this->resourceServer->getResponse()
+			->withStatus(403, "Access denied")
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Credentials','true')
+            ->withHeader('Access-Control-Allow-Headers', 'Accept');
 			return $this->respond($response);
 		}
 		$response = $this->resourceServer->respondToRequest($request);	
@@ -404,11 +408,6 @@ EOF;
 		$headers = $response->getHeaders();
 
 		$body = $response->getBody()->getContents();
-		if ($statusCode > 399) {
-			$reason = $response->getReasonPhrase();
-			$result = new JSONResponse($reason, $statusCode);
-			return $result;
-		}
 
 		$result = new PlainResponse($body); // FIXME: we need a way to just return a plain response;
 
