@@ -195,7 +195,8 @@ EOF;
 			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
 			return $this->respond($response);
 		}
-		if (!$this->WAC->isAllowed($request, $webId)) {
+		$origin = $request->getHeader("Origin");
+		if (!$this->WAC->isAllowed($request, $webId, $origin)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
