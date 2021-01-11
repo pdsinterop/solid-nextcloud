@@ -126,6 +126,13 @@ class StorageController extends Controller {
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
+# The homepage is readable by the public
+<#public>
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;
+    acl:accessTo </>;
+	acl:mode acl:Read.
+
 # The owner has full access to every resource in their pod.
 # Other agents have no access rights,
 # unless specifically authorized in other .acl resources.
