@@ -15,11 +15,6 @@ pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me
 
 :me
     a schem:Person, foaf:Person;
-    acl:trustedApp
-            [
-                acl:mode acl:Append, acl:Control, acl:Read, acl:Write;
-                acl:origin <http://localhost:3002>
-            ];
     ldp:inbox inbox:;
     sp:preferencesFile <<?php p($_['preferences']); ?>>;
     sp:storage ser:;
