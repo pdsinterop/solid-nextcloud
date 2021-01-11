@@ -61,7 +61,25 @@ class PageController extends Controller {
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
 				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me",
-				'friends' => $friends
+				'friends' => $friends,
+				'inbox' => 'storage/inbox/',
+				'preferences' => 'storage/settings/preferences.ttl',
+				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
+				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
+				'storage' => 'storage/',
+/*
+				'trustedApps' => array(
+					array(
+						'origin' => 'https://localhost:3002',
+						'grants' => array(
+							'http://www.w3.org/ns/auth/acl#Read',
+							'http://www.w3.org/ns/auth/acl#Write',
+							'http://www.w3.org/ns/auth/acl#Append',
+							'http://www.w3.org/ns/auth/acl#Control'
+						)
+					)
+				)
+*/
 			);
 			return $profile;
 		}

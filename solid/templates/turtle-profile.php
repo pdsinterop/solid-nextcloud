@@ -1,2 +1,1 @@
-			<?php print_unescaped($this->inc('profile/turtle')); ?>
-
+<?php print_unescaped($this->inc('settings/preferences')); ?>

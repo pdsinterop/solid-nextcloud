@@ -7,9 +7,9 @@
 @prefix schem: <http://schema.org/>.
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix ldp: <http://www.w3.org/ns/ldp#>.
-@prefix inbox: </inbox/>.
+@prefix inbox: <<?php p($_['inbox']); ?>>.
 @prefix sp: <http://www.w3.org/ns/pim/space#>.
-@prefix ser: <storage/>.
+@prefix ser: <<?php p($_['storage']); ?>>.
 
 pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 
@@ -21,11 +21,11 @@ pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me
                 acl:origin <http://localhost:3002>
             ];
     ldp:inbox inbox:;
-    sp:preferencesFile </settings/prefs.ttl>;
+    sp:preferencesFile <<?php p($_['preferences']); ?>>;
     sp:storage ser:;
     solid:account ser:;
-    solid:privateTypeIndex </settings/privateTypeIndex.ttl>;
-    solid:publicTypeIndex </settings/publicTypeIndex.ttl>;
+    solid:privateTypeIndex <<?php p($_['privateTypeIndex']); ?>>;
+    solid:publicTypeIndex <<?php p($_['publicTypeIndex']); ?>>;
 <?php
 foreach ($_['friends'] as $k => $v) {
 ?>
