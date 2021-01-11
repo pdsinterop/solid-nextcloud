@@ -304,7 +304,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleRequest($userId, $path) {
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -342,7 +341,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleGet($userId, $path) {	
 		return $this->handleRequest($userId, $path);
@@ -352,7 +350,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handlePost($userId, $path) {
 		return $this->handleRequest($userId, $path);
@@ -361,7 +358,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handlePut() { // $userId, $path) {
 		// FIXME: Adding the correct variables in the function name will make nextcloud
@@ -381,7 +377,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleDelete($userId, $path) {
 		return $this->handleRequest($userId, $path);
@@ -390,7 +385,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleHead($userId, $path) {
 		return $this->handleRequest($userId, $path);
@@ -399,7 +393,6 @@ EOF;
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handlePatch($userId, $path) {
 		return $this->handleRequest($userId, $path);
