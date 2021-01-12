@@ -121,18 +121,17 @@ class StorageController extends Controller {
 		return $storageUrl;
 	}
 	private function generateDefaultAcl($userId) {
-		$defaultProfile = <<< EOF
+		$defaultAcl = <<< EOF
 # Root ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
+# The homepage is readable by the public
 <#public>
-        a acl:Authorization;
-        acl:agentClass foaf:Agent;
-        acl:accessTo </>;
-        acl:default </>;
-        acl:mode
-				acl:Read.
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;
+    acl:accessTo <./>;
+	acl:mode acl:Read.
 
 # The owner has full access to every resource in their pod.
 # Other agents have no access rights,
@@ -141,33 +140,134 @@ class StorageController extends Controller {
 	a acl:Authorization;
 	acl:agent <{user-profile-uri}>;
 	# Set the access to the root storage folder itself
-	acl:accessTo </>;
+	acl:accessTo <./>;
 	# All resources will inherit this authorization, by default
-	acl:default </>;
+	acl:default <./>;
 	# The owner has all of the access modes allowed
 	acl:mode
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
 		$profileUri = $this->getUserProfile($userId);
-		$defaultProfile = str_replace("{user-profile-uri}", $profileUri, $defaultProfile);
-		return $defaultProfile;
+		$defaultAcl = str_replace("{user-profile-uri}", $profileUri, $defaultAcl);
+		return $defaultAcl;
 	}
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handleRequest($userId, $path) {
+	private function generatePublicAppendAcl($userId) {
+		$publicAppendAcl = <<< EOF
+# Inbox ACL resource for the user account
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+<#public>
+        a acl:Authorization;
+        acl:agentClass foaf:Agent;
+        acl:accessTo <./>;
+        acl:default <./>;
+        acl:mode
+				acl:Append.
+
+<#owner>
+	a acl:Authorization;
+	acl:agent <{user-profile-uri}>;
+	# Set the access to the root storage folder itself
+	acl:accessTo <./>;
+	# All resources will inherit this authorization, by default
+	acl:default <./>;
+	# The owner has all of the access modes allowed
+	acl:mode
+		acl:Read, acl:Write, acl:Control.
+EOF;
+
+		$profileUri = $this->getUserProfile($userId);
+		$publicAppendAcl = str_replace("{user-profile-uri}", $profileUri, $publicAppendAcl);
+		return $publicAppendAcl;
+	}
+
+	private function generatePublicReadAcl($userId) {
+		$publicReadAcl = <<< EOF
+# Inbox ACL resource for the user account
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+<#public>
+	a acl:Authorization;
+	acl:agentClass foaf:Agent;
+	acl:accessTo <./>;
+	acl:default <./>;
+	acl:mode
+		acl:Read.
+
+<#owner>
+	a acl:Authorization;
+	acl:agent <{user-profile-uri}>;
+	# Set the access to the root storage folder itself
+	acl:accessTo <./>;
+	# All resources will inherit this authorization, by default
+	acl:default <./>;
+	# The owner has all of the access modes allowed
+	acl:mode
+		acl:Read, acl:Write, acl:Control.
+EOF;
+
+		$profileUri = $this->getUserProfile($userId);
+		$publicReadAcl = str_replace("{user-profile-uri}", $profileUri, $publicReadAcl);
+		return $publicReadAcl;
+	}
+
+	private function generateDefaultPublicTypeIndex() {
+		$publicTypeIndex = <<< EOF
+# Public type index
+@prefix : <#>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+
+<>
+	a solid:ListedDocument, solid:TypeIndex.
+EOF;
+
+		return $publicTypeIndex;
+	}
+
+	private function generateDefaultPrivateTypeIndex() {
+		$privateTypeIndex = <<< EOF
+# Private type index
+@prefix : <#>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+
+<>
+	a solid:UnlistedDocument, solid:TypeIndex.
+EOF;
+
+		return $privateTypeIndex;
+	}
+	private function generateDefaultPreferences($userId) {
+		$preferences = <<< EOF
+# Preferences
+@prefix : <#>.
+@prefix dct: <http://purl.org/dc/terms/>.
+@prefix profile: <{user-profile-uri}>.
+@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+
+<>
+	a sp:ConfigurationFile;
+	dct:title "Preferences file".
+
+profile:me
+	a solid:Developer;
+	solid:privateTypeIndex <privateTypeIndex.ttl>;
+	solid:publicTypeIndex <publicTypeIndex.ttl>;
+EOF;
+
+		$profileUri = $this->getUserProfile($userId);
+		$preferences = str_replace("{user-profile-uri}", $profileUri, $preferences);
+		return $preferences;
+	}
+	private function initializeStorage($userId) {
 		$this->userFolder = $this->rootFolder->getUserFolder($userId);
 		if (!$this->userFolder->nodeExists("solid")) {
 			$this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
 		}
 		$this->solidFolder = $this->userFolder->get("solid");
-
-		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem();
 
@@ -177,6 +277,51 @@ EOF;
 			$defaultAcl = $this->generateDefaultAcl($userId);
 			$this->filesystem->write("/.acl", $defaultAcl);
 		}
+
+		// Generate default folders and ACLs:
+		if (!$this->filesystem->has("/inbox")) {
+			$this->filesystem->createDir("/inbox");
+		}
+		if (!$this->filesystem->has("/inbox/.acl")) {
+			$inboxAcl = $this->generatePublicAppendAcl($userId);
+			$this->filesystem->write("/inbox/.acl", $inboxAcl);
+		}
+		if (!$this->filesystem->has("/settings")) {
+			$this->filesystem->createDir("/settings");
+		}
+		if (!$this->filesystem->has("/settings/privateTypeIndex.ttl")) {
+			$privateTypeIndex = $this->generateDefaultPrivateTypeIndex();
+			$this->filesystem->write("/settings/privateTypeIndex.ttl", $privateTypeIndex);
+		}
+		if (!$this->filesystem->has("/settings/publicTypeIndex.ttl")) {
+			$publicTypeIndex = $this->generateDefaultPublicTypeIndex();
+			$this->filesystem->write("/settings/publicTypeIndex.ttl", $publicTypeIndex);
+		}
+		if (!$this->filesystem->has("/settings/preferences.ttl")) {
+			$preferences = $this->generateDefaultPreferences($userId);
+			$this->filesystem->write("/settings/preferences.ttl", $preferences);
+		}
+		if (!$this->filesystem->has("/public")) {
+			$this->filesystem->createDir("/public");
+		}
+		if (!$this->filesystem->has("/public/.acl")) {
+			$publicAcl = $this->generatePublicReadAcl($userId);
+			$this->filesystem->write("/public/.acl", $publicAcl);
+		}
+		if (!$this->filesystem->has("/private")) {
+			$this->filesystem->createDir("/private");
+		}
+	}
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function handleRequest($userId, $path) {
+		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$this->response = new \Laminas\Diactoros\Response();
+
+		$this->initializeStorage($userId);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
 		$this->WAC = new WAC($this->filesystem);
@@ -197,7 +342,11 @@ EOF;
 		}
 		$origin = $request->getHeader("Origin");
 		if (!$this->WAC->isAllowed($request, $webId, $origin)) {
-			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
+			$response = $this->resourceServer->getResponse()
+			->withStatus(403, "Access denied")
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Credentials','true')
+            ->withHeader('Access-Control-Allow-Headers', 'Accept');
 			return $this->respond($response);
 		}
 		$response = $this->resourceServer->respondToRequest($request);	
@@ -272,11 +421,6 @@ EOF;
 		$headers = $response->getHeaders();
 
 		$body = $response->getBody()->getContents();
-		if ($statusCode > 399) {
-			$reason = $response->getReasonPhrase();
-			$result = new JSONResponse($reason, $statusCode);
-			return $result;
-		}
 
 		$result = new PlainResponse($body); // FIXME: we need a way to just return a plain response;
 
