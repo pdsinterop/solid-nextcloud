@@ -75,9 +75,9 @@ class AppController extends Controller {
 		$templateResponse = new TemplateResponse('solid', 'applauncher', $appLauncherData);
         $policy = new ContentSecurityPolicy();
         $policy->addAllowedStyleDomain("data:");
-        $policy->addAllowedScriptDomain("self");
-        $policy->addAllowedScriptDomain("unsafe-inline");
-        $policy->addAllowedScriptDomain("unsafe-eval");
+        $policy->addAllowedScriptDomain("'self'");
+        $policy->addAllowedScriptDomain("'unsafe-inline'");
+        $policy->addAllowedScriptDomain("'unsafe-eval'");
 		$templateResponse->setContentSecurityPolicy($policy);
 		return $templateResponse;
 	}
