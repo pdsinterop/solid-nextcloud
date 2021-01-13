@@ -8,100 +8,86 @@ var loader = function() {
 window.addEventListener("load", loader);
 
 window.addEventListener("simply-content-loaded", function() {
-    var api = {
-        url : "launcher-api/",
-        headers : {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        encodeGetParams : function(params) {
-            if (!params) {
-                return "";
-            }
-            return Object.entries(params).map(function(keyvalue) {
-                return "?" + keyvalue.map(encodeURIComponent).join("=")
-            }).join("&");
-        },
-        get : function(endpoint, params={}) {
-            if (!params.token && editor.pageData.token) {
-                params.token = editor.pageData.token;
-            }
-            if (params.token) {
-                this.headers['Authorization'] = "Bearer " + params.token;
-                delete params.token;
-            } else {
-                delete this.headers.Authentication;
-            }
-            return fetch(api.url + endpoint + "/" + api.encodeGetParams(params), {
-                mode : 'cors',
-                headers: this.headers
+    api = {
+        fetcher : false,
+        session : false,
+        getFetcher : function() {
+            return new Promise(function(resolve, reject) {
+                if (!api.fetcher) {
+                    api.fetcher = solidAuthFetcher.customAuthFetcher();
+                }
+                resolve(api.fetcher);
             });
         },
-        post : function(endpoint, params={}) {
-            if (!params.token && editor.pageData.token) {
-                params.token = editor.pageData.token;
+        getSession : function() {
+            if (!api.session) {
+                api.session = solidAuthFetcher.getSession()
+                .then(function(session) {
+                    if (session.loggedIn) {
+                        return session;
+                    } else {
+                        return fetcher.login({
+                            // webId: "https://nextcloud.local/index.php/apps/solid/@alice/turtle#me",
+                            oidcIssuer: 'https://nextcloud.local',
+                            redirect: document.location.href
+                        });
+                    }
+                });
             }
-            if (params.token) {
-                this.headers['Authorization'] = "Bearer " + params.token;
-                delete params.token;
-            } else {
-                delete this.headers.Authentication;
-            }
-            return fetch(api.url + endpoint + "/", {
-                mode : 'cors',
-                headers: this.headers,
-                method: "POST",
-                body: JSON.stringify(params, null, "\t")
+            return api.session;
+        },
+        login : function() {
+            return api.getFetcher()
+            .then(function(fetcher) {
+                return api.getSession()
+                .then(function() {
+                    return fetcher;
+                });
             });
         },
-        postRaw : function(endpoint, params={}, body) {
-            if (!params.token && editor.pageData.token) {
-                params.token = editor.pageData.token;
-            }
-            if (params.token) {
-                this.headers['Authorization'] = "Bearer " + params.token;
-                delete params.token;
-            } else {
-                delete this.headers.Authentication;
-            }
-            return fetch(api.url + endpoint + "/", {
-                mode : 'cors',
-                headers: this.headers,
-                method: "POST",
-                body: body
+        url : "https://nextcloud.local/index.php/apps/solid/@alice/storage/",
+        get : function(path) {
+            return api.login()
+            .then(function(fetcher) {
+                return fetcher.fetch(api.url + path);
             });
         },
-        put : function(endpoint, params={}) {
-            if (!params.token && editor.pageData.token) {
-                params.token = editor.pageData.token;
-            }
-            if (params.token) {
-                this.headers['Authorization'] = "Bearer " + params.token;
-                delete params.token;
-            } else {
-                delete this.headers.Authentication;
-            }
-            return fetch(api.url + endpoint + "/", {
-                mode: 'cors',
-                headers: this.headers,
-                method: "PUT",
-                body: JSON.stringify(params, null, "\t")
+        post : function(path, body) {
+            return api.login()
+            .then(function(fetcher) {
+                return fetcher.fetch(api.url + path, {
+                    method: "POST",
+                    body: body
+                });
             });
         },
-        delete : function(endpoint, params={}) {
-            if (!params.token && editor.pageData.token) {
-                params.token = editor.pageData.token;
-            }
-            if (params.token) {
-                this.headers['Authorization'] = "Bearer " + params.token;
-                delete params.token;
-            } else {
-                delete this.headers.Authentication;
-            }
-            return fetch(api.url + endpoint + "/" + api.encodeGetParams(params), {
-                mode : 'cors',
-                headers: this.headers,
-                method: "DELETE"
+        put : function(path, body) {
+            return api.login()
+            .then(function(fetcher) {
+                return fetcher.fetch(api.url + path, {
+                    method: "PUT",
+                    body: body
+                });
+            });
+        },
+        delete : function(path) {
+            return api.login()
+            .then(function(fetcher) {
+                return fetcher.fetch(api.url + path, {
+                    method: "DELETE"
+                });
+            });
+        },
+        patch : function(path, body) {
+            return api.login()
+            .then(function(fetcher) {
+                return fetcher.fetch(api.url + path, {
+                    method: "PATCH",
+                    body: body,
+                    headers: {
+                        "Content-type" : "application/sparql-update"
+                    }
+                });
             });
         }
     };
@@ -112,6 +98,60 @@ window.addEventListener("simply-content-loaded", function() {
                 data = JSON.parse(data);
                 resolve(data);
             });
+        },
+        getPrivateTypeIndex() {
+            return api.get("settings/privateTypeIndex.ttl")
+            .then(function(response) {
+                if (response.status === 200) {
+                    return response.text();
+                }
+                throw new Error("getPrivateTypeIndex failed", response.status);
+            })
+            .then(function(text) {
+                console.log(text);
+            });
+        },
+        createContainer: function(path) {
+            return api.get(path)
+            .then(function(response) {
+                if (response.status != 200) {
+                    // not found, try to create it;
+                    // Create a dummy file to make sure the container is created.
+                    return api.put(path + ".dummy", "");
+                }
+            })
+            .then(function() {
+                return api.get(path);
+            });
+        },
+        createFile : function(filepath, contents) {
+            return api.get(filepath)
+            .then(function(response) {
+                if (response.status != 200) {
+                    return api.put(filepath, contents);
+                }
+            })
+            .then(function() {
+                return api.get(filepath);
+            });
+        },
+        addPodWidePermissions : function(permissions, origin) {
+        },
+        addFilePermissions : function(filename, permissions, origin) {
+            return api.get(filename + ".acl") // FIXME: find the acl file from the Link header;
+            .then(function(response) {
+                if (response.status != 200) {
+                    // generate an acl for this file;
+                } else {
+                    // add permissions to the existing file;
+                }
+            })
+        },
+        addContainerPermissions : function(container, permissions, origin) {
+        },
+        registerClassWithFile : function(resourceClass, filename, public) {
+        },
+        registerClassWithContainer : function(resourceClass, container, public) {
         }
     };
 
@@ -131,11 +171,11 @@ window.addEventListener("simply-content-loaded", function() {
         },
         commands: {
             allowAndLaunch : function(el) {
-                // FIXME: run init;
                 var launchUrl = el.getAttribute("data-solid-url");
                 var app = editor.pageData.apps.filter(function(app) {
                     return app.launchUrl == launchUrl;
                 })[0];
+                launcher.actions.preparePod(app);
                 window.open(app.launchUrl);
             },
             launch : function(el) {
@@ -152,6 +192,67 @@ window.addEventListener("simply-content-loaded", function() {
                 .then(function(apps) {
                     editor.pageData.apps = apps;
                 });
+            },
+            preparePod : function(appInfo) {
+                appInfo.requirements.forEach(function(requirement) {
+                    switch(requirement['type']) {
+                        case "podWide":
+                            // add podwide permissions as requested by this app - add the origin of the app
+                            launcher.actions.addPodWidePermissions(requirement.permissions, appInfo.appOrigin);
+                        break;
+                        case "container":
+                            // add the container
+                            // add permissions for the container
+                            launcher.actions.createContainer(requirement.container);
+                            launcher.actions.addContainerPermissions(requirement.container, requirement.permissions, appInfo.appOrigin);
+                        break;
+                        case "file":
+                            // add the file
+                            // add permissions to the file
+                            launcher.actions.createFile(requirement.filename);
+                            launcher.actions.addFilePermissions(requirement.filename, requirement.permissions, appInfo.appOrigin);
+                        break;
+                        case "class":
+                            // add the class in the correct type registry (public = true)
+                            if (requirement.filename) {
+                                launcher.actions.registerClassWithFile(requirement.class, requirement.filename, requirement.public);
+                            } else if (requirement.container) {
+                                launcher.actions.registerClassWithContainer(requirement.class, requirement.container, requirement.public);
+                            }
+                        break;
+                        default:
+                            // FIXME: unknown requirement, now what?
+                        break;
+                    }
+                });
+            },
+            createContainer : function(containerPath) {
+                console.log("Create container " + containerPath);
+                return launcherApi.createContainer(containerPath);
+            },
+            createFile : function(filePath) {
+                console.log("Create file " + filePath);
+                return launcherApi.createFile(filePath);
+            },
+            addPodWidePermissions : function(permissions, origin) {
+                console.log("Add pod wide permissions");
+                return launcherApi.addPodWidePermissions(permissions, origin);
+            },
+            addFilePermissions : function(filename, permissions, origin) {
+                console.log("Add file permissions");
+                return launcherApi.addFilePermissions(filename, permissions, origin);
+            },
+            addContainerPermissions : function(container, permissions, origin) {
+                console.log("Add container permissions");
+                return launcherApi.addContainerPermissions(container, permissions, origin);
+            },
+            registerClassWithFile : function(resourceClass, filename, public) {
+                console.log("Register class with file ");
+                return launcherApi.registerClassWithFile(resourceClass, filename, public);
+            },
+            registerClassWithContainer : function(resourceClass, container, public) {
+                console.log("Register class with container ");
+                return launcherApi.registerClassWithContainer(resourceClass, container, public);
             }
         }
     });
