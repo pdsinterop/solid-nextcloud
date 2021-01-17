@@ -1,6 +1,7 @@
 <?php
-	script("solid", "simply-edit");
-	script("solid", "simply.everything");
+	script("solid", "vendor/simplyedit/simply-edit");
+	script("solid", "vendor/simplyedit/simply.everything");
+	script("solid", "vendor/solid/solid-auth-fetcher.bundle");
 	script("solid", "launcher");
 ?>
 <script type="application/json" id="apps">
