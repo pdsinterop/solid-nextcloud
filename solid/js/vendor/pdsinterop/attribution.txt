@@ -1,0 +1,4 @@
+solid-acl-parser is the browser dist version of this project:
+https://github.com/pdsinterop/solid-acl-parser/
+
+which is a fork from https://github.com/Otto-AA/solid-acl-parser
