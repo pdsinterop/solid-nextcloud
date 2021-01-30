@@ -21,6 +21,7 @@
         "name": "Poddit",
         "tagline": "Private bookmarking",
         "launchUrl": "https://poddit.app",
+        "appOrigin": "https://poddit.app",
         "requirements": [
             {
                 "type": "class",
