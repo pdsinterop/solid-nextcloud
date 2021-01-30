@@ -19,11 +19,11 @@ window.addEventListener("simply-content-loaded", function() {
                 resolve(api.fetcher);
             });
         },
-        getSession : function() {
+        getSession : function(fetcher) {
             if (!api.session) {
                 api.session = solidAuthFetcher.getSession()
                 .then(function(session) {
-                    if (session.loggedIn) {
+                    if (session && session.loggedIn) {
                         return session;
                     } else {
                         return fetcher.login({
@@ -39,13 +39,13 @@ window.addEventListener("simply-content-loaded", function() {
         login : function() {
             return api.getFetcher()
             .then(function(fetcher) {
-                return api.getSession()
+                return api.getSession(fetcher)
                 .then(function() {
                     return fetcher;
                 });
             });
         },
-        url : "https://nextcloud.local/index.php/apps/solid/@alice/storage/",
+        url : "https://nextcloud.local/index.php/apps/solid/@admin/storage/", //FIXME: vul juiste user hier in
         get : function(path) {
             return api.login()
             .then(function(fetcher) {
@@ -142,10 +142,35 @@ window.addEventListener("simply-content-loaded", function() {
             .then(function(response) {
                 if (response.status != 200) {
                     // generate an acl for this file;
+                    var turtle = '';//@prefix   acl:  <http://www.w3.org/ns/auth/acl#>.';
                 } else {
                     // add permissions to the existing file;
+                    var turtle = response.text();
                 }
+                return turtle;
             })
+            .then(function(turtle) {
+                const { AclParser, Permissions, Agents } = SolidAclParser;
+                const { WRITE, APPEND, READ, CONTROL } = Permissions;
+                var fileUrl = filename;
+                var aclUrl = filename + ".acl";
+                const parser = new AclParser({ aclUrl, fileUrl});
+                const agents = new Agents();
+                agents.addOrigin("https://poddit.app"); //FIXME; get from appOrigin in solid-app-list.json
+
+                parser.turtleToAclDoc(turtle)
+                .then(function(doc) {
+                    doc.addRule([READ,APPEND,WRITE], agents); // FIXME: get this from permissions in solid-app-list.json
+                    return doc;
+                })
+                .then(function(doc) {
+                    return parser.aclDocToTurtle(doc);
+                })
+                .then(function(newTurtle) {
+                    console.log('Dit is em!',newTurtle);
+                    api.put(filename+".acl", newTurtle);
+                });
+            });
         },
         addContainerPermissions : function(container, permissions, origin) {
         },
