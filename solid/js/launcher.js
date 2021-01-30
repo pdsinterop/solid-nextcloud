@@ -152,15 +152,32 @@ window.addEventListener("simply-content-loaded", function() {
             .then(function(turtle) {
                 const { AclParser, Permissions, Agents } = SolidAclParser;
                 const { WRITE, APPEND, READ, CONTROL } = Permissions;
-                var fileUrl = filename;
-                var aclUrl = filename + ".acl";
+                var fileUrl = api.url + filename;
+                var aclUrl = api.url + filename + ".acl";
                 const parser = new AclParser({ aclUrl, fileUrl});
                 const agents = new Agents();
-                agents.addOrigin("https://poddit.app"); //FIXME; get from appOrigin in solid-app-list.json
-
+                agents.addOrigin(origin);
+                agents.addWebId("https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
                 parser.turtleToAclDoc(turtle)
                 .then(function(doc) {
-                    doc.addRule([READ,APPEND,WRITE], agents); // FIXME: get this from permissions in solid-app-list.json
+                    var permissionsToAdd = [];
+                    permissions.forEach(function(permission) {
+                        switch (permission) {
+                            case "acl.Append":
+                                permissionsToAdd.push(APPEND);
+                            break;
+                            case "acl.Read":
+                                permissionsToAdd.push(READ);
+                            break;
+                            case "acl.Write":
+                                permissionsToAdd.push(WRITE);
+                            break;
+                            case "acl.Control":
+                                permissionsToAdd.push(CONRTOL);
+                            break;
+                        }
+                    })
+                    doc.addRule(permissionsToAdd, agents);
                     return doc;
                 })
                 .then(function(doc) {
