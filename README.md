@@ -1,9 +1,6 @@
 # solid-nextcloud
 A plugin to make Nextcloud compatible with Solid
 
-## CAVEAT: Only identity is working so far!
-So far, we only implemented the functionality from [milestone 1](https://github.com/pdsinterop/project-admin/blob/master/milestones.md#1-identity).
-Storage and deep integration coming soon!
 
 ## Unattended install
 To programmatically build a Nextcloud server that has this plugin working,
