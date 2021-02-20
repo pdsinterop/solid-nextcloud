@@ -3,6 +3,7 @@
 	script("solid", "vendor/simplyedit/simply.everything");
 	script("solid", "vendor/solid/solid-auth-fetcher.bundle");
 	script("solid", "vendor/pdsinterop/solid-acl-parser.bundle");
+	script("solid", "vendor/pdsinterop/solid-typeindex-parser.bundle");
 	script("solid", "launcher");
 ?>
 <script type="application/json" id="apps">

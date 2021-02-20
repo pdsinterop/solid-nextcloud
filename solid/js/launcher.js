@@ -173,7 +173,7 @@ window.addEventListener("simply-content-loaded", function() {
                                 permissionsToAdd.push(WRITE);
                             break;
                             case "acl.Control":
-                                permissionsToAdd.push(CONRTOL);
+                                permissionsToAdd.push(CONTROL);
                             break;
                         }
                     })
@@ -192,8 +192,74 @@ window.addEventListener("simply-content-loaded", function() {
         addContainerPermissions : function(container, permissions, origin) {
         },
         registerClassWithFile : function(resourceClass, filename, public) {
+            if (public) {
+                typeIndex = "/settings/publicTypeIndex.ttl";
+            } else {
+                typeIndex = "/settings/privateTypeIndex.ttl";
+            }
+            return api.get(typeIndex)
+            .then(function(response) {
+                if (response.status != 200) {
+                    // generate a type index
+                    var turtle = '';
+                } else {
+                    // add permissions to the existing file;
+                    var turtle = response.text();
+                }
+                return turtle;
+            })
+            .then(function(turtle) {
+                const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
+                var typeIndexUrl = api.url + typeIndex;
+                const parser = new TypeIndexParser({ typeIndexUrl });
+                const SolidType = new SolidType(resourceClass, filename)
+                parser.turtleToTypeIndexDoc(turtle)
+                .then(function(doc) {
+                    doc.addType(solidType);
+                    return doc;
+                })
+                .then(function(doc) {
+                    return parser.typeIndexDocToTurtle(doc);
+                })
+                .then(function(newTurtle) {
+                    api.put(typeIndex, newTurtle);
+                });
+            });
         },
         registerClassWithContainer : function(resourceClass, container, public) {
+            if (public) {
+                typeIndex = "/settings/publicTypeIndex.ttl";
+            } else {
+                typeIndex = "/settings/privateTypeIndex.ttl";
+            }
+            return api.get(typeIndex)
+            .then(function(response) {
+                if (response.status != 200) {
+                    // generate a type index
+                    var turtle = '';
+                } else {
+                    // add permissions to the existing file;
+                    var turtle = response.text();
+                }
+                return turtle;
+            })
+            .then(function(turtle) {
+                const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
+                var typeIndexUrl = api.url + typeIndex;
+                const parser = new TypeIndexParser({ typeIndexUrl });
+                const SolidType = new SolidType(resourceClass, undefined, container)
+                parser.turtleToTypeIndexDoc(turtle)
+                .then(function(doc) {
+                    doc.addType(solidType);
+                    return doc;
+                })
+                .then(function(doc) {
+                    return parser.typeIndexDocToTurtle(doc);
+                })
+                .then(function(newTurtle) {
+                    api.put(typeIndex, newTurtle);
+                });
+            });
         }
     };
 
