@@ -190,6 +190,56 @@ window.addEventListener("simply-content-loaded", function() {
             });
         },
         addContainerPermissions : function(container, permissions, origin) {
+            return api.get(container + "/.acl") // FIXME: find the acl file from the Link header;
+            .then(function(response) {
+                if (response.status != 200) {
+                    // generate an acl for this file;
+                    var turtle = '';//@prefix   acl:  <http://www.w3.org/ns/auth/acl#>.';
+                } else {
+                    // add permissions to the existing file;
+                    var turtle = response.text();
+                }
+                return turtle;
+            })
+            .then(function(turtle) {
+                const { AclParser, Permissions, Agents } = SolidAclParser;
+                const { WRITE, APPEND, READ, CONTROL } = Permissions;
+                var containerUrl = api.url + container;
+                var aclUrl = api.url + container + "/.acl";
+                const parser = new AclParser({ aclUrl, containerUrl});
+                const agents = new Agents();
+                agents.addOrigin(origin);
+                agents.addWebId("https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
+                parser.turtleToAclDoc(turtle)
+                .then(function(doc) {
+                    var permissionsToAdd = [];
+                    permissions.forEach(function(permission) {
+                        switch (permission) {
+                            case "acl.Append":
+                                permissionsToAdd.push(APPEND);
+                            break;
+                            case "acl.Read":
+                                permissionsToAdd.push(READ);
+                            break;
+                            case "acl.Write":
+                                permissionsToAdd.push(WRITE);
+                            break;
+                            case "acl.Control":
+                                permissionsToAdd.push(CONTROL);
+                            break;
+                        }
+                    })
+                    doc.addDefaultRule(permissionsToAdd, agents);
+                    return doc;
+                })
+                .then(function(doc) {
+                    return parser.aclDocToTurtle(doc);
+                })
+                .then(function(newTurtle) {
+                    console.log('Dit is em!',newTurtle);
+                    api.put(container+"/.acl", newTurtle);
+                });
+            });
         },
         registerClassWithFile : function(resourceClass, filename, public) {
             if (public) {
