@@ -343,10 +343,7 @@ EOF;
 		$origin = $request->getHeaderLine("Origin");
 		if (!$this->WAC->isAllowed($request, $webId, $origin)) {
 			$response = $this->resourceServer->getResponse()
-			->withStatus(403, "Access denied")
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Credentials','true')
-            ->withHeader('Access-Control-Allow-Headers', 'Accept');
+			->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
 		$response = $this->resourceServer->respondToRequest($request);	
