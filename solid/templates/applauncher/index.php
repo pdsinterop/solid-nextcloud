@@ -9,6 +9,12 @@
 <script type="application/json" id="apps">
     <?php echo($_['appsListJson']); ?>
 </script>
+<script type="application/json" id="webId">
+    <?php echo($_['webId']); ?>
+</script>
+<script type="application/json" id="storageUrl">
+    <?php echo($_['storageUrl']); ?>
+</script>
 <main class="solid-launcher" data-simply-field="page" data-simply-content="template">
 	<template data-simply-template="Launcher">
 		<ul data-simply-list="apps" class="solid-apps">
@@ -29,7 +35,7 @@
 									</ul>
 								</template>
 								<template data-simply-template="container">
-									Permissions in the folder <code data-simply-field="container"></code> in your Pod:
+									Permissions in the folder <code x-data-simply-field="container"></code> in your Pod:
 									<ul data-simply-list="permissions" data-simply-entry="entry">
 										<template>
 											<li class="solid-acl"><span data-simply-field="entry" data-simply-transformer="grants"></li>
@@ -37,7 +43,7 @@
 									</ul>
 								</template>
 								<template data-simply-template="class">
-									Permissions on <span data-simply-field="class" data-simply-transformer="schemaClass"></span> in your Pod:
+									Permissions on <span x-data-simply-field="class" data-simply-transformer="schemaClass"></span> in your Pod:
 									<ul data-simply-list="permissions" data-simply-entry="entry">
 										<template>
 											<li class="solid-acl"><span data-simply-field="entry" data-simply-transformer="grants"></li>
