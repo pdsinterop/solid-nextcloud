@@ -101,11 +101,8 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function cors($path) {
-		header("Access-Control-Allow-Headers: authorization, content-type, dpop");
-		header("Access-Control-Allow-Credentials: true");
 		return true;
 	}
 
@@ -113,7 +110,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function openid() {
 		$response = new \Laminas\Diactoros\Response();
@@ -227,7 +223,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -261,7 +256,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function userinfo() {
 		return new JSONResponse("ok");
@@ -271,7 +265,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function logout() {
 		$this->userService->logout();
@@ -282,7 +275,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function register() {
 		$clientData = file_get_contents('php://input');
@@ -311,7 +303,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function registeredClient($clientId) {
 		$clientRegistration = $this->config->getClientRegistration($clientId);
@@ -324,7 +315,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function jwks() {
 		$response = new \Laminas\Diactoros\Response();
