@@ -28,4 +28,5 @@ foreach ($_['friends'] as $k => $v) {
 <?php
 }
 ?>
-    foaf:name "<?php p($_['displayName']); ?>".
+    foaf:name "<?php p($_['displayName']); ?>";
+    <http://www.w3.org/2006/vcard/ns#fn> "<?php p($_['displayName']); ?>".
