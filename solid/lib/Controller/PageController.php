@@ -120,6 +120,11 @@ class PageController extends Controller {
 		$templateResponse = new TemplateResponse('solid', 'sharing', $params);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
+
+		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		$origin = $parsedOrigin['host'];
+		$policy->addAllowedFormActionDomain($origin);
+
 		$templateResponse->setContentSecurityPolicy($policy);
 		return $templateResponse;
 	}
