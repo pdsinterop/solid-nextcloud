@@ -126,7 +126,7 @@ window.addEventListener("simply-content-loaded", function() {
                 if (response.status != 200) {
                     // not found, try to create it;
                     // Create a dummy file to make sure the container is created.
-                    return api.put(path + ".dummy", "");
+                    return api.put(path + "/.dummy", "");
                 }
             })
             .then(function() {
