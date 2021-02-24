@@ -8,6 +8,15 @@ var loader = function() {
 window.addEventListener("load", loader);
 
 window.addEventListener("simply-content-loaded", function() {
+    webId = (function() {
+            var data = document.querySelector("script#webId").innerText;
+            return JSON.parse(data);
+    })();
+    storageUrl = (function() {
+        var data = document.querySelector("script#storageUrl").innerText;
+        var result = JSON.parse(data) + "/";
+        return result;
+    })();
     api = {
         fetcher : false,
         session : false,
@@ -27,8 +36,8 @@ window.addEventListener("simply-content-loaded", function() {
                         return session;
                     } else {
                         return fetcher.login({
-                            // webId: "https://nextcloud.local/index.php/apps/solid/@alice/turtle#me",
-                            oidcIssuer: 'https://nextcloud.local',
+                            webId: webId,
+                            // oidcIssuer: 'https://nextcloud.local',
                             redirect: document.location.href
                         });
                     }
@@ -45,7 +54,7 @@ window.addEventListener("simply-content-loaded", function() {
                 });
             });
         },
-        url : "https://nextcloud.local/index.php/apps/solid/@admin/storage/", //FIXME: vul juiste user hier in
+        url : storageUrl, // "https://nextcloud.local/index.php/apps/solid/@admin/storage/", //FIXME: vul juiste user hier in
         get : function(path) {
             return api.login()
             .then(function(fetcher) {
@@ -157,7 +166,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const parser = new AclParser({ aclUrl, fileUrl});
                 const agents = new Agents();
                 agents.addOrigin(origin);
-                agents.addWebId("https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
+                agents.addWebId(webId); // "https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
                 parser.turtleToAclDoc(turtle)
                 .then(function(doc) {
                     var permissionsToAdd = [];
@@ -184,7 +193,7 @@ window.addEventListener("simply-content-loaded", function() {
                     return parser.aclDocToTurtle(doc);
                 })
                 .then(function(newTurtle) {
-                    console.log('Dit is em!',newTurtle);
+                    // console.log('Dit is em!',newTurtle);
                     api.put(filename+".acl", newTurtle);
                 });
             });
@@ -209,7 +218,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const parser = new AclParser({ aclUrl, containerUrl});
                 const agents = new Agents();
                 agents.addOrigin(origin);
-                agents.addWebId("https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
+                agents.addWebId(webId); // "https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
                 parser.turtleToAclDoc(turtle)
                 .then(function(doc) {
                     var permissionsToAdd = [];
@@ -236,7 +245,7 @@ window.addEventListener("simply-content-loaded", function() {
                     return parser.aclDocToTurtle(doc);
                 })
                 .then(function(newTurtle) {
-                    console.log('Dit is em!',newTurtle);
+                    // console.log('Dit is em!',newTurtle);
                     api.put(container+"/.acl", newTurtle);
                 });
             });
@@ -262,7 +271,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
                 var typeIndexUrl = api.url + typeIndex;
                 const parser = new TypeIndexParser({ typeIndexUrl });
-                const SolidType = new SolidType(resourceClass, filename)
+                const solidType = new SolidType(resourceClass, filename)
                 parser.turtleToTypeIndexDoc(turtle)
                 .then(function(doc) {
                     doc.addType(solidType);
@@ -297,7 +306,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
                 var typeIndexUrl = api.url + typeIndex;
                 const parser = new TypeIndexParser({ typeIndexUrl });
-                const SolidType = new SolidType(resourceClass, undefined, container)
+                const solidType = new SolidType(resourceClass, undefined, container)
                 parser.turtleToTypeIndexDoc(turtle)
                 .then(function(doc) {
                     doc.addType(solidType);

@@ -60,6 +60,14 @@ class AppController extends Controller {
         return $appsList;
 	}
 
+	private function getProfilePage() {
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $this->userId))) . "#me";
+	}
+	private function getStorageUrl($userId) {
+		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
+		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+		return $storageUrl;
+	}
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
@@ -70,8 +78,10 @@ class AppController extends Controller {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
 		}
         $appLauncherData = array(
-			"appsListJson" => json_encode($appsList)
-       );
+			"appsListJson" => json_encode($appsList),
+			"webId" => json_encode($this->getProfilePage()),
+			"storageUrl" => json_encode($this->getStorageUrl($this->userId))
+		);
 		$templateResponse = new TemplateResponse('solid', 'applauncher', $appLauncherData);
         $policy = new ContentSecurityPolicy();
         $policy->addAllowedStyleDomain("data:");
