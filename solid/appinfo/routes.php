@@ -13,6 +13,7 @@ return [
         ['name' => 'page#do_echo', 'url' => '/echo', 'verb' => 'POST'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
         ['name' => 'page#turtleProfile', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
+        ['name' => 'page#turtleContacts', 'url' => '/@{userId}/contacts', 'verb' => 'GET'],
         ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],

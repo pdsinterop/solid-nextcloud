@@ -40,7 +40,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		return new TemplateResponse('solid', 'index');  // templates/index.php
+		return new TemplateResponse('solid', 'index');  // templates/turtle.php
 	}
 
 	private function getUserProfile($userId) {
@@ -172,4 +172,20 @@ class PageController extends Controller {
 		header("Access-Control-Allow-Credentials: true");
 		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
 	}
+
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     * @CORS
+     */
+    public function turtleContacts($userId) {
+        $profile = $this->getUserProfile($userId);
+        if (!$profile) {
+            return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+        }
+        header("Access-Control-Allow-Headers: authorization");
+        header("Access-Control-Allow-Credentials: true");
+        return new TemplateResponse('solid', 'turtle-contacts', $profile, 'blank');
+    }
 }
