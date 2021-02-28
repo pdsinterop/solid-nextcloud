@@ -6,7 +6,12 @@ function setup {
   docker build -t solid-nextcloud .
   docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#master
   docker pull michielbdejong/nextcloud-cookie
-  docker pull solidtestsuite/webid-provider-tests:v1.2.0
+  docker pull solidtestsuite/webid-provider-tests:v2.0.3
+  docker tag solidtestsuite/webid-provider-tests:v2.0.3 webid-provider-tests
+  docker pull solidtestsuite/solid-crud-tests:v3.1.0
+  docker tag solidtestsuite/solid-crud-tests:v3.1.0 solid-crud-tests
+  docker pull solidtestsuite/web-access-control-tests:v4.0.0
+  docker tag solidtestsuite/web-access-control-tests:v4.0.0 web-access-control-tests
 }
 function teardown {
   docker stop `docker ps --filter network=testnet -q`
@@ -42,7 +47,7 @@ function runTests {
     --env COOKIE="$COOKIE_server" \
     --env COOKIE_ALICE="$COOKIE_server" \
     --env COOKIE_BOB="$COOKIE_thirdparty" \
-    --env-file ./env-vars-testers.list solidtestsuite/$1-tests
+    --env-file ./env-vars-testers.list $1-tests
 }
 
 # ...

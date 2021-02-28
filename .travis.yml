@@ -1,4 +1,0 @@
-sudo: false
-language: php
-script:
-  - bash run-solid-test-suite.sh

@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  pubsub:
+    build:
+      context: https://github.com/pdsinterop/php-solid-pubsub-server.git
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - nextcloud
+  nextcloud:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    expose:
+      - 443
+    ports:
+      - 443:443

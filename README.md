@@ -1,9 +1,6 @@
 # solid-nextcloud
 A plugin to make Nextcloud compatible with Solid
 
-## CAVEAT: Only identity is working so far!
-So far, we only implemented the functionality from [milestone 1](https://github.com/pdsinterop/project-admin/blob/master/milestones.md#1-identity).
-Storage and deep integration coming soon!
 
 ## Unattended install
 To programmatically build a Nextcloud server that has this plugin working,
@@ -28,6 +25,8 @@ Now visit https://localhost and log in as alice / alice123.
 If you enable this app in your Nextcloud instance, you should
 [edit your .htaccess file](https://github.com/solid/test-suite/blob/665824af763ddd5dd7242cbc8b18faad4ac304e3/servers/nextcloud-server/init.sh#L5)
 and then test whether https://your-nextcloud-server.com/.well-known/openid-configuration redirects to https://your-nextcloud-server.com/apps/solid/openid.
+
+Also, take the CORS instructions from site.conf and add them to your own webserver configuration.
 
 ## Unattended testing
 To test whether your server is install correctly, you can run Solid's [webid-provider-tests](https://github.com/solid/webid-provider-tests#against-production) against it.
