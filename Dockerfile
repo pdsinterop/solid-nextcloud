@@ -8,7 +8,8 @@ RUN openssl req -new -x509 -days 365 -nodes \
   -subj "/C=RO/ST=Bucharest/L=Bucharest/O=IT/CN=www.example.ro"
 RUN apt-get update && apt-get install -yq \
   git \
-  vim
+  vim \
+  sudo
 WORKDIR /install
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 RUN php composer-setup.php
