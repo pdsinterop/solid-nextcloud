@@ -214,8 +214,7 @@ class ServerController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function session($user, $password) {
-		$this->userService->login($user, $password);
+	public function session() {
 		return new JSONResponse("ok");
 	}
 	
