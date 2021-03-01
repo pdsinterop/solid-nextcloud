@@ -17,6 +17,9 @@
 		if (!scriptEl) {
 			scriptEl = document.querySelector("[data-api-key]");
 		}
+		if (!scriptEl) {
+			scriptEl = document.querySelector("[src*='simply-edit.js']");
+		}
 		return scriptEl;
 	};
 
