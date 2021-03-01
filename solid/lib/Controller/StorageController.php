@@ -323,7 +323,7 @@ EOF;
 
 		$this->initializeStorage($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
 		$this->WAC = new WAC($this->filesystem);
 		$this->DPop = new DPop();
 
@@ -341,7 +341,8 @@ EOF;
 			return $this->respond($response);
 		}
 		$origin = $request->getHeaderLine("Origin");
-		if (!$this->WAC->isAllowed($request, $webId, $origin)) {
+		$allowedClients = $this->config->getAllowedClients($userId);
+		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedClients)) {
 			$response = $this->resourceServer->getResponse()
 			->withStatus(403, "Access denied");
 			return $this->respond($response);
