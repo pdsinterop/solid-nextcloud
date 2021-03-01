@@ -92,7 +92,7 @@ class ServerController extends Controller {
 				$this->getOpenIdEndpoints()
 			))->create();
 		} catch(\Throwable $e) {
-			var_dump($e);
+			// var_dump($e);
 		}
 		return $config;
 	}
@@ -329,7 +329,7 @@ class ServerController extends Controller {
 
 		$body = json_decode($response->getBody()->getContents());
 		if ($statusCode > 399) {
-			var_dump($body);
+			// var_dump($body);
 			$reason = $response->getReasonPhrase();
 			$result = new JSONResponse($reason, $statusCode);
 			return $result;
