@@ -162,7 +162,7 @@ EOF;
 		// Make sure the root folder has an acl file, as is required by the spec;
         // Generate a default file granting the owner full access if there is nothing there.
 
-		$defaultAcl = $this->generateDefaultAcl($this->userId);
+		$defaultAcl = $this->generateDefaultAcl($userId);
 		$this->filesystem->setDefaultAcl($defaultAcl);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
