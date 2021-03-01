@@ -49,7 +49,7 @@
 		/**
 		 * @param string $publicKey
 		 */
-		public function setEncryptionKey($encryptionKey) {
+		public function setEncryptionKey($publicKey) {
 			$this->config->setAppValue('solid','encryptionKey',$publicKey);
 		}
 
