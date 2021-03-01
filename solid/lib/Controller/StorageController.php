@@ -342,7 +342,12 @@ EOF;
 		}
 		$origin = $request->getHeaderLine("Origin");
 		$allowedClients = $this->config->getAllowedClients($userId);
-		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedClients)) {
+		$allowedOrigins = array();
+		foreach ($allowedClients as $clientId) {
+			$clientRegistration = $this->config->getClientRegistration($clientId);
+			$allowedOrigins[] = $clientRegistration['client_name'];
+		}
+		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
 			->withStatus(403, "Access denied");
 			return $this->respond($response);
