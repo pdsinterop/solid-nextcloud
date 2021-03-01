@@ -83,8 +83,12 @@ class CalendarController extends Controller {
 	}
 
 	private function getFileSystem($userId) {
+		// Make sure the root folder has an acl file, as is required by the spec;
+        // Generate a default file granting the owner full access.
+		$defaultAcl = $this->generateDefaultAcl($userId);
+
 		// Create the Nextcloud Calendar Adapter
-		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar($userId);
+		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar($userId, $defaultAcl);
 
 		$graph = new \EasyRdf_Graph();
 
@@ -158,12 +162,6 @@ EOF;
 		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem($userId);
-
-		// Make sure the root folder has an acl file, as is required by the spec;
-        // Generate a default file granting the owner full access if there is nothing there.
-
-		$defaultAcl = $this->generateDefaultAcl($userId);
-		$this->filesystem->setDefaultAcl($defaultAcl);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
         $this->WAC = new WAC($this->filesystem);
