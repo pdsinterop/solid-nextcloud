@@ -6,12 +6,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
-use OCP\Calendar\IManager;
-use OCP\App\IAppManager;
 
-use OCP\Files\IRootFolder;
-use OCP\Files\IHomeStorage;
-use OCP\Files\SimpleFS\ISimpleRoot;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\Http\JSONResponse;
@@ -89,7 +84,8 @@ class CalendarController extends Controller {
 
 	private function getFileSystem() {
 		// Create the Nextcloud Calendar Adapter
-		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar();
+		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar($this->userId);
+
 		$graph = new \EasyRdf_Graph();
 
 		// Create Formats objects
@@ -113,6 +109,32 @@ class CalendarController extends Controller {
 		$filesystem->addPlugin($plugin);
 
 		return $filesystem;
+	}
+
+	private function generateDefaultAcl($userId) {
+		$defaultAcl = <<< EOF
+# Root ACL resource for the user account
+@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+
+# The owner has full access to every resource in their pod.
+# Other agents have no access rights,
+# unless specifically authorized in other .acl resources.
+<#owner>
+	a acl:Authorization;
+	acl:agent <{user-profile-uri}>;
+	# Set the access to the root storage folder itself
+	acl:accessTo <./>;
+	# All resources will inherit this authorization, by default
+	acl:default <./>;
+	# The owner has all of the access modes allowed
+	acl:mode
+		acl:Read, acl:Write, acl:Control.
+EOF;
+
+		$profileUri = $this->getUserProfile($userId);
+		$defaultAcl = str_replace("{user-profile-uri}", $profileUri, $defaultAcl);
+		return $defaultAcl;
 	}
 
 	private function getUserProfile($userId) {
@@ -140,11 +162,8 @@ class CalendarController extends Controller {
 		// Make sure the root folder has an acl file, as is required by the spec;
         // Generate a default file granting the owner full access if there is nothing there.
 
-        // FIXME: How to write .acl information to calendars?
-//		if (!$this->filesystem->has("/.acl")) {
-//			$defaultAcl = $this->generateDefaultAcl($userId);
-//			$this->filesystem->write("/.acl", $defaultAcl);
-//		}
+		$defaultAcl = $this->generateDefaultAcl($this->userId);
+		$this->filesystem->setDefaultAcl($defaultAcl);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
         $this->WAC = new WAC($this->filesystem);
@@ -156,26 +175,21 @@ class CalendarController extends Controller {
 		$this->WAC->setBaseUrl($baseUrl);
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
-/*
+
 		try {
 			$webId = $this->DPop->getWebId($request);
 		} catch(\Exception $e) {
 			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
 			return $this->respond($response);
 		}
-
-*/
-
 		
-/*
-        FIXME: check if the webId is allowed to access the calendar using whatever ACL solution we came up with;
 		if (!$this->WAC->isAllowed($request, $webId)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
-*/
+
 		$response = $this->resourceServer->respondToRequest($request);	
-//		$response = $this->WAC->addWACHeaders($request, $response, $webId);
+		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
 	
