@@ -124,9 +124,10 @@ class PageController extends Controller {
 
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
 		$origin = $parsedOrigin['host'];
-		$policy->addAllowedFormActionDomain($origin);
-
-		$templateResponse->setContentSecurityPolicy($policy);
+		if ($origin) {
+			$policy->addAllowedFormActionDomain($origin);
+			$templateResponse->setContentSecurityPolicy($policy);
+		}
 		return $templateResponse;
 	}
 
