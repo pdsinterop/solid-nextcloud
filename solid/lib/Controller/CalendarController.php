@@ -142,7 +142,7 @@ EOF;
 	}
 
 	private function getUserProfile($userId) {
-		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "turtle"))) . "#me";
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle"))) . "#me";
 	}
 	private function getCalendarUrl($userId) {
 		$calendarUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.calendar.handleHead", array("userId" => $userId, "path" => "foo")));

@@ -21,7 +21,7 @@
         "pdsinterop/flysystem-rdf": "dev-main",
         "pdsinterop/solid-auth": "dev-main",
         "pdsinterop/solid-crud": "dev-main",
-        "pdsinterop/flysystem-nextcloud":"dev-main",
+        "pdsinterop/flysystem-nextcloud":"dev-calendar-integration",
         "laminas/laminas-diactoros": "^2.4",
         "lcobucci/jwt": "^3.3"
     },
