@@ -153,6 +153,12 @@
 			return json_decode($data, true);
 		}
 
+		public function getProfileData($userId) {
+			return $this->config->getUserValue($userId, "solid", "profileData", "");
+		}
+		public function setProfileData($userId, $profileData) {
+			$this->config->setUserValue($userId, "solid", "profileData", $profileData);
+		}
 		private function generateKeySet() {
 			$config = array(
 				"digest_alg" => "sha256",

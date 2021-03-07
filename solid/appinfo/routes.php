@@ -12,7 +12,6 @@ return [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'page#do_echo', 'url' => '/echo', 'verb' => 'POST'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
-        ['name' => 'page#turtleProfile', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
         ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
@@ -28,7 +27,11 @@ return [
         ['name' => 'server#userinfo', 'url' => '/userinfo', 'verb' => 'GET'],
         ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
         ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
-		
+
+        ['name' => 'page#turtleProfile', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
+        ['name' => 'page#handleProfilePut', 'url' => '/@{userId}/turtle', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
+        ['name' => 'page#handleProfilePatch', 'url' => '/@{userId}/turtle', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
+
         ['name' => 'storage#handleGet', 'url' => '/@{userId}/storage{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handlePost', 'url' => '/@{userId}/storage{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handlePut', 'url' => '/@{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],

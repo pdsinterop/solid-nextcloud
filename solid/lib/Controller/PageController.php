@@ -53,7 +53,7 @@ class PageController extends Controller {
 			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
 			  foreach($results as $found) {
 				  foreach($found['URL'] as $i => $obj) {
-				    array_push($friends, $obj['value']);
+					array_push($friends, $obj['value']);
 				  }
 				}
 			}
@@ -67,6 +67,7 @@ class PageController extends Controller {
 				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
 				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
 				'storage' => 'storage/',
+				
 /*
 				'trustedApps' => array(
 					array(
@@ -97,7 +98,7 @@ class PageController extends Controller {
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
-        }
+		}
 		$templateResponse = new TemplateResponse('solid', 'profile', $profile);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
@@ -166,14 +167,149 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-     */
+	 */
 	public function turtleProfile($userId) {
+		$turtleProfile = $this->generateTurtleProfile($userId);
+		if (!$turtleProfile) {
+		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+		}
+		return new TemplateResponse(
+			'solid',
+			'turtle-profile',
+			array("turtleProfile" => $turtleProfile),
+			'blank'
+		);
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function handleProfilePut($userId) {
+		$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$contentType = $rawRequest->getHeaderLine("Content-Type");
+		switch ($contentType) {
+			case "text/turtle":
+			break;
+			default:
+				return new JSONResponse(array(), 400);
+			break;
+		}
+		$contents = $rawRequest->getBody()->getContents();
+		$this->config->setProfileData($userId, $contents);
+	}
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function handleProfilePatch($userId) {
+		$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$contentType = $rawRequest->getHeaderLine("Content-Type");
+		switch ($contentType) {
+			case "application/sparql-update":
+				$contents = $rawRequest->getBody()->getContents();
+				$profile = $this->generateTurtleProfile($userId);
+
+				$graph = new \EasyRdf_Graph();
+				$graph->parse($profile, "turtle");
+				if (preg_match_all("/((INSERT|DELETE).*{(.*)})+/", $contents, $matches, PREG_SET_ORDER)) {
+					foreach ($matches as $match) {
+						$command = $match[2];
+						$triples = $match[3];
+	
+						// apply changes to ttl data
+						switch($command) {
+							case "INSERT":
+								// insert $triple(s) into $graph
+								$graph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
+	
+							break;
+							case "DELETE":
+								// delete $triples from $graph
+								$deleteGraph = new \EasyRdf_Graph();
+								$deleteGraph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
+								$resources = $deleteGraph->resources();
+								foreach ($resources as $resource) {
+									$properties = $resource->propertyUris();
+									foreach ($properties as $property) {
+										$values = $resource->all($property);
+										if (!sizeof($values)) {
+											$graph->delete($resource, $property);
+										} else {
+											foreach ($values as $value) {
+												$count = $graph->delete($resource, $property, $value);
+												if ($count == 0) {
+													throw new \Exception("Could not delete a value", 500);
+												}
+											}
+										}
+									}
+								}
+							break;
+							default:
+								throw new \Exception("Unimplemented SPARQL", 500);
+							break;
+						}
+					}
+				}
+
+				// Assuming this is in our native format, turtle
+				$patchedProfile = $graph->serialise("turtle");
+				$this->config->setProfileData($userId, $patchedProfile);
+			break;
+			default:
+				return new JSONResponse(array(), 400);
+			break;
+		}
+	}
+
+	private function generateTurtleProfile($userId) {
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
-		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
-        }
-		// header("Access-Control-Allow-Headers: *, authorization, accept, content-type");
-		// header("Access-Control-Allow-Credentials: true");
-		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
+			return "";
+		}
+		ob_start();
+	?>@prefix : <#>.
+	@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+	@prefix pro: <./>.
+	@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+	@prefix schem: <http://schema.org/>.
+	@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+	@prefix ldp: <http://www.w3.org/ns/ldp#>.
+	@prefix inbox: <<?php echo $profile['inbox']; ?>>.
+	@prefix sp: <http://www.w3.org/ns/pim/space#>.
+	@prefix ser: <<?php echo $profile['storage']; ?>>.
+	
+	pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
+	
+	:me
+		a schem:Person, foaf:Person;
+		ldp:inbox inbox:;
+		sp:preferencesFile <<?php echo $profile['preferences']; ?>>;
+		sp:storage ser:;
+		solid:account ser:;
+		solid:privateTypeIndex <<?php echo $profile['privateTypeIndex']; ?>>;
+		solid:publicTypeIndex <<?php echo $profile['publicTypeIndex']; ?>>;
+	<?php
+	foreach ($profile['friends'] as $key => $friend) {
+	?>
+		foaf:knows <<?php echo $friend; ?>>;
+	<?php
+	}
+	?>
+		foaf:name "<?php echo $profile['displayName']; ?>";
+		<http://www.w3.org/2006/vcard/ns#fn> "<?php echo $profile['displayName']; ?>".
+	<?php
+		$generatedProfile = ob_get_contents();
+		ob_end_clean();
+
+		$baseProfile = $this->config->getProfileData($userId);
+		$graph = new \EasyRdf_Graph();
+		$graph->parse($baseProfile, "turtle");
+		$graph->parse($generatedProfile, "turtle");
+		$combinedProfile = $graph->serialize("turtle");
+		return $combinedProfile;
 	}
 }
