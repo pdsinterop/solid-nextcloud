@@ -74,7 +74,11 @@ class PageController extends Controller {
 				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
 				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
 				'storage' => 'storage/',
-/*
+				'navigation'  => array(
+					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+				),
+	/*
 				'trustedApps' => array(
 					array(
 						'origin' => 'https://localhost:3002',

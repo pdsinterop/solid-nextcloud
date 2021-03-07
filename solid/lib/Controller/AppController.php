@@ -80,7 +80,11 @@ class AppController extends Controller {
         $appLauncherData = array(
 			"appsListJson" => json_encode($appsList),
 			"webId" => json_encode($this->getProfilePage()),
-			"storageUrl" => json_encode($this->getStorageUrl($this->userId))
+			"storageUrl" => json_encode($this->getStorageUrl($this->userId)),
+			'navigation'  => array(
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+			)
 		);
 		$templateResponse = new TemplateResponse('solid', 'applauncher', $appLauncherData);
         $policy = new ContentSecurityPolicy();
