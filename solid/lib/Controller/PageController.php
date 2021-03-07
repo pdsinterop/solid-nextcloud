@@ -168,17 +168,126 @@ class PageController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function turtleProfile($userId) {
-		$turtleProfile = $this->generateTurtleProfile($userId);
-		if (!$turtleProfile) {
-		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+	public function handleProfileRequest($userId, $method) {
+		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+		$this->response = new \Laminas\Diactoros\Response();
+
+		$this->WAC = new WAC($this->filesystem);
+		$this->DPop = new DPop();
+
+		$request = $this->rawRequest;
+
+		try {
+			$webId = $this->DPop->getWebId($request);
+		} catch(\Exception $e) {
+			return new JSONResponse("Invalid token", 409);
 		}
-		return new TemplateResponse(
-			'solid',
-			'turtle-profile',
-			array("turtleProfile" => $turtleProfile),
-			'blank'
-		);
+		$origin = $request->getHeaderLine("Origin");
+		$allowedClients = $this->config->getAllowedClients($userId);
+		$allowedOrigins = array();
+		foreach ($allowedClients as $clientId) {
+			$clientRegistration = $this->config->getClientRegistration($clientId);
+			$allowedOrigins[] = $clientRegistration['client_name'];
+		}
+		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
+			return new JSONResponse("Access denied", 403);
+		}
+
+		$contentType = $rawRequest->getHeaderLine("Content-Type");
+		switch ($method) {
+			case "GET":
+				$turtleProfile = $this->generateTurtleProfile($userId);
+				if (!$turtleProfile) {
+				   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+				}
+				return new TemplateResponse(
+					'solid',
+					'turtle-profile',
+					array("turtleProfile" => $turtleProfile),
+					'blank'
+				);
+			break;
+			case "PUT":
+				switch ($contentType) {
+					case "text/turtle":
+					break;
+					default:
+						return new JSONResponse(array(), 400);
+					break;
+				}
+				$contents = $rawRequest->getBody()->getContents();
+				$this->config->setProfileData($userId, $contents);
+				return new JSONResponse("ok", 200);
+			break;
+			case "PATCH":
+				switch ($contentType) {
+					case "application/sparql-update":
+						$contents = $rawRequest->getBody()->getContents();
+						$profile = $this->generateTurtleProfile($userId);
+		
+						$graph = new \EasyRdf_Graph();
+						$graph->parse($profile, "turtle");
+						if (preg_match_all("/((INSERT|DELETE).*{(.*)})+/", $contents, $matches, PREG_SET_ORDER)) {
+							foreach ($matches as $match) {
+								$command = $match[2];
+								$triples = $match[3];
+			
+								// apply changes to ttl data
+								switch($command) {
+									case "INSERT":
+										// insert $triple(s) into $graph
+										$graph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
+			
+									break;
+									case "DELETE":
+										// delete $triples from $graph
+										$deleteGraph = new \EasyRdf_Graph();
+										$deleteGraph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
+										$resources = $deleteGraph->resources();
+										foreach ($resources as $resource) {
+											$properties = $resource->propertyUris();
+											foreach ($properties as $property) {
+												$values = $resource->all($property);
+												if (!sizeof($values)) {
+													$graph->delete($resource, $property);
+												} else {
+													foreach ($values as $value) {
+														$count = $graph->delete($resource, $property, $value);
+														if ($count == 0) {
+															throw new \Exception("Could not delete a value", 500);
+														}
+													}
+												}
+											}
+										}
+									break;
+									default:
+										throw new \Exception("Unimplemented SPARQL", 500);
+									break;
+								}
+							}
+						}
+		
+						// Assuming this is in our native format, turtle
+						$patchedProfile = $graph->serialise("turtle");
+						$this->config->setProfileData($userId, $patchedProfile);
+						return new JSONResponse("ok", 200);
+					break;
+					default:
+						return new JSONResponse(array(), 400);
+					break;
+				}
+			break;
+		}
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function handleProfileGet($userId) {
+		return $this->handleProfileRequest($userId, "GET");
 	}
 
 	/**
@@ -187,17 +296,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function handleProfilePut($userId) {
-		$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$contentType = $rawRequest->getHeaderLine("Content-Type");
-		switch ($contentType) {
-			case "text/turtle":
-			break;
-			default:
-				return new JSONResponse(array(), 400);
-			break;
-		}
-		$contents = $rawRequest->getBody()->getContents();
-		$this->config->setProfileData($userId, $contents);
+		return $this->handleProfileRequest($userId, "PUT");
 	}
 	/**
 	 * @PublicPage
@@ -205,64 +304,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function handleProfilePatch($userId) {
-		$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$contentType = $rawRequest->getHeaderLine("Content-Type");
-		switch ($contentType) {
-			case "application/sparql-update":
-				$contents = $rawRequest->getBody()->getContents();
-				$profile = $this->generateTurtleProfile($userId);
-
-				$graph = new \EasyRdf_Graph();
-				$graph->parse($profile, "turtle");
-				if (preg_match_all("/((INSERT|DELETE).*{(.*)})+/", $contents, $matches, PREG_SET_ORDER)) {
-					foreach ($matches as $match) {
-						$command = $match[2];
-						$triples = $match[3];
-	
-						// apply changes to ttl data
-						switch($command) {
-							case "INSERT":
-								// insert $triple(s) into $graph
-								$graph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
-	
-							break;
-							case "DELETE":
-								// delete $triples from $graph
-								$deleteGraph = new \EasyRdf_Graph();
-								$deleteGraph->parse($triples, "turtle"); // FIXME: The triples here are in sparql format, not in turtle;
-								$resources = $deleteGraph->resources();
-								foreach ($resources as $resource) {
-									$properties = $resource->propertyUris();
-									foreach ($properties as $property) {
-										$values = $resource->all($property);
-										if (!sizeof($values)) {
-											$graph->delete($resource, $property);
-										} else {
-											foreach ($values as $value) {
-												$count = $graph->delete($resource, $property, $value);
-												if ($count == 0) {
-													throw new \Exception("Could not delete a value", 500);
-												}
-											}
-										}
-									}
-								}
-							break;
-							default:
-								throw new \Exception("Unimplemented SPARQL", 500);
-							break;
-						}
-					}
-				}
-
-				// Assuming this is in our native format, turtle
-				$patchedProfile = $graph->serialise("turtle");
-				$this->config->setProfileData($userId, $patchedProfile);
-			break;
-			default:
-				return new JSONResponse(array(), 400);
-			break;
-		}
+		return $this->handleProfilePatch($userId, "PATCH");
 	}
 
 	private function generateTurtleProfile($userId) {

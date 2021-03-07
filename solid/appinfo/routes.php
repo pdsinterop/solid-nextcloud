@@ -28,9 +28,9 @@ return [
         ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
         ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
 
-        ['name' => 'page#turtleProfile', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
-        ['name' => 'page#handleProfilePut', 'url' => '/@{userId}/turtle', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'page#handleProfilePatch', 'url' => '/@{userId}/turtle', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
+        ['name' => 'page#handleProfileGet', 'url' => '/@{userId}/turtle', 'verb' => 'GET' ],
+        ['name' => 'page#handleProfilePut', 'url' => '/@{userId}/turtle', 'verb' => 'PUT'],
+        ['name' => 'page#handleProfilePatch', 'url' => '/@{userId}/turtle', 'verb' => 'PATCH'],
 
         ['name' => 'storage#handleGet', 'url' => '/@{userId}/storage{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
         ['name' => 'storage#handlePost', 'url' => '/@{userId}/storage{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
