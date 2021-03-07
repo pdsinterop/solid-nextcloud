@@ -82,7 +82,7 @@ class AppController extends Controller {
 			"webId" => json_encode($this->getProfilePage()),
 			"storageUrl" => json_encode($this->getStorageUrl($this->userId)),
 			'navigation'  => array(
-				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
 				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 			)
 		);

@@ -43,7 +43,7 @@ class PageController extends Controller {
 	public function index() {
 		$args = array(
 			'navigation'  => array(
-				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
 				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 			)
 		);
@@ -75,7 +75,7 @@ class PageController extends Controller {
 				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
 				'storage' => 'storage/',
 				'navigation'  => array(
-					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
 					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 				),
 	/*
