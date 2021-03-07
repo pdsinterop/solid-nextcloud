@@ -190,7 +190,7 @@ EOF;
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
-		if ($this->request->getHeaderLine("DPop")) {
+		if ($request->getHeaderLine("DPop")) {
 			try {
 				$webId = $this->DPop->getWebId($request);
 			} catch(\Exception $e) {
