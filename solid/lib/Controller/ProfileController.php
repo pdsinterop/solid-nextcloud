@@ -368,8 +368,8 @@ EOF;
 
 		$baseProfile = $this->config->getProfileData($userId);
 		$graph = new \EasyRdf_Graph();
-		$graph->parse($baseProfile, "turtle");
-		$graph->parse($generatedProfile, "turtle");
+		$graph->parse($baseProfile, "turtle", $profile['profileUri']);
+		$graph->parse($generatedProfile, "turtle", $profile['profileUri']);
 		$combinedProfile = $graph->serialise("turtle");
 		return $combinedProfile;
 	}
