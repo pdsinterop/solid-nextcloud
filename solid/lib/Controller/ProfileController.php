@@ -366,10 +366,11 @@ EOF;
 		$generatedProfile = ob_get_contents();
 		ob_end_clean();
 
+		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle")));
 		$baseProfile = $this->config->getProfileData($userId);
 		$graph = new \EasyRdf_Graph();
-		$graph->parse($baseProfile, "turtle", $profile['profileUri']);
-		$graph->parse($generatedProfile, "turtle", $profile['profileUri']);
+		$graph->parse($baseProfile, "turtle", $baseUrl);
+		$graph->parse($generatedProfile, "turtle", $baseUrl);
 		$combinedProfile = $graph->serialise("turtle");
 		return $combinedProfile;
 	}
