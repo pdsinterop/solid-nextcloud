@@ -41,7 +41,13 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		return new TemplateResponse('solid', 'index');  // templates/index.php
+		$args = array(
+			'navigation'  => array(
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
+				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+			)
+		);
+		return new TemplateResponse('solid', 'index', $args);  // templates/index.php
 	}
 
 	private function getUserProfile($userId) {
@@ -68,10 +74,6 @@ class PageController extends Controller {
 				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
 				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
 				'storage' => 'storage/',
-				'navigation'  => array(
-					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
-					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
-				),
 /*
 				'trustedApps' => array(
 					array(
