@@ -124,6 +124,14 @@ class ProfileController extends Controller {
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
+# The profile is readable by the public
+<#public>
+    a acl:Authorization;
+    acl:agentClass foaf:Agent;
+	acl:accessTo <./>;
+	acl:default <./>;
+	acl:mode acl:Read.
+	
 # The owner has full access to every resource in their pod.
 # Other agents have no access rights,
 # unless specifically authorized in other .acl resources.
@@ -148,9 +156,14 @@ EOF;
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle"))) . "#me";
 	}
 	private function getProfileUrl($userId) {
-		$calendarUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleHead", array("userId" => $userId, "path" => "foo")));
-		$calendarUrl = preg_replace('/foo$/', '', $calendarUrl);
-		return $calendarUrl;
+		$profileUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleHead", array("userId" => $userId, "path" => "foo")));
+		$profileUrl = preg_replace('/foo$/', '', $profileUrl);
+		return $profileUrl;
+	}
+	private function getStorageUrl($userId) {
+		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
+		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+		return $storageUrl;
 	}
 
 	/**
@@ -177,13 +190,17 @@ EOF;
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
-		try {
-			$webId = $this->DPop->getWebId($request);
-		} catch(\Exception $e) {
-			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
-			return $this->respond($response);
+		if ($this->request->getHeaderLine("DPop")) {
+			try {
+				$webId = $this->DPop->getWebId($request);
+			} catch(\Exception $e) {
+				$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+				return $this->respond($response);
+			}
+		} else {
+			$webId = "";
 		}
-		
+
 		if (!$this->WAC->isAllowed($request, $webId)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
@@ -298,28 +315,11 @@ EOF;
 				'displayName' => $user->getDisplayName(),
 				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle"))) . "#me",
 				'friends' => $friends,
-				'inbox' => 'storage/inbox/',
-				'preferences' => 'storage/settings/preferences.ttl',
-				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
-				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
-				'storage' => 'storage/',
-				'navigation'  => array(
-					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
-					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
-				),
-	/*
-				'trustedApps' => array(
-					array(
-						'origin' => 'https://localhost:3002',
-						'grants' => array(
-							'http://www.w3.org/ns/auth/acl#Read',
-							'http://www.w3.org/ns/auth/acl#Write',
-							'http://www.w3.org/ns/auth/acl#Append',
-							'http://www.w3.org/ns/auth/acl#Control'
-						)
-					)
-				)
-*/
+				'inbox' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/inbox/"))),
+				'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
+				'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
+				'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
+				'storage' => $this->getStorageUrl($userId)
 			);
 			return $profile;
 		}
@@ -370,7 +370,7 @@ EOF;
 		$graph = new \EasyRdf_Graph();
 		$graph->parse($baseProfile, "turtle");
 		$graph->parse($generatedProfile, "turtle");
-		$combinedProfile = $graph->serialize("turtle");
+		$combinedProfile = $graph->serialise("turtle");
 		return $combinedProfile;
 	}
 }
