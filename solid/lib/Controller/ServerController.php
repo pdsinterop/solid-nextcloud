@@ -191,7 +191,7 @@ class ServerController extends Controller {
 	}
 	
 	private function getProfilePage() {
-		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.handleProfileGet", array("userId" => $this->userId))) . "#me";
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "turtle"))) . "#me";
 	}
 
 	private function getResponseType() {

@@ -4,6 +4,7 @@ namespace OCA\Solid\Controller;
 use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
+use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
 
@@ -65,20 +66,22 @@ class PlainResponse extends Response {
 	}
 }
 
-class CalendarController extends Controller {
+class ProfileController extends Controller {
 	/* @var IURLGenerator */
 	private $urlGenerator;
 
 	/* @var ISession */
 	private $session;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
+	public function __construct($AppName, IRequest $request, ISession $session, IManager $contactsManager, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
 	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = $config;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
+		$this->userManager = $userManager;
+		$this->contactsManager = $contactsManager;
 		$this->session = $session;
 	}
 
@@ -86,12 +89,12 @@ class CalendarController extends Controller {
 		// Make sure the root folder has an acl file, as is required by the spec;
         // Generate a default file granting the owner full access.
 		$defaultAcl = $this->generateDefaultAcl($userId);
+		$profile = $this->generateTurtleProfile($userId);
 
 		// Create the Nextcloud Calendar Adapter
-		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar($userId, $defaultAcl);
+		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudProfile($userId, $profile, $defaultAcl, $this->config);
 
 		$graph = new \EasyRdf_Graph();
-
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
@@ -136,16 +139,16 @@ class CalendarController extends Controller {
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
-		$profileUri = $this->getUserProfile($userId);
+		$profileUri = $this->getUserProfileUri($userId);
 		$defaultAcl = str_replace("{user-profile-uri}", $profileUri, $defaultAcl);
 		return $defaultAcl;
 	}
 
-	private function getUserProfile($userId) {
+	private function getUserProfileUri($userId) {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "turtle"))) . "#me";
 	}
-	private function getCalendarUrl($userId) {
-		$calendarUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.calendar.handleHead", array("userId" => $userId, "path" => "foo")));
+	private function getProfileUrl($userId) {
+		$calendarUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleHead", array("userId" => $userId, "path" => "foo")));
 		$calendarUrl = preg_replace('/foo$/', '', $calendarUrl);
 		return $calendarUrl;
 	}
@@ -156,7 +159,7 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-        $this->calendarUserId = $userId;
+        $this->userId = $userId;
         
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
@@ -168,7 +171,7 @@ EOF;
 		$this->DPop = new DPop();
 
 		$request = $this->rawRequest;
-		$baseUrl = $this->getCalendarUrl($userId);		
+		$baseUrl = $this->getProfileUrl($userId);		
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
@@ -223,7 +226,7 @@ EOF;
 		$pathInfo = explode("/", $pathInfo[1], 2);
 		$userId = $pathInfo[0];
 		$path = $pathInfo[1];
-		$path = preg_replace("/^calendar/", "", $path);
+		$path = preg_replace("/^profile/", "", $path);
 		
 		return $this->handleRequest($userId, $path);
 	}
@@ -274,5 +277,100 @@ EOF;
 		
 		$result->setStatus($statusCode);
 		return $result;
+	}
+
+	private function getUserProfile($userId) {
+		if ($this->userManager->userExists($userId)) {
+			$user = $this->userManager->get($userId);
+			$addressBooks = $this->contactsManager->getAddressBooks();
+			$addressBooks = $this->contactsManager->getUserAddressBooks();
+			$friends = [];
+			foreach($addressBooks as $k => $v) {
+			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
+			  foreach($results as $found) {
+				  foreach($found['URL'] as $i => $obj) {
+					array_push($friends, $obj['value']);
+				  }
+				}
+			}
+			$profile = array(
+				'id' => $userId,
+				'displayName' => $user->getDisplayName(),
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "turtle"))) . "#me",
+				'friends' => $friends,
+				'inbox' => 'storage/inbox/',
+				'preferences' => 'storage/settings/preferences.ttl',
+				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
+				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
+				'storage' => 'storage/',
+				'navigation'  => array(
+					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
+					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+				),
+	/*
+				'trustedApps' => array(
+					array(
+						'origin' => 'https://localhost:3002',
+						'grants' => array(
+							'http://www.w3.org/ns/auth/acl#Read',
+							'http://www.w3.org/ns/auth/acl#Write',
+							'http://www.w3.org/ns/auth/acl#Append',
+							'http://www.w3.org/ns/auth/acl#Control'
+						)
+					)
+				)
+*/
+			);
+			return $profile;
+		}
+		return false;
+	}
+
+	private function generateTurtleProfile($userId) {
+		$profile = $this->getUserProfile($userId);
+		if (!$profile) {
+			return "";
+		}
+		ob_start();
+	?>@prefix : <#>.
+	@prefix solid: <http://www.w3.org/ns/solid/terms#>.
+	@prefix pro: <./>.
+	@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+	@prefix schem: <http://schema.org/>.
+	@prefix acl: <http://www.w3.org/ns/auth/acl#>.
+	@prefix ldp: <http://www.w3.org/ns/ldp#>.
+	@prefix inbox: <<?php echo $profile['inbox']; ?>>.
+	@prefix sp: <http://www.w3.org/ns/pim/space#>.
+	@prefix ser: <<?php echo $profile['storage']; ?>>.
+	
+	pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
+	
+	:me
+		a schem:Person, foaf:Person;
+		ldp:inbox inbox:;
+		sp:preferencesFile <<?php echo $profile['preferences']; ?>>;
+		sp:storage ser:;
+		solid:account ser:;
+		solid:privateTypeIndex <<?php echo $profile['privateTypeIndex']; ?>>;
+		solid:publicTypeIndex <<?php echo $profile['publicTypeIndex']; ?>>;
+	<?php
+	foreach ($profile['friends'] as $key => $friend) {
+	?>
+		foaf:knows <<?php echo $friend; ?>>;
+	<?php
+	}
+	?>
+		foaf:name "<?php echo $profile['displayName']; ?>";
+		<http://www.w3.org/2006/vcard/ns#fn> "<?php echo $profile['displayName']; ?>".
+	<?php
+		$generatedProfile = ob_get_contents();
+		ob_end_clean();
+
+		$baseProfile = $this->config->getProfileData($userId);
+		$graph = new \EasyRdf_Graph();
+		$graph->parse($baseProfile, "turtle");
+		$graph->parse($generatedProfile, "turtle");
+		$combinedProfile = $graph->serialize("turtle");
+		return $combinedProfile;
 	}
 }
