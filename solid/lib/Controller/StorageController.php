@@ -113,7 +113,7 @@ class StorageController extends Controller {
 	}
 
 	private function getUserProfile($userId) {
-		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me";
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.handleProfileGet", array("userId" => $userId))) . "#me";
 	}
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));

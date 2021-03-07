@@ -12,6 +12,7 @@ use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use Laminas\Diactoros\ServerRequest;
 
 class PageController extends Controller {
 	private $userId;
@@ -60,7 +61,7 @@ class PageController extends Controller {
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me",
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.handleProfileGet", array("userId" => $userId))) . "#me",
 				'friends' => $friends,
 				'inbox' => 'storage/inbox/',
 				'preferences' => 'storage/settings/preferences.ttl',
