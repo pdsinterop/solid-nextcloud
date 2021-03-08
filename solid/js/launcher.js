@@ -54,7 +54,7 @@ window.addEventListener("simply-content-loaded", function() {
                 });
             });
         },
-        url : storageUrl, // "https://nextcloud.local/index.php/apps/solid/@admin/storage/", //FIXME: vul juiste user hier in
+        url : storageUrl,
         get : function(path) {
             return api.login()
             .then(function(fetcher) {

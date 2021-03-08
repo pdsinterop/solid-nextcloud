@@ -379,7 +379,7 @@ EOF;
 
 		$body = $response->getBody()->getContents();
 
-		$result = new PlainResponse($body); // FIXME: we need a way to just return a plain response;
+		$result = new PlainResponse($body);
 
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
