@@ -47,6 +47,13 @@ return [
         ['name' => 'calendar#handlePatch', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
         ['name' => 'calendar#handleHead', 'url' => '/@{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
 
-	    ['name' => 'app#appLauncher', 'url' => '/launcher/', 'verb' => 'GET'],
+        ['name' => 'contacts#handleGet', 'url' => '/@{userId}/contacts{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
+        ['name' => 'contacts#handlePost', 'url' => '/@{userId}/contacts{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
+        ['name' => 'contacts#handlePut', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
+        ['name' => 'contacts#handleDelete', 'url' => '/@{userId}/contacts{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
+        ['name' => 'contacts#handlePatch', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
+        ['name' => 'contacts#handleHead', 'url' => '/@{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+
+        ['name' => 'app#appLauncher', 'url' => '/launcher/', 'verb' => 'GET'],
     ]
 ];
