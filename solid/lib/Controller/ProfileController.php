@@ -319,7 +319,7 @@ EOF;
 		$generatedProfile = ob_get_contents();
 		ob_end_clean();
 
-		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle")));
+		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card")));
 		$baseProfile = $this->config->getProfileData($userId);
 		$graph = new \EasyRdf_Graph();
 		$graph->parse($baseProfile, "turtle", $baseUrl);
