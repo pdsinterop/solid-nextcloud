@@ -4,7 +4,7 @@ set -e
 function setup {
   docker network create testnet
   docker build -t solid-nextcloud .
-  docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#master
+  docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
   docker pull michielbdejong/nextcloud-cookie
   docker pull solidtestsuite/webid-provider-tests:v2.0.3
   docker tag solidtestsuite/webid-provider-tests:v2.0.3 webid-provider-tests
