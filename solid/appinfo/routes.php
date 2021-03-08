@@ -10,7 +10,6 @@
 return [
     'routes' => [
         ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
-        ['name' => 'page#do_echo', 'url' => '/echo', 'verb' => 'POST'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
         ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
