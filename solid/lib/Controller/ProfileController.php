@@ -299,7 +299,6 @@ EOF;
 	private function getUserProfile($userId) {
 		if ($this->userManager->userExists($userId)) {
 			$user = $this->userManager->get($userId);
-			$addressBooks = $this->contactsManager->getAddressBooks();
 			$addressBooks = $this->contactsManager->getUserAddressBooks();
 			$friends = [];
 			foreach($addressBooks as $k => $v) {
