@@ -296,7 +296,7 @@ EOF;
 	@prefix sp: <http://www.w3.org/ns/pim/space#>.
 	@prefix ser: <<?php echo $profile['storage']; ?>>.
 	
-	pro:turtle a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
+	pro:card a foaf:PersonalProfileDocument; foaf:maker :me; foaf:primaryTopic :me.
 	
 	:me
 		a schem:Person, foaf:Person;
