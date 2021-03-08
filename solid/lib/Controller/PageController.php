@@ -4,11 +4,9 @@ namespace OCA\Solid\Controller;
 use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
-use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
@@ -19,11 +17,11 @@ class PageController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
+		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->userId = $userId;
 		$this->userManager = $userManager;
-		$this->contactsManager = $contactsManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = $config;
@@ -40,46 +38,26 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		return new TemplateResponse('solid', 'index');  // templates/index.php
+		$args = array(
+			'navigation'  => array(
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
+				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+			)
+		);
+		return new TemplateResponse('solid', 'index', $args);  // templates/index.php
 	}
 
 	private function getUserProfile($userId) {
 		if ($this->userManager->userExists($userId)) {
 			$user = $this->userManager->get($userId);
-			$addressBooks = $this->contactsManager->getAddressBooks();
-			$addressBooks = $this->contactsManager->getUserAddressBooks();
-			$friends = [];
-			foreach($addressBooks as $k => $v) {
-			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
-			  foreach($results as $found) {
-				  foreach($found['URL'] as $i => $obj) {
-				    array_push($friends, $obj['value']);
-				  }
-				}
-			}
 			$profile = array(
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $userId))) . "#me",
-				'friends' => $friends,
-				'inbox' => 'storage/inbox/',
-				'preferences' => 'storage/settings/preferences.ttl',
-				'privateTypeIndex' => 'storage/settings/privateTypeIndex.ttl',
-				'publicTypeIndex' => 'storage/settings/publicTypeIndex.ttl',
-				'storage' => 'storage/',
-/*
-				'trustedApps' => array(
-					array(
-						'origin' => 'https://localhost:3002',
-						'grants' => array(
-							'http://www.w3.org/ns/auth/acl#Read',
-							'http://www.w3.org/ns/auth/acl#Write',
-							'http://www.w3.org/ns/auth/acl#Append',
-							'http://www.w3.org/ns/auth/acl#Control'
-						)
-					)
+				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
+				'navigation'  => array(
+					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
+					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 				)
-*/
 			);
 			return $profile;
 		}
@@ -97,7 +75,7 @@ class PageController extends Controller {
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
-        }
+		}
 		$templateResponse = new TemplateResponse('solid', 'profile', $profile);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
@@ -160,20 +138,5 @@ class PageController extends Controller {
 		$this->config->removeAllowedClient($this->userId, $clientId);
 		$result = new JSONResponse("ok");
 		return $result;
-	}
-
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-     */
-	public function turtleProfile($userId) {
-		$profile = $this->getUserProfile($userId);
-		if (!$profile) {
-		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
-        }
-		// header("Access-Control-Allow-Headers: *, authorization, accept, content-type");
-		// header("Access-Control-Allow-Credentials: true");
-		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
 	}
 }

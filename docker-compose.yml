@@ -3,7 +3,7 @@ version: '3'
 services:
   pubsub:
     build:
-      context: https://github.com/pdsinterop/php-solid-pubsub-server.git
+      context: https://github.com/pdsinterop/php-solid-pubsub-server.git#main
     ports:
       - 8080:8080
     expose:

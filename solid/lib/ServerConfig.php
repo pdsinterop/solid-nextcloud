@@ -2,6 +2,8 @@
 	namespace OCA\Solid;
 
 	use OCP\IConfig;
+	use OCP\IUserManager;
+	use OCP\IUrlGenerator;
 
 	/**
 	 * @package OCA\Solid
@@ -14,8 +16,10 @@
 		/**
 		 * @param IConfig $config
 		 */
-		public function __construct(IConfig $config) {
+		public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager) {
 			$this->config = $config;
+			$this->userManager = $userManager;
+			$this->urlGenerator = $urlGenerator;
 		}
 
 		/**
@@ -153,6 +157,27 @@
 			return json_decode($data, true);
 		}
 
+		public function getProfileData($userId) {
+			return $this->config->getUserValue($userId, "solid", "profileData", "");
+		}
+		public function setProfileData($userId, $profileData) {
+			$this->config->setUserValue($userId, "solid", "profileData", $profileData);
+			
+			if ($this->userManager->userExists($userId)) {
+				$graph = new \EasyRdf_Graph();
+				$graph->parse($profileData, 'turtle');
+				$data = $graph->toRdfPhp();
+				$subject = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
+				$subjectData = $data[$subject];
+				$fields = array(
+					"name" => $subjectData['http://xmlns.com/foaf/0.1/name'][0]['value']
+				);
+
+				// and write them to the user;
+				$user = $this->userManager->get($userId);
+				$user->setDisplayName($fields['name']);
+			}
+		}
 		private function generateKeySet() {
 			$config = array(
 				"digest_alg" => "sha256",

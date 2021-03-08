@@ -1,6 +1,6 @@
 SERVER_ROOT=https://server
 STORAGE_ROOT=https://server/apps/solid/@alice/storage
-ALICE_WEBID=https://server/apps/solid/@alice/turtle#me
+ALICE_WEBID=https://server/apps/solid/@alice/profile/card#me
 COOKIE_TYPE=nextcloud-compatible
 USERNAME=alice
 PASSWORD=alice123

@@ -35,7 +35,7 @@ To test whether your server is install correctly, you can run Solid's [webid-pro
 Go to https://solidcommunity.net and create a Solid pod.
 Go to https://generator.inrupt.com/text-editor and log in with https://solidcommunity.net. Tick all 4 boxes in the consent dialog.
 Click 'Load', type something, click 'Save'.
-Grant access to co-editor https://your-nextcloud-server.com/apps/solid/@your-username/turtle#me.
-For instance if you're using the [development install](#development-install), that would be https://localhost/apps/solid/@alice/turtle#me
+Grant access to co-editor https://your-nextcloud-server.com/apps/solid/@your-username/profile/card#me.
+For instance if you're using the [development install](#development-install), that would be https://localhost/apps/solid/@alice/profile/card#me
 Now in a separate browser window, log in to  https://generator.inrupt.com/text-editor with https://your-nextcloud-server.com.
 You should be able to edit the file as a co-author now, using your Nextcloud account as a webid identity provider.

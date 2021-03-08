@@ -61,7 +61,7 @@ class AppController extends Controller {
 	}
 
 	private function getProfilePage() {
-		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.turtleProfile", array("userId" => $this->userId))) . "#me";
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
@@ -80,7 +80,11 @@ class AppController extends Controller {
         $appLauncherData = array(
 			"appsListJson" => json_encode($appsList),
 			"webId" => json_encode($this->getProfilePage()),
-			"storageUrl" => json_encode($this->getStorageUrl($this->userId))
+			"storageUrl" => json_encode($this->getStorageUrl($this->userId)),
+			'navigation'  => array(
+				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
+				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+			)
 		);
 		$templateResponse = new TemplateResponse('solid', 'applauncher', $appLauncherData);
         $policy = new ContentSecurityPolicy();

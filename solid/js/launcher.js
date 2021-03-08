@@ -54,7 +54,7 @@ window.addEventListener("simply-content-loaded", function() {
                 });
             });
         },
-        url : storageUrl, // "https://nextcloud.local/index.php/apps/solid/@admin/storage/", //FIXME: vul juiste user hier in
+        url : storageUrl,
         get : function(path) {
             return api.login()
             .then(function(fetcher) {
@@ -166,7 +166,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const parser = new AclParser({ aclUrl, fileUrl});
                 const agents = new Agents();
                 agents.addOrigin(origin);
-                agents.addWebId(webId); // "https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
+                agents.addWebId(webId);
                 parser.turtleToAclDoc(turtle)
                 .then(function(doc) {
                     var permissionsToAdd = [];
@@ -218,7 +218,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const parser = new AclParser({ aclUrl, containerUrl});
                 const agents = new Agents();
                 agents.addOrigin(origin);
-                agents.addWebId(webId); // "https://nextcloud.local/index.php/apps/solid/@admin/turtle#me"); // FIXME: use the proper webid here instead of hardcoded
+                agents.addWebId(webId);
                 parser.turtleToAclDoc(turtle)
                 .then(function(doc) {
                     var permissionsToAdd = [];
