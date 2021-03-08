@@ -116,7 +116,7 @@ EOF;
 	}
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+		$storageUrl = preg_replace('/foo$/', '/', $storageUrl);
 		return $storageUrl;
 	}
 
