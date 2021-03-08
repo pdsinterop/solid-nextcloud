@@ -323,7 +323,7 @@ EOF;
 
 		$this->initializeStorage($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
 		$this->WAC = new WAC($this->filesystem);
 		$this->DPop = new DPop();
 
@@ -340,13 +340,16 @@ EOF;
 			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
 			return $this->respond($response);
 		}
-		$origin = $request->getHeader("Origin");
-		if (!$this->WAC->isAllowed($request, $webId, $origin)) {
+		$origin = $request->getHeaderLine("Origin");
+		$allowedClients = $this->config->getAllowedClients($userId);
+		$allowedOrigins = array();
+		foreach ($allowedClients as $clientId) {
+			$clientRegistration = $this->config->getClientRegistration($clientId);
+			$allowedOrigins[] = $clientRegistration['client_name'];
+		}
+		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
-			->withStatus(403, "Access denied")
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Credentials','true')
-            ->withHeader('Access-Control-Allow-Headers', 'Accept');
+			->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
 		$response = $this->resourceServer->respondToRequest($request);	

@@ -92,6 +92,8 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function profile($userId) {
+		// header("Access-Control-Allow-Headers: *, authorization, accept, content-type");
+		// header("Access-Control-Allow-Credentials: true");
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
@@ -107,7 +109,6 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function approval($clientId) {
 		$clientRegistration = $this->config->getClientRegistration($clientId);
@@ -120,7 +121,13 @@ class PageController extends Controller {
 		$templateResponse = new TemplateResponse('solid', 'sharing', $params);
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
-		$templateResponse->setContentSecurityPolicy($policy);
+
+		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		$origin = $parsedOrigin['host'];
+		if ($origin) {
+			$policy->addAllowedFormActionDomain($origin);
+			$templateResponse->setContentSecurityPolicy($policy);
+		}
 		return $templateResponse;
 	}
 
@@ -128,7 +135,6 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleApproval($clientId) {
 		$approval = $_POST['approval'];
@@ -149,7 +155,6 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function handleRevoke($clientId) {
 		$this->config->removeAllowedClient($this->userId, $clientId);
@@ -161,15 +166,14 @@ class PageController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-     * @CORS
      */
 	public function turtleProfile($userId) {
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
         }
-		header("Access-Control-Allow-Headers: authorization");
-		header("Access-Control-Allow-Credentials: true");
+		// header("Access-Control-Allow-Headers: *, authorization, accept, content-type");
+		// header("Access-Control-Allow-Credentials: true");
 		return new TemplateResponse('solid', 'turtle-profile', $profile, 'blank');
 	}
 }

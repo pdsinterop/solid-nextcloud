@@ -3,13 +3,18 @@
     "description": "A WebID-OIDC Identity Provider, to allow interoperability with SolidProject.org",
     "type": "project",
     "license": "MIT",
+    "config": {
+        "platform": {
+            "php": "7.2"
+        }
+    },
     "authors": [
         {
             "name": "Auke van Slooten"
         },
-		{
-			"name": "Yvo Brevoort"
-		}
+        {
+            "name": "Yvo Brevoort"
+        }
     ],
     "require": {
         "easyrdf/easyrdf": "^0.9.1",
@@ -17,8 +22,8 @@
         "pdsinterop/solid-auth": "dev-master",
         "pdsinterop/solid-crud": "dev-master",
         "pdsinterop/flysystem-nextcloud":"dev-master",
-	"laminas/laminas-diactoros": "^2.4",
-        "codercat/jwk-to-pem": "^1.0"
+        "laminas/laminas-diactoros": "^2.4",
+        "lcobucci/jwt": "^3.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.4"

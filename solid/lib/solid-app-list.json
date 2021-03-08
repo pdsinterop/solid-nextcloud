@@ -1,0 +1,77 @@
+[
+    {
+        "name": "Notepod",
+        "tagline": "A note-taking app for Solid",
+        "launchUrl": "https://notepod.vincenttunru.com/",
+        "appOrigin": "https://notepod.vincenttunru.com/",
+        "requirements": [
+            {
+                "type": "class",
+                "class": "schema.TextDigitalDocument",
+                "filename" : "notes.ttl",
+                "public": true
+            },
+            {
+                "type": "file",
+                "filename" : "notes.ttl",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write"]
+            }
+        ]
+    },
+    {
+        "name": "Poddit",
+        "tagline": "Private bookmarking",
+        "launchUrl": "https://poddit.app",
+        "appOrigin": "https://poddit.app",
+        "requirements": [
+            {
+                "type": "class",
+                "class": "http://www.w3.org/2002/01/bookmark#Bookmark",
+                "filename" : "bookmarks.ttl",
+                "public" : true
+            },
+            {
+                "type": "file",
+                "filename" : "bookmarks.ttl",
+                "permissions" : ["acl.Read", "acl.Append", "acl.Write"]
+            }
+        ]
+    },
+    {
+        "name": "Generator demo",
+        "tagline": "Output of Inrupt's generator for Solid React Applications",
+        "launchUrl": "https://generator.inrupt.com/",
+        "appOrigin" : "https://generator.inrupt.com",
+        "requirements": [
+            {
+                "type": "podWide",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            },
+            {
+                "type": "container",
+                "container": "tictactoe",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            }
+        ]
+    },
+    {
+        "name": "App demo",
+        "tagline": "App demo",
+        "launchUrl": "https://empty-solid-app.5apps.com/",
+        "appOrigin" : "https://empty-solid-app.5apps.com",
+        "requirements": [
+        ]
+    },
+    {
+        "name": "Focus",
+        "tagline": "Solid Task Manager",
+        "launchUrl": "https://noeldemartin.github.io/solid-focus/",
+        "appOrigin" : "https://noeldemartin.github.io",
+        "requirements": [
+            {
+                "type": "podWide",
+                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
+            }
+        ]
+    }
+]

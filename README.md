@@ -26,6 +26,8 @@ If you enable this app in your Nextcloud instance, you should
 [edit your .htaccess file](https://github.com/solid/test-suite/blob/665824af763ddd5dd7242cbc8b18faad4ac304e3/servers/nextcloud-server/init.sh#L5)
 and then test whether https://your-nextcloud-server.com/.well-known/openid-configuration redirects to https://your-nextcloud-server.com/apps/solid/openid.
 
+Also, take the CORS instructions from site.conf and add them to your own webserver configuration.
+
 ## Unattended testing
 To test whether your server is install correctly, you can run Solid's [webid-provider-tests](https://github.com/solid/webid-provider-tests#against-production) against it.
 

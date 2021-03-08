@@ -92,7 +92,7 @@ class ServerController extends Controller {
 				$this->getOpenIdEndpoints()
 			))->create();
 		} catch(\Throwable $e) {
-			var_dump($e);
+			// var_dump($e);
 		}
 		return $config;
 	}
@@ -101,11 +101,8 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function cors($path) {
-		header("Access-Control-Allow-Headers: authorization, content-type, dpop");
-		header("Access-Control-Allow-Credentials: true");
 		return true;
 	}
 
@@ -113,7 +110,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function openid() {
 		$response = new \Laminas\Diactoros\Response();
@@ -218,8 +214,7 @@ class ServerController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function session($user, $password) {
-		$this->userService->login($user, $password);
+	public function session() {
 		return new JSONResponse("ok");
 	}
 	
@@ -227,7 +222,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -261,7 +255,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function userinfo() {
 		return new JSONResponse("ok");
@@ -271,7 +264,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function logout() {
 		$this->userService->logout();
@@ -282,7 +274,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function register() {
 		$clientData = file_get_contents('php://input');
@@ -311,7 +302,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function registeredClient($clientId) {
 		$clientRegistration = $this->config->getClientRegistration($clientId);
@@ -324,7 +314,6 @@ class ServerController extends Controller {
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
-	 * @CORS
 	 */
 	public function jwks() {
 		$response = new \Laminas\Diactoros\Response();
@@ -340,7 +329,7 @@ class ServerController extends Controller {
 
 		$body = json_decode($response->getBody()->getContents());
 		if ($statusCode > 399) {
-			var_dump($body);
+			// var_dump($body);
 			$reason = $response->getReasonPhrase();
 			$result = new JSONResponse($reason, $statusCode);
 			return $result;
