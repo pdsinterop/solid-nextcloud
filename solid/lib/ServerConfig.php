@@ -167,7 +167,7 @@
 				$graph = new \EasyRdf_Graph();
 				$graph->parse($profileData, 'turtle');
 				$data = $graph->toRdfPhp();
-				$subject = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/turtle"))) . "#me";
+				$subject = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
 				$subjectData = $data[$subject];
 				$fields = array(
 					"name" => $subjectData['http://xmlns.com/foaf/0.1/name'][0]['value']
