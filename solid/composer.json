@@ -18,10 +18,10 @@
     ],
     "require": {
         "easyrdf/easyrdf": "^0.9.1",
-        "pdsinterop/flysystem-rdf": "dev-master",
-        "pdsinterop/solid-auth": "dev-master",
-        "pdsinterop/solid-crud": "dev-master",
-        "pdsinterop/flysystem-nextcloud":"dev-master",
+        "pdsinterop/flysystem-rdf": "dev-main",
+        "pdsinterop/solid-auth": "dev-main",
+        "pdsinterop/solid-crud": "dev-main",
+        "pdsinterop/flysystem-nextcloud":"dev-main",
         "laminas/laminas-diactoros": "^2.4",
         "lcobucci/jwt": "^3.3"
     },
