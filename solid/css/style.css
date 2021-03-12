@@ -13,3 +13,7 @@ li.solid-app {
 .solid-permissions {
 	margin-bottom: 10px;
 }
+
+.solid-container {
+	padding: 10px 40px;
+}

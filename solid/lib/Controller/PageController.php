@@ -38,13 +38,7 @@ class PageController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function index() {
-		$args = array(
-			'navigation'  => array(
-				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
-				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
-			)
-		);
-		return new TemplateResponse('solid', 'index', $args);  // templates/index.php
+		return new TemplateResponse('solid', 'index');  // templates/index.php
 	}
 
 	private function getUserProfile($userId) {
@@ -54,7 +48,7 @@ class PageController extends Controller {
 				'id' => $userId,
 				'displayName' => $user->getDisplayName(),
 				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
-				'navigation'  => array(
+				'solidNavigation'  => array(
 					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
 					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 				)
