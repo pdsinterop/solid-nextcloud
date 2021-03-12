@@ -22,7 +22,8 @@ This app gives you a WebID URL and login flow to connect to a Solid App with you
     <navigations>
         <navigation>
             <name>Solid</name>
-            <route>solid.page.index</route>
+            <route>solid.app.appLauncher</route>
+            <order>10</order>
         </navigation>
     </navigations>
 </info>
