@@ -351,6 +351,9 @@ window.addEventListener("simply-content-loaded", function() {
                     return app.launchUrl == launchUrl;
                 })[0];
                 window.open(app.launchUrl);
+            },
+            profile : function(el) {
+                document.location.href = el.href;
             }
         },
         actions: {
