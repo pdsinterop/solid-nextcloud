@@ -9,7 +9,6 @@
  */
 return [
     'routes' => [
-        ['name' => 'page#index', 'url' => '/', 'verb' => 'GET'],
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
         ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
@@ -53,6 +52,6 @@ return [
         ['name' => 'contacts#handlePatch', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
         ['name' => 'contacts#handleHead', 'url' => '/@{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
 
-        ['name' => 'app#appLauncher', 'url' => '/launcher/', 'verb' => 'GET'],
+        ['name' => 'app#appLauncher', 'url' => '/', 'verb' => 'GET'],
     ]
 ];

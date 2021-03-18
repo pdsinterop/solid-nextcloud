@@ -15,7 +15,7 @@
 <script type="application/json" id="storageUrl">
     <?php echo($_['storageUrl']); ?>
 </script>
-<main class="solid-launcher" data-simply-field="page" data-simply-content="template">
+<main class="solid-container solid-launcher" data-simply-field="page" data-simply-content="template">
 	<template data-simply-template="Launcher">
 		<ul data-simply-list="apps" class="solid-apps">
 			<template>
