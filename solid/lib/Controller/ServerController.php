@@ -80,7 +80,7 @@ class ServerController extends Controller {
 	}
 	
 	private function createAuthServerConfig() {
-		$clientId = $_GET['client_id'];
+		$clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
 		try {
