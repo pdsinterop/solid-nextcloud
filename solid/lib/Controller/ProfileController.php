@@ -9,6 +9,7 @@ use OCP\IUserManager;
 use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
+use OCP\IConfig;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Response;

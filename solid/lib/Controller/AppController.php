@@ -6,6 +6,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
+use OCP\IConfig;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;

@@ -8,6 +8,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
+use OCP\IConfig;
 
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Response;

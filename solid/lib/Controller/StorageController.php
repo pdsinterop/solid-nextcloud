@@ -8,6 +8,8 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
+use OCP\IConfig;
+
 use OCP\Files\IRootFolder;
 use OCP\Files\IHomeStorage;
 use OCP\Files\SimpleFS\ISimpleRoot;
