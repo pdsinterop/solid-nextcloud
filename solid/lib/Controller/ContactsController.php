@@ -25,11 +25,11 @@ class ContactsController extends Controller {
 	/* @var ISession */
 	private $session;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
+	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
 	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
-		$this->config = $config;
+		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
