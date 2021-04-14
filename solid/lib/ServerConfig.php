@@ -142,8 +142,11 @@
 		public function saveClientRegistration($origin, $clientData) {
 			$originHash = md5($origin);
 			$existingRegistration = $this->getClientRegistration($originHash);
-			if ($existingRegistration && isset($existingRegistration['client_name'])) {
-				return $originHash;
+			if ($existingRegistration && isset($existingRegistration['redirect_uris'])) {
+				foreach ($existingRegistration['redirect_uris'] as $uri) {
+					$clientData['redirect_uris'][] = $uri;
+				}
+				$clientData['redirect_uris'] = array_unique($clientData['redirect_uris']);
 			}
 
 			$clientData['client_name'] = $origin;
