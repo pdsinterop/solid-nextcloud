@@ -6,6 +6,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\Contacts\IManager;
 use OCP\IURLGenerator;
+use OCP\IConfig;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\DataResponse;
@@ -19,14 +20,14 @@ class AppController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->contactsManager = $contactsManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
-		$this->config = $config;
+		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 	}
 
     private function getUserApps($userId) {   

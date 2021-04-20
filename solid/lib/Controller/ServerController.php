@@ -6,6 +6,8 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
+use OCP\IConfig;
+
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Http\JSONResponse;
@@ -38,11 +40,11 @@ class ServerController extends Controller {
 	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, ServerConfig $config, \OCA\Solid\Service\UserService $UserService) 
+	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
 	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
-		$this->config = $config;
+		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->request     = $request;

@@ -5,6 +5,8 @@ use OCA\Solid\ServerConfig;
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
+use OCP\IConfig;
+
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
@@ -17,14 +19,14 @@ class PageController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, ServerConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
-		$this->config = $config;
+		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 	}
 
 	/**
