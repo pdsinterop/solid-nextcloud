@@ -43,17 +43,15 @@ Now in a separate browser window, log in to  https://generator.inrupt.com/text-e
 You should be able to edit the file as a co-author now, using your Nextcloud account as a webid identity provider.
 
 # Publishing to the Nextcloud app store
-(see https://docs.nextcloud.com/server/latest/developer_manual/app_publishing_maintenance/code_signing.html#how-to-get-your-app-signed for more details)
-* git pull
+
+* create a release on github, for instance `v0.0.2`
+* `tar -cf solid.tar solid/`
+* `gzip solid.tar`
+* edit the release and upload `solid.tar.gz` as a binary attachment
 * make sure transfer/solid.key and transfer/solid.crt exist
-* docker build -t solid-nextcloud .
-* docker run -d --name server -v `pwd`/transfer:/transfer solid-nextcloud 
-* docker exec -u www-data -it server sh /init.sh
-* docker exec -it server /bin/bash ->
-* vim ./occ (add a line `ini_set("memory_limit", "512M");` just under `<?php`)
-* sudo -u www-data ./occ integrity:sign-app --privateKey=/transfer/solid.key  --certificate=/transfer/solid.crt --path=/var/www/html/apps/solid/
-* apt-get install zip
-* cd apps
-* zip -r /transfer/solid.zip solid/
-* exit
-* upload transfer/solid.zip to ...
+* `openssl dgst -sha512 -sign ./transfer/solid.key ./solid.tar.gz | openssl base64`
+* visit https://apps.nextcloud.com/developer/apps/releases/new
+* go into the developer tools browser console to remove the `href` attribute on the `<a>` element around the form elements
+* fill in for instance `https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.2/solid.tar.gz` and the base64 signature from the openssl command
+* click 'uploaden'
+* good luck!
