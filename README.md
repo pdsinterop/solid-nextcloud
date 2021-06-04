@@ -41,3 +41,19 @@ Grant access to co-editor https://your-nextcloud-server.com/apps/solid/@your-use
 For instance if you're using the [development install](#development-install), that would be https://localhost/apps/solid/@alice/profile/card#me
 Now in a separate browser window, log in to  https://generator.inrupt.com/text-editor with https://your-nextcloud-server.com.
 You should be able to edit the file as a co-author now, using your Nextcloud account as a webid identity provider.
+
+# Publishing to the Nextcloud app store
+(see https://docs.nextcloud.com/server/latest/developer_manual/app_publishing_maintenance/code_signing.html#how-to-get-your-app-signed for more details)
+* git pull
+* make sure transfer/solid.key and transfer/solid.crt exist
+* docker build -t solid-nextcloud .
+* docker run -d --name server -v `pwd`/transfer:/transfer solid-nextcloud 
+* docker exec -u www-data -it server sh /init.sh
+* docker exec -it server /bin/bash ->
+* vim ./occ (add a line `ini_set("memory_limit", "512M");` just under `<?php`)
+* sudo -u www-data ./occ integrity:sign-app --privateKey=/transfer/solid.key  --certificate=/transfer/solid.crt --path=/var/www/html/apps/solid/
+* apt-get install zip
+* cd apps
+* zip -r /transfer/solid.zip solid/
+* exit
+* upload transfer/solid.zip to ...
