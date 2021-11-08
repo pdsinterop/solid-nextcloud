@@ -8,7 +8,9 @@ Steps you probably already took:
 > root@ubuntu-s-4vcpu-8gb-amd-ams3-01:~# snap install nextcloud
 > nextcloud 22.2.0snap2 from Nextcloud✓ installed
 
-* Browse to it over http and complete the setup -> Screenshot 1
+* Browse to it over http and complete the setup:
+
+<img width="960" alt="Screenshot 1" src="https://user-images.githubusercontent.com/408412/140734318-2872d19c-8a2d-40a5-8e89-e0474c705840.png">
 
 It's important that you have a public DNS A record pointing to the server, since you'll need it to enable https, which is a requirement for Solid:
 
@@ -40,13 +42,26 @@ It's important that you have a public DNS A record pointing to the server, since
 > Please enter an email address (for urgent notices or key recovery): michiel-testing@pondersource.com                
 > Please enter your domain name(s) (space-separated): test-nextcloud-snap.michielbdejong.com
 > Attempting to obtain certificates... done
+
 > Restarting apache... done
 > root@ubuntu-s-4vcpu-8gb-amd-ams3-01:~# 
 
-* Now you can visit your Nextcloud over https -> Screenshot 2
-* Go to the 'Apps' menu -> Screenshot 3
-* Search for 'solid' -> Screenshot 4
-* Download and install -> Screenshot 5
+* Now you can visit your Nextcloud over https:
+
+<img width="960" alt="Screenshot 2" src="https://user-images.githubusercontent.com/408412/140734389-b3d30abd-8568-415f-a3b9-38d8d4249018.png">
+
+* Go to the 'Apps' menu:
+
+<img width="960" alt="Screenshot 3" src="https://user-images.githubusercontent.com/408412/140734411-49661501-43ab-4821-b8a2-60dbc442f964.png">
+
+* Search for 'solid':
+
+<img width="1270" alt="Screenshot 4" src="https://user-images.githubusercontent.com/408412/140734420-6bb1ac6f-b4ee-4df5-b88d-544cdb82f174.png">
+
+* Download and install:
+
+<img width="1152" alt="Screenshot 5" src="https://user-images.githubusercontent.com/408412/140734504-5cdc4837-9e35-4b47-b091-69b9ff913081.png">
+
 * If you can't find v0.0.3 in through the search function, you can also download it explicitly:
 > `root@ubuntu-s-4vcpu-8gb-amd-ams3-01:/var/snap/nextcloud/current/nextcloud/extra-apps# wget https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.3/solid.tar.gz`
 * In all cases, make sure you click 'Enable' for the Solid app on https://test-nextcloud-snap.michielbdejong.com/index.php/settings/apps
