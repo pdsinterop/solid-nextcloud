@@ -52,4 +52,11 @@ It's important that you have a public DNS A record pointing to the server, since
 * In all cases, make sure you click 'Enable' for the Solid app on https://test-nextcloud-snap.michielbdejong.com/index.php/settings/apps
 * Now test with your browser: `https://test-nextcloud-snap.michielbdejong.com/index.php/apps/solid/openid`
 * It should be a JSON document, something like `{"id_token_signing_alg_values_supported":["RS256"],"subject_types_supported":["public"],"response_types_supported":[...`
-* 
+* The following [is a bit tricky](https://github.com/nextcloud-snap/nextcloud-snap/issues/412#issuecomment-930878692) but it seems to work:
+> `sudo cp -r /snap/nextcloud/current/htdocs /var/snap/nextcloud/current/nextcloud/config/`
+> `cd /var/snap/nextcloud/current/nextcloud/config/htdocs`
+> `sudo mount /var/snap/nextcloud/current/nextcloud/config/htdocs /snap/nextcloud/current/htdocs/ -o bind`
+> `cp .htaccess bak.htaccess`
+> `sed -i '95 i\  RewriteRule ^\\.well-known/openid-configuration /apps/solid/openid [R=302,L]' htdocs/.htaccess`
+> `sudo snap restart nextcloud.apache`
+* Now test that `https://test-nextcloud-snap.michielbdejong.com/.well-known/openid-configuration` redirects to `https://test-nextcloud-snap.michielbdejong.com/index.php/apps/solid/openid`
