@@ -44,6 +44,13 @@ You should be able to edit the file as a co-author now, using your Nextcloud acc
 
 # Publishing to the Nextcloud app store
 
+* checkout the `publish` branch
+* merge the `main` branch into it
+* cd solid
+* php ../composer.phar update
+* php ../composer.phar install --no-dev --prefer-dist
+* commit the changes (at least `vendor/composer/installed.php` will have changed)
+* cd ..
 * create a release on github, for instance `v0.0.2`
 * `tar -cf solid.tar solid/`
 * `gzip solid.tar`
