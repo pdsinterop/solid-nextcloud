@@ -51,6 +51,7 @@ You should be able to edit the file as a co-author now, using your Nextcloud acc
 * `cd solid`
 * `php ../composer.phar update`
 * `php ../composer.phar install --no-dev --prefer-dist`
+* Tag v0.0.X in solid/appinfo/info.xml
 * `git commit -am"built"` (at least `vendor/composer/installed.php` will have changed)
 * `git push`
 * `cd ..`
