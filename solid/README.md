@@ -1,6 +1,6 @@
 # Solid 
 Place this app in **nextcloud/apps/**
-IMPORTANT: Follow the [additional install instructions!](https://github.com/pdsinterop/solid-nextcloud/INSTALL.md).
+IMPORTANT: Follow the [additional install instructions!](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
 
 ## Building the app
 
