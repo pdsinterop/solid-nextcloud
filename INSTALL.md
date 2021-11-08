@@ -60,3 +60,7 @@ It's important that you have a public DNS A record pointing to the server, since
 > `sed -i '95 i\  RewriteRule ^\\.well-known/openid-configuration /apps/solid/openid [R=302,L]' htdocs/.htaccess`
 > `sudo snap restart nextcloud.apache`
 * Now test that `https://test-nextcloud-snap.michielbdejong.com/.well-known/openid-configuration` redirects to `https://test-nextcloud-snap.michielbdejong.com/index.php/apps/solid/openid`
+* Add this to your /etc/fstabs and restart the server:
+```
+/var/snap/nextcloud/current/nextcloud/config/htdocs /snap/nextcloud/current/htdocs none auto,bind,x-systemd.before=snap.nextcloud.apache.service,x-systemd.requires-mounts-for=/snap/nextcloud/current/,x-systemd.required-by=snap.nextcloud.apache.service 0 0
+```
