@@ -44,21 +44,27 @@ You should be able to edit the file as a co-author now, using your Nextcloud acc
 
 # Publishing to the Nextcloud app store
 
-* checkout the `publish` branch
-* merge the `main` branch into it
-* cd solid
-* php ../composer.phar update
-* php ../composer.phar install --no-dev --prefer-dist
-* commit the changes (at least `vendor/composer/installed.php` will have changed)
-* cd ..
-* create a release on github, for instance `v0.0.2`
+* `git checkout publish`
+* `git pull`
+* `git merge main`
+* `cd solid`
+* `php ../composer.phar update`
+* `php ../composer.phar install --no-dev --prefer-dist`
+* `git commit -am"built"` (at least `vendor/composer/installed.php` will have changed)
+* `git push`
+* `cd ..`
+* `git checkout main`
+* `git tag`
+* `git tag v0.0.X`
+* `git push --follow-tags`
+* create a release on github from the tag you just pushed
 * `tar -cf solid.tar solid/`
 * `gzip solid.tar`
 * edit the release and upload `solid.tar.gz` as a binary attachment
 * make sure transfer/solid.key and transfer/solid.crt exist
 * `openssl dgst -sha512 -sign ./transfer/solid.key ./solid.tar.gz | openssl base64`
 * visit https://apps.nextcloud.com/developer/apps/releases/new
-* go into the developer tools browser console to remove the `href` attribute on the `<a>` element around the form elements
+* go into the developer tools browser console to change the `<a>` element around the form to a `<p>` element. This makes it possible to fill in values in this form without being redirected.
 * fill in for instance `https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.2/solid.tar.gz` and the base64 signature from the openssl command
 * click 'uploaden'
 * good luck!
