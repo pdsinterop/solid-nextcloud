@@ -47,3 +47,9 @@ It's important that you have a public DNS A record pointing to the server, since
 * Go to the 'Apps' menu -> Screenshot 3
 * Search for 'solid' -> Screenshot 4
 * Download and install -> Screenshot 5
+* If you can't find v0.0.3 in through the search function, you can also download it explicitly:
+> `root@ubuntu-s-4vcpu-8gb-amd-ams3-01:/var/snap/nextcloud/current/nextcloud/extra-apps# wget https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.3/solid.tar.gz`
+* In all cases, make sure you click 'Enable' for the Solid app on https://test-nextcloud-snap.michielbdejong.com/index.php/settings/apps
+* Now test with your browser: `https://test-nextcloud-snap.michielbdejong.com/index.php/apps/solid/openid`
+* It should be a JSON document, something like `{"id_token_signing_alg_values_supported":["RS256"],"subject_types_supported":["public"],"response_types_supported":[...`
+* 
