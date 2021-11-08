@@ -1,5 +1,6 @@
 # Solid 
 Place this app in **nextcloud/apps/**
+IMPORTANT: Follow the [additional install instructions!](./INSTALL.md).
 
 ## Building the app
 
