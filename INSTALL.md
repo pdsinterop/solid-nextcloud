@@ -76,7 +76,7 @@ sudo cp -r /snap/nextcloud/current/htdocs /var/snap/nextcloud/current/nextcloud/
 cd /var/snap/nextcloud/current/nextcloud/config/htdocs
 sudo mount /var/snap/nextcloud/current/nextcloud/config/htdocs /snap/nextcloud/current/htdocs/ -o bind
 cp .htaccess bak.htaccess
-sed -i '95 i\  RewriteRule ^\\.well-known/openid-configuration /apps/solid/openid [R=302,L]' ./.htaccess
+sed -i '95 i\  RewriteRule ^\\.well-known/openid-configuration /index.php/apps/solid/openid [R=302,L]' ./.htaccess
 sudo snap restart nextcloud.apache
 ```
 
