@@ -13,7 +13,9 @@ combined with [how it's initialized](https://github.com/solid/test-suite/blob/66
 ## Development install
 Clone https://github.com/pdsinterop/test-suites, cd into it, and run:
 ```sh
-docker build -t nextcloud-server ./servers/nextcloud-server
+docker pull nextcloud
+docker build -t nextcloud-server-base ./servers/nextcloud-server/base/
+docker build -t nextcloud-server ./servers/nextcloud-server/server/
 docker run -p 443:443 -d --rm --name=server nextcloud-server
 echo sleeping
 sleep 10
