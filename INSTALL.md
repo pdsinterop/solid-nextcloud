@@ -85,3 +85,29 @@ sudo snap restart nextcloud.apache
 ```
 /var/snap/nextcloud/current/nextcloud/config/htdocs /snap/nextcloud/current/htdocs none auto,bind,x-systemd.before=snap.nextcloud.apache.service,x-systemd.requires-mounts-for=/snap/nextcloud/current/,x-systemd.required-by=snap.nextcloud.apache.service 0 0
 ```
+
+## Troubleshooting
+* if installing the app from source, make sure you run `apt install -y composer`, `composer update`, and `composer install --no-dev --prefer-dist`
+* when editing /var/www/html/.htaccess make sure that you run `sudo a2enmod rewrite`, edit your `/etc/apache2/sites-enabled/000-default.conf` to something like:
+```
+<VirtualHost *:443>
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log 
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    SSLEngine on
+    SSLCertificateFile "/etc/letsencrypt/live/cloud.pondersource.org/fullchain.pem"
+    SSLCertificateKeyFile "/etc/letsencrypt/live/cloud.pondersource.org/privkey.pem"
+</VirtualHost>
+<VirtualHost *:80>
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+<Directory /var/www/>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+</Directory>
+```
+and then run `systemctl restart apache2`.
