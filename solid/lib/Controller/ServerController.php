@@ -117,7 +117,7 @@ class ServerController extends Controller {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToOpenIdMetadataRequest();
-		return $this->respond($response);
+		return $this->respond($response)->withHeader('Access-Control-Allow-Origin', '*');
 	}
 	
 	/**
@@ -129,7 +129,7 @@ class ServerController extends Controller {
 		if (!$this->userManager->userExists($this->userId)) {
 			$result = new JSONResponse('Authorization required');
 			$result->setStatus(401);
-			return $result;
+			return $result->withHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		$parser = new \Lcobucci\JWT\Parser();
@@ -154,7 +154,7 @@ class ServerController extends Controller {
 			} catch(\Exception $e) {
 				$result = new JSONResponse('Bad request, missing redirect uri');
 				$result->setStatus(400);
-				return $result;
+				return $result->withHeader('Access-Control-Allow-Origin', '*');
 			}
 		}
 		$clientId = $getVars['client_id'];
@@ -164,7 +164,7 @@ class ServerController extends Controller {
 			$result->setStatus(302);
 			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
 			$result->addHeader("Location", $approvalUrl);
-			return $result;
+			return $result->withHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
@@ -177,7 +177,7 @@ class ServerController extends Controller {
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
 		
-		return $this->respond($response);
+		return $this->respond($response)->withHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	private function checkApproval($clientId) {
@@ -250,7 +250,7 @@ class ServerController extends Controller {
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey(), $dpopKey);
 
-		return $this->respond($response);
+		return $this->respond($response)->withHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	/**
@@ -297,7 +297,7 @@ class ServerController extends Controller {
 		
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		
-		return new JSONResponse($registration);
+		return (new JSONResponse($registration))->addHeader('Access-Control-Allow-Origin', 'https://noeldemartin.github.io');
 	}
 	
 	/**
@@ -348,6 +348,7 @@ class ServerController extends Controller {
 			}
 		}
 		$result->setStatus($statusCode);
+		$result->addHeader('Access-Control-Allow-Origin', '*');
 		return $result;
 	}
 
