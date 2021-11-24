@@ -110,4 +110,5 @@ sudo snap restart nextcloud.apache
         Require all granted
 </Directory>
 ```
-and then run `systemctl restart apache2`.
+(notice, importantly, the `AllowOverride All` that makes apache read your .htaccess in the first place) and then run `systemctl restart apache2`.
+* find a way to enable CORS headers (not sure exactly how to do this, see https://github.com/pdsinterop/solid-nextcloud/issues/57)
