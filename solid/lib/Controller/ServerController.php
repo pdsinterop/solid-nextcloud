@@ -106,7 +106,6 @@ class ServerController extends Controller {
 	 */
 	public function cors($path) {
 		$origin = $_SERVER['HTTP_ORIGIN'];
-		error_log('Allowing in OPTIONS:' . $origin);
 		return (new DataResponse('OK'))
 		->addHeader('Access-Control-Allow-Origin', $origin)
 		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
@@ -123,7 +122,7 @@ class ServerController extends Controller {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToOpenIdMetadataRequest();
-		return $this->respond($response->addHeader('Access-Control-Allow-Origin', '*'));
+		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
 	}
 	
 	/**
