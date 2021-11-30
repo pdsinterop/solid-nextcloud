@@ -62,10 +62,10 @@ You should be able to edit the file as a co-author now, using your Nextcloud acc
 * `git commit -am"built"` (at least `vendor/composer/installed.php` will have changed)
 * `git push`
 * `cd ..`
-* `git checkout main`
 * create a release on github from the tag you just pushed
 * `tar -cf solid.tar solid/`
 * `gzip solid.tar`
+* `git checkout main`
 * edit the release and upload `solid.tar.gz` as a binary attachment
 * make sure transfer/solid.key and transfer/solid.crt exist
 * `openssl dgst -sha512 -sign ./transfer/solid.key ./solid.tar.gz | openssl base64`
