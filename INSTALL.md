@@ -1,5 +1,24 @@
 # Installing this app to your Nextcloud
 
+## Set up /.well-known/openid-configuration
+After installing and enabling the app, take the JSON from e.g.
+
+`https://cloud.pondersource.org/index.php/apps/solid/openid` (depending on your hostname and whether you have the `index.php/` part in there)
+
+and put that into e.g. `/var/www/html/.well-known/openid-configuration` (depending on your webroot being e.g. `/var/www/html`)
+Check that it works: `https://cloud.pondersource.org/.well-known/openid-configuration`
+Then add this section to your apache site.conf:
+```
+<Directory /var/www/html/.well-known/>
+    Header always set Access-Control-Allow-Origin: *
+</Directory>
+```
+Then restart Apache.
+
+In earlier versions of this app (e.g. the one in the Dockerfile we use for running the Solid test suite) we
+used a redirect from /.well-known/openid-configuration to /index.php/apps/solid/openid but it's difficult
+to add CORS headers to a redirect, so that's why just copying the file into a folder like that is preferable.
+
 ## If your Nextcloud was installed using Snap
 
 Steps you probably already took:
@@ -75,8 +94,15 @@ root@ubuntu-s-4vcpu-8gb-amd-ams3-01:~# 
 sudo cp -r /snap/nextcloud/current/htdocs /var/snap/nextcloud/current/nextcloud/config/
 cd /var/snap/nextcloud/current/nextcloud/config/htdocs
 sudo mount /var/snap/nextcloud/current/nextcloud/config/htdocs /snap/nextcloud/current/htdocs/ -o bind
-cp .htaccess bak.htaccess
-sed -i '95 i\  RewriteRule ^\\.well-known/openid-configuration /index.php/apps/solid/openid [R=302,L]' ./.htaccess
+```
+Now make the change described in the "Set up /.well-known/openid-configuration" section above, but using
+`/var/snap/nextcloud/current/nextcloud/config/htdocs/.well-known/openid-configuration` as the directory.
+
+FIXME: How can you edit the Apache site.conf if installed via Snap? Maybe see if the Header directive
+can live in `/var/snap/nextcloud/current/nextcloud/config/htdocs/.well-known/.htaccess` instead?
+
+Restart Apache using:
+```sh
 sudo snap restart nextcloud.apache
 ```
 
