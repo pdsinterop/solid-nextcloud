@@ -117,7 +117,7 @@ class ServerController extends Controller {
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToOpenIdMetadataRequest();
-		return $this->respond($response)->withHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response->withHeader('Access-Control-Allow-Origin', '*'));
 	}
 	
 	/**
