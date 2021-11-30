@@ -47,20 +47,22 @@ You should be able to edit the file as a co-author now, using your Nextcloud acc
 
 # Publishing to the Nextcloud app store
 
+* `git checkout main`
+* `git pull`
+* Tag v0.0.X in solid/appinfo/info.xml
+* `git tag`
+* `git tag v0.0.X`
+* `git push --follow-tags`
 * `git checkout publish`
 * `git pull`
 * `git merge main`
 * `cd solid`
 * `php ../composer.phar update`
 * `php ../composer.phar install --no-dev --prefer-dist`
-* Tag v0.0.X in solid/appinfo/info.xml
 * `git commit -am"built"` (at least `vendor/composer/installed.php` will have changed)
 * `git push`
 * `cd ..`
 * `git checkout main`
-* `git tag`
-* `git tag v0.0.X`
-* `git push --follow-tags`
 * create a release on github from the tag you just pushed
 * `tar -cf solid.tar solid/`
 * `gzip solid.tar`
