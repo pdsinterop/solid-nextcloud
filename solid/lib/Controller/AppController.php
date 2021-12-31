@@ -34,7 +34,7 @@ class AppController extends Controller {
 		$userApps = [];
 		if ($this->userManager->userExists($userId)) {
             $allowedClients = $this->config->getAllowedClients($userId);
-			foreach ($userClients as $clientId) {
+			foreach ($allowedClients as $clientId) {
 				$registration = $this->config->getClientRegistration($clientId);
 				$userApps[] = $registration['client_name'];
 			}
@@ -52,7 +52,7 @@ class AppController extends Controller {
 		foreach ($appsList as $key => $app) {
 			$parsedOrigin = parse_url($app['launchUrl']);
 			$origin = $parsedOrigin['host'];
-			if (in_array($userApps, $origin)) {
+			if (in_array($origin, $userApps, true)) {
 				$appsList[$key]['registered'] = 1;
 			} else {
 				$appsList[$key]['registered'] = 0;

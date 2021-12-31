@@ -46,16 +46,18 @@ class PageController extends Controller {
 	private function getUserProfile($userId) {
 		if ($this->userManager->userExists($userId)) {
 			$user = $this->userManager->get($userId);
-			$profile = array(
-				'id' => $userId,
-				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
-				'solidNavigation'  => array(
-					"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
-					"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
-				)
-			);
-			return $profile;
+			if ($user !== null) {
+				$profile = array(
+					'id' => $userId,
+					'displayName' => $user->getDisplayName(),
+					'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
+					'solidNavigation'  => array(
+						"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
+						"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
+					)
+				);
+				return $profile;
+			}
 		}
 		return false;
 	}

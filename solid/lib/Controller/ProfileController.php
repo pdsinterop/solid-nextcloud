@@ -267,18 +267,20 @@ EOF;
 				  }
 				}
 			}
-			$profile = array(
-				'id' => $userId,
-				'displayName' => $user->getDisplayName(),
-				'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
-				'friends' => $friends,
-				'inbox' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/inbox/"))),
-				'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
-				'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
-				'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
-				'storage' => $this->getStorageUrl($userId)
-			);
-			return $profile;
+			if ($user !== null) {
+				$profile = array(
+					'id' => $userId,
+					'displayName' => $user->getDisplayName(),
+					'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
+					'friends' => $friends,
+					'inbox' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/inbox/"))),
+					'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
+					'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
+					'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
+					'storage' => $this->getStorageUrl($userId)
+				);
+				return $profile;
+			}
 		}
 		return false;
 	}
