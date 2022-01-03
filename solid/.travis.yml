@@ -50,7 +50,14 @@ before_script:
     - if [[ "$DB" == 'mysql' ]]; then mysql -u root -e "grant all on oc_autotest.* to 'oc_autotest'@'localhost';"; fi
     - cd nextcloud
     - mkdir data
-    - ./occ maintenance:install --database-name oc_autotest --database-user oc_autotest --admin-user admin --admin-pass admin --database $DB --database-pass=''
+    - |
+      ./occ maintenance:install \
+        --admin-pass admin \
+        --admin-user admin \
+        --database $DB \
+        --database-name oc_autotest \
+        --database-pass='' \
+        --database-user oc_autotest
     - ./occ app:enable solid
     - php -S localhost:8080 &
     - cd apps/solid
@@ -66,5 +73,5 @@ addons:
     mariadb: '10.1'
 
 services:
-  - postgresql
-  - mariadb
+    - postgresql
+    - mariadb
