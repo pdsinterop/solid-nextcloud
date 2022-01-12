@@ -1,0 +1,14 @@
+---
+extends: default
+
+ignore: |
+  solid/vendor/
+
+rules:
+  brackets:
+    max-spaces-inside: 1
+  document-start: disable
+  line-length:
+    level: warning
+    max: 120
+  truthy: {allowed-values: ["true", "false", "on"]}

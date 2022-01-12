@@ -361,7 +361,7 @@ class ServerController extends Controller {
 	private function getClient($clientId) {
 		$clientRegistration = $this->config->getClientRegistration($clientId);
 
-		if ($clientId && sizeof($clientRegistration)) {
+		if ($clientId && count($clientRegistration)) {
 			return new \Pdsinterop\Solid\Auth\Config\Client(
 				$clientId,
 				$clientRegistration['client_secret'],

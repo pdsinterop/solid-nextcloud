@@ -59,7 +59,7 @@
 
 		/**
 		 * @param string $clientId
-		 * @return array
+		 * @return array|null
 		 */
 		public function getClientConfigById($clientId) {
 			$clients = (array)$this->config->getAppValue('solid','clients');

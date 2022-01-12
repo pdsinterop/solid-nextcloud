@@ -1,11 +1,15 @@
 {
     "name": "pdsinterop/solid-nextcloud",
-    "description": "A WebID-OIDC Identity Provider, to allow interoperability with SolidProject.org",
+    "description": "A WebID-OIDC Identity Provider, to allow interoperability with Solid Pods",
     "type": "project",
     "license": "MIT",
     "config": {
-        "platform": {
-            "php": "7.2"
+      "bin-dir": "bin",
+      "preferred-install": "dist",
+      "sort-packages": true,
+      "vendor-dir": "vendor",
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
         }
     },
     "authors": [
@@ -17,15 +21,18 @@
         }
     ],
     "require": {
+        "php": "^7.3",
+        "ext-json": "*",
+        "ext-openssl": "*",
         "easyrdf/easyrdf": "^0.9.1",
-        "pdsinterop/flysystem-rdf": "dev-main",
-        "pdsinterop/solid-auth": "dev-main",
-        "pdsinterop/solid-crud": "dev-main",
-        "pdsinterop/flysystem-nextcloud":"dev-main",
         "laminas/laminas-diactoros": "^2.4",
-        "lcobucci/jwt": "^3.3"
+        "lcobucci/jwt": "^3.3",
+        "pdsinterop/flysystem-nextcloud":"^0.1",
+        "pdsinterop/flysystem-rdf": "^0.3",
+        "pdsinterop/solid-auth": "^v0.6.3",
+        "pdsinterop/solid-crud": "^0.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8"
+        "phpunit/phpunit": "^8 || ^9"
     }
 }
