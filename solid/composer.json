@@ -28,9 +28,9 @@
         "laminas/laminas-diactoros": "^2.4",
         "lcobucci/jwt": "3.3.3",
         "pdsinterop/flysystem-nextcloud":"^0.1",
-        "pdsinterop/flysystem-rdf": "^0.3",
-        "pdsinterop/solid-auth": "^v0.6.3",
-        "pdsinterop/solid-crud": "^0.3"
+        "pdsinterop/flysystem-rdf": "^v0.4",
+        "pdsinterop/solid-auth": "^v0.6",
+        "pdsinterop/solid-crud": "^v0.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^8 || ^9"
