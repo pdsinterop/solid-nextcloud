@@ -1,0 +1,109 @@
+# ==============================================================================
+# Project Specific
+# ------------------------------------------------------------------------------
+user=pdsinterop
+project=solid-nextcloud
+# ------------------------------------------------------------------------------
+breaking-labels=backwards-incompatible, Backwards incompatible, breaking
+bug-labels=bug
+deprecated-labels=deprecated, Deprecated, Type: Deprecated
+enhancement-labels=improvement, documentation, enhancement
+exclude-labels=question, duplicate,invalid
+removed-labels=removed, Removed, Type: Removed
+security-labels=security, Security, Type: Security
+summary-labels=Release summary, release-summary, Summary, summary
+unreleased-label=Unreleased
+# ==============================================================================
+
+# ==============================================================================
+# Organisation-wide
+# ------------------------------------------------------------------------------
+# Output and content related
+# ------------------------------------------------------------------------------
+date-format=%Y-%m-%d
+output=CHANGELOG.md
+header=# Changelog
+breaking-prefix=### Breaking changes
+bug-prefix=### Fixes
+deprecated-prefix=### Deprecates
+enhancement-prefix=### Changes
+issue-prefix=### Closes
+merge-prefix=### Pull request(s) without label
+removed-prefix=### Removes
+security-prefix=### Security
+# ------------------------------------------------------------------------------
+add-issues-wo-labels=true
+add-pr-wo-labels=true
+author=true
+compare-link=true
+filter-issues-by-milestone=true
+# http-cache=true
+issues=true
+pulls=true
+# unreleased-only=true
+unreleased=true
+usernames-as-github-logins=true
+verbose=false
+# ==============================================================================
+
+;user USER                  Username of the owner of the target GitHub repo OR the namespace of target Github repo if owned by an organization.
+;project PROJECT            Name of project on GitHub.
+;token TOKEN                To make more than 50 requests per hour your GitHub token is required. You can generate it at: https://github.com/settings/tokens/new
+;date-format FORMAT         Date format. Default is %Y-%m-%d.
+;output NAME                Output file. To print to STDOUT instead, use blank as path. Default is CHANGELOG.md
+;base NAME                  Optional base file to append generated changes to. Default is HISTORY.md
+;summary-label LABEL        Set up custom label for the release summary section. Default is "".
+;breaking-label LABEL       Set up custom label for the breaking changes section. Default is "**Breaking changes:**".
+;enhancement-label LABEL    Set up custom label for enhancements section. Default is "**Implemented enhancements:**".
+;bugs-label LABEL           Set up custom label for bug-fixes section. Default is "**Fixed bugs:**".
+;deprecated-label LABEL     Set up custom label for the deprecated changes section. Default is "**Deprecated:**".
+;removed-label LABEL        Set up custom label for the removed changes section. Default is "**Removed:**".
+;security-label LABEL       Set up custom label for the security changes section. Default is "**Security fixes:**".
+;issues-label LABEL         Set up custom label for closed-issues section. Default is "**Closed issues:**".
+;header-label LABEL         Set up custom header label. Default is "# Changelog".
+;configure-sections STRING  Define your own set of sections which overrides all default sections.
+;add-sections HASH, STRING  Add new sections but keep the default sections.
+;front-matter JSON          Add YAML front matter. Formatted as JSON because it's easier to add on the command line.
+;pr-label LABEL             Set up custom label for pull requests section. Default is "**Merged pull requests:**".
+;issues                     Include closed issues in changelog. Default is true.
+;issues-wo-labels           Include closed issues without labels in changelog. Default is true.
+;pr-wo-labels               Include pull requests without labels in changelog. Default is true.
+;pull-requests              Include pull-requests in changelog. Default is true.
+;filter-by-milestone        Use milestone to detect when issue was resolved. Default is true.
+;issues-of-open-milestones  Include issues of open milestones. Default is true.
+;author                     Add author of pull request at the end. Default is true.
+;usernames-as-github-logins Use GitHub tags instead of Markdown links for the author of an issue or pull-request.
+;unreleased-only            Generate log from unreleased closed issues only.
+;unreleased                 Add to log unreleased closed issues. Default is true.
+;unreleased-label LABEL     Set up custom label for unreleased closed issues section. Default is "**Unreleased:**".
+;compare-link               Include compare link (Full Changelog) between older version and newer version. Default is true.
+;include-labels  x,y,z      Of the labeled issues, only include the ones with the specified labels.
+;exclude-labels  x,y,z      Issues with the specified labels will be excluded from changelog. Default is 'duplicate,question,invalid,wontfix'.
+;summary-labels x,y,z       Issues with these labels will be added to a new section, called "Release Summary". The section display only body of issues. Default is 'release-summary,summary'.
+;breaking-labels x,y,z      Issues with these labels will be added to a new section, called "Breaking changes". Default is 'backwards-incompatible,breaking'.
+;enhancement-labels  x,y,z  Issues with the specified labels will be added to "Implemented enhancements" section. Default is 'enhancement,Enhancement'.
+;bug-labels  x,y,z          Issues with the specified labels will be added to "Fixed bugs" section. Default is 'bug,Bug'.
+;deprecated-labels x,y,z    Issues with the specified labels will be added to a section called "Deprecated". Default is 'deprecated,Deprecated'.
+;removed-labels x,y,z       Issues with the specified labels will be added to a section called "Removed". Default is 'removed,Removed'.
+;security-labels x,y,z      Issues with the specified labels will be added to a section called "Security fixes". Default is 'security,Security'.
+;issue-line-labels x,y,z    The specified labels will be shown in brackets next to each matching issue. Use "ALL" to show all labels. Default is [].
+;include-tags-regex REGEX   Apply a regular expression on tag names so that they can be included, for example: --include-tags-regex ".*+d{1,}".
+;exclude-tags  x,y,z        Changelog will exclude specified tags
+;exclude-tags-regex REGEX   Apply a regular expression on tag names so that they can be excluded, for example: --exclude-tags-regex ".*+d{1,}".
+;since-tag  x               Changelog will start after specified tag.
+;due-tag  x                 Changelog will end before specified tag.
+;since-commit  x            Fetch only commits after this time. eg. "2017-01-01 10:00:00"
+;max-issues NUMBER          Maximum number of issues to fetch from GitHub. Default is unlimited.
+;release-url URL            The URL to point to for release links, in printf format (with the tag as variable).
+;github-site URL            The Enterprise GitHub site where your project is hosted.
+;github-api URL             The enterprise endpoint to use for your GitHub API.
+;simple-list                Create a simple list from issues and pull requests. Default is false.
+;future-release VERSION     Put the unreleased changes in the specified release number.
+;release-branch BRANCH      Limit pull requests to the release branch, such as master or release.
+;http-cache                 Use HTTP Cache to cache GitHub API requests (useful for large repos). Default is true.
+;cache-file CACHE-FILE      Filename to use for cache. Default is github-changelog-http-cache in a temporary directory.
+;cache-log CACHE-LOG        Filename to use for cache log. Default is github-changelog-logger.log in a temporary directory.
+;config-file CONFIG-FILE    Path to configuration file. Default is .github_changelog_generator.
+;ssl-ca-file PATH           Path to cacert.pem file. Default is a bundled lib/github_changelog_generator/ssl_certs/cacert.pem. Respects SSL_CA_PATH.
+;require x,y,z              Path to Ruby file(s) to require before generating changelog.
+;verbose                    Run verbosely. Default is true.
