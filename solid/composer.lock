@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "793457ca3401da4d126c6637f4cdac8d",
+    "content-hash": "3e4dfe2a359e3b409463c41f809ef9de",
     "packages": [
         {
             "name": "arc/base",
@@ -1151,16 +1151,16 @@
         },
         {
             "name": "pdsinterop/flysystem-rdf",
-            "version": "v0.3.0",
+            "version": "v0.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-rdf.git",
-                "reference": "513f4435a347cebfd2d88ce4bf7e1d03fb2938d7"
+                "reference": "05cf9c72f023966afd74b81e4d69673617ab38fe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/flysystem-rdf/zipball/513f4435a347cebfd2d88ce4bf7e1d03fb2938d7",
-                "reference": "513f4435a347cebfd2d88ce4bf7e1d03fb2938d7",
+                "url": "https://api.github.com/repos/pdsinterop/flysystem-rdf/zipball/05cf9c72f023966afd74b81e4d69673617ab38fe",
+                "reference": "05cf9c72f023966afd74b81e4d69673617ab38fe",
                 "shasum": ""
             },
             "require": {
@@ -1168,10 +1168,10 @@
                 "ext-mbstring": "*",
                 "league/flysystem": "^1.0",
                 "ml/json-ld": "^1.2",
-                "php": "^7.1"
+                "php": "^7.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^7|^8|^9"
+                "phpunit/phpunit": "^8|^9"
             },
             "type": "library",
             "autoload": {
@@ -1186,22 +1186,22 @@
             "description": "Flysystem plugin to transform RDF data between various serialization formats.",
             "support": {
                 "issues": "https://github.com/pdsinterop/flysystem-rdf/issues",
-                "source": "https://github.com/pdsinterop/flysystem-rdf/tree/v0.3.0"
+                "source": "https://github.com/pdsinterop/flysystem-rdf/tree/v0.4.3"
             },
-            "time": "2020-11-09T08:28:14+00:00"
+            "time": "2022-01-16T12:30:31+00:00"
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.6.3",
+            "version": "v0.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "55e1afab5a0eeb0b933cead9f74193072181ea6f"
+                "reference": "a22fb36b0189404e48d1443eb87d20693de0fbc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/55e1afab5a0eeb0b933cead9f74193072181ea6f",
-                "reference": "55e1afab5a0eeb0b933cead9f74193072181ea6f",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/a22fb36b0189404e48d1443eb87d20693de0fbc3",
+                "reference": "a22fb36b0189404e48d1443eb87d20693de0fbc3",
                 "shasum": ""
             },
             "require": {
@@ -1235,22 +1235,22 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.6.3"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.6.4"
             },
-            "time": "2021-12-08T13:43:04+00:00"
+            "time": "2022-01-16T14:33:00+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "v0.3.1",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "a2040d2b5f19fe91dbe0d152d6390c16eb2dcd34"
+                "reference": "53103f49da63a9c7a45f19b6846fee832b207b08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/a2040d2b5f19fe91dbe0d152d6390c16eb2dcd34",
-                "reference": "a2040d2b5f19fe91dbe0d152d6390c16eb2dcd34",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/53103f49da63a9c7a45f19b6846fee832b207b08",
+                "reference": "53103f49da63a9c7a45f19b6846fee832b207b08",
                 "shasum": ""
             },
             "require": {
@@ -1258,7 +1258,7 @@
                 "laminas/laminas-diactoros": "^2.8",
                 "league/flysystem": "^1.0",
                 "mjrider/flysystem-factory": "^0.5",
-                "pdsinterop/flysystem-rdf": "^0.3",
+                "pdsinterop/flysystem-rdf": "^0.4",
                 "php": "^7.3",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.0",
@@ -1277,9 +1277,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.3.1"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.5.1"
             },
-            "time": "2021-12-08T13:37:59+00:00"
+            "time": "2022-01-16T13:20:39+00:00"
         },
         {
             "name": "psr/cache",
@@ -1766,9 +1766,6 @@
             "require": {
                 "php": "^7.1 || ^8.0"
             },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
-            },
             "require-dev": {
                 "doctrine/collections": "^1.0",
                 "doctrine/common": "^2.6",
@@ -2086,16 +2083,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.5.1",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae"
+                "reference": "93ebd0014cab80c4ea9f5e297ea48672f1b87706"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/a12f7e301eb7258bb68acd89d4aefa05c2906cae",
-                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/93ebd0014cab80c4ea9f5e297ea48672f1b87706",
+                "reference": "93ebd0014cab80c4ea9f5e297ea48672f1b87706",
                 "shasum": ""
             },
             "require": {
@@ -2130,9 +2127,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.5.1"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.6.0"
             },
-            "time": "2021-10-02T14:08:47+00:00"
+            "time": "2022-01-04T19:58:01+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -3588,20 +3585,23 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.23.0",
+            "version": "v1.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "46cd95797e9df938fdd2b03693b5fca5e64b01ce"
+                "reference": "30885182c981ab175d4d034db0f6f469898070ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/46cd95797e9df938fdd2b03693b5fca5e64b01ce",
-                "reference": "46cd95797e9df938fdd2b03693b5fca5e64b01ce",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/30885182c981ab175d4d034db0f6f469898070ab",
+                "reference": "30885182c981ab175d4d034db0f6f469898070ab",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.1"
+            },
+            "provide": {
+                "ext-ctype": "*"
             },
             "suggest": {
                 "ext-ctype": "For best performance"
@@ -3647,7 +3647,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.23.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.24.0"
             },
             "funding": [
                 {
@@ -3663,7 +3663,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-19T12:13:01+00:00"
+            "time": "2021-10-20T20:35:02+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -3785,5 +3785,5 @@
         "ext-openssl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
