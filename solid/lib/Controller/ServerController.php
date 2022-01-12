@@ -86,7 +86,7 @@ class ServerController extends Controller {
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
 		try {
-			$config = (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
+			return (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
 				$client,
 				$keys['encryptionKey'],
 				$keys['privateKey'],
@@ -95,8 +95,8 @@ class ServerController extends Controller {
 			))->create();
 		} catch(\Throwable $e) {
 			// var_dump($e);
+			return null;
 		}
-		return $config;
 	}
 
 	/**
@@ -154,6 +154,11 @@ class ServerController extends Controller {
 		$getVars['scope'] = "openid" ;
 
 		if (!isset($getVars['redirect_uri'])) {
+			if (!isset($token)) {
+				$result = new JSONResponse('Bad request, does not contain valid token');
+				$result->setStatus(400);
+				return $result->addHeader('Access-Control-Allow-Origin', '*');
+			}
 			try {
 				$getVars['redirect_uri'] = $token->getClaim("redirect_uri");
 			} catch(\Exception $e) {
@@ -248,7 +253,7 @@ class ServerController extends Controller {
 
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-		$response = $server->respondToAccessTokenRequest($request, $user, $approval);
+		$response = $server->respondToAccessTokenRequest($request);
 
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
@@ -286,7 +291,7 @@ class ServerController extends Controller {
 		$clientData = file_get_contents('php://input');
 		$clientData = json_decode($clientData, true);
 		if (!$clientData['redirect_uris']) {
-			return new JSONReponse("Missing redirect URIs");
+			return new JSONResponse("Missing redirect URIs");
 		}
 		$clientData['client_id_issued_at'] = time();
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
