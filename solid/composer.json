@@ -26,7 +26,7 @@
         "ext-openssl": "*",
         "easyrdf/easyrdf": "^0.9.1",
         "laminas/laminas-diactoros": "^2.4",
-        "lcobucci/jwt": "^3.3",
+        "lcobucci/jwt": "3.3.3",
         "pdsinterop/flysystem-nextcloud":"^0.1",
         "pdsinterop/flysystem-rdf": "^0.3",
         "pdsinterop/solid-auth": "^v0.6.3",
