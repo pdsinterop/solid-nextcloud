@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.4.3](https://github.com/pdsinterop/solid-nextcloud/tree/v0.4.3) (2022-01-12)
+
+[Full Changelog](https://github.com/pdsinterop/solid-nextcloud/compare/v0.4.2...v0.4.3)
+
+### Fixes
+
+- Application crash in /solid/lib/Controller/AppController.php [\#62](https://github.com/pdsinterop/solid-nextcloud/issues/62)
+
+### Pull request(s) without label
+
+- GitHub actions QA [\#68](https://github.com/pdsinterop/solid-nextcloud/pull/68) (@Potherca)
+- Fixes for controllers [\#63](https://github.com/pdsinterop/solid-nextcloud/pull/63) (@Potherca)
+
 ## [v0.4.2](https://github.com/pdsinterop/solid-nextcloud/tree/v0.4.2) (2021-11-30)
 
 [Full Changelog](https://github.com/pdsinterop/solid-nextcloud/compare/v0.4.0...v0.4.2)
