@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<ruleset
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    name="PDS Interop"
+>
+    <description>PHP coding standards for PDS Interop projects</description>
+
+    <!-- Show sniff codes in all reports, and progress when running -->
+    <arg value="sp"/>
+    <!-- Strip the filepaths down to the relevant bit. -->
+    <arg name="basepath" value="../solid/"/>
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <!--    <arg name="parallel" value="75"/>-->
+
+    <file>.</file>
+    <exclude-pattern>*/vendor/*|*/build/*</exclude-pattern>
+
+    <rule ref="PHPCompatibility"/>
+    <config name="testVersion" value="7.3-"/>
+
+    <!-- Include the whole PSR-12 standard -->
+    <rule ref="PSR12">
+        <!-- Until things have been cleaned up a bit, these violations are allowed -->
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+        <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
+        <exclude name="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed"/>
+        <exclude name="Generic.WhiteSpace.DisallowTabIndent.TabsUsed"/>
+        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
+        <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
+        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
+        <exclude name="PSR12.Files.FileHeader.SpacingInsideBlock"/>
+        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
+        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
+        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword"/>
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceAfterEquals"/>
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceBeforeEquals"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
+        <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.Indent"/>
+        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
+    </rule>
+
+    <!-- Have 12 chars padding maximum and always show as errors -->
+    <rule ref="Generic.Formatting.MultipleStatementAlignment">
+        <properties>
+            <property name="maxPadding" value="12"/>
+            <property name="error" value="true"/>
+        </properties>
+    </rule>
+    <!-- Original PHP function should be used rather than an alias -->
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="chop" value="rtrim"/>
+                <element key="doubleval" value="floatval"/>
+                <element key="fputs" value="fwrite"/>
+                <element key="ini_alter" value="ini_set"/>
+                <element key="is_integer" value="is_int"/>
+                <element key="is_real" value="is_float"/>
+                <element key="is_writeable" value="is_writable"/>
+                <element key="join" value="implode"/>
+                <element key="key_exists" value="array_key_exists"/>
+                <element key="pos" value="current"/>
+                <element key="posix_errno" value="posix_get_last_error"/>
+                <element key="recode" value="recode_string"/>
+                <element key="session_commit" value="session_write_close"/>
+                <element key="set_file_buffer" value="stream_set_write_buffer"/>
+                <element key="show_source" value="highlight_file"/>
+                <element key="sizeof" value="count"/>
+                <element key="strchr" value="strstr"/>
+                <element key="user_error" value="trigger_error"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>
