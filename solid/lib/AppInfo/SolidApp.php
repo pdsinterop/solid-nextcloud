@@ -1,9 +1,9 @@
 <?php
 namespace OCA\Solid\AppInfo;
 
-use \OCP\AppFramework\App;
+use OCP\AppFramework\App;
 
-use \OCA\Solid\Service\UserService;
+use OCA\Solid\Service\UserService;
 
 
 class SolidApp extends App {
@@ -28,8 +28,5 @@ class SolidApp extends App {
         $container->registerService('User', function($c) {
             return $c->query('UserSession')->getUser();
         });
-
     }
-
 }
-	

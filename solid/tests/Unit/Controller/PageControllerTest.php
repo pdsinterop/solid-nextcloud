@@ -16,9 +16,7 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 	public function setUp() {
 		$request = $this->getMockBuilder('OCP\IRequest')->getMock();
 
-		$this->controller = new PageController(
-			'solid', $request, $this->userId
-		);
+		$this->controller = new PageController('solid', $request, $this->userId);
 	}
 
 	public function testIndex() {
