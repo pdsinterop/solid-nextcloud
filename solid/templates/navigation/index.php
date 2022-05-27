@@ -1,4 +1,4 @@
-<ul class="with-icon">
-    <li><a class="icon-star-dark" href="<?php p($_['solidNavigation']['launcher']); ?>">Solid Apps</a></li>
-    <li><a data-simply-command="profile" class="icon-user" href="<?php p($_['solidNavigation']['profile']);?>">Profile</a></li>
+<ul>
+    <li><a href="<?php p($_['solidNavigation']['launcher']); ?>"><img src="/core/img/actions/star-dark.svg"><span>Solid Apps</span></a></li>
+    <li><a data-simply-command="profile" href="<?php p($_['solidNavigation']['profile']);?>"><img src="/core/img/actions/user.svg"><span>Profile</span></a></li>
 </ul>
