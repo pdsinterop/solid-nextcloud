@@ -167,7 +167,7 @@
 			$this->config->setUserValue($userId, "solid", "profileData", $profileData);
 			
 			if ($this->userManager->userExists($userId)) {
-				$graph = new \EasyRdf_Graph();
+				$graph = new \EasyRdf\Graph();
 				$graph->parse($profileData, 'turtle');
 				$data = $graph->toRdfPhp();
 				$subject = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
