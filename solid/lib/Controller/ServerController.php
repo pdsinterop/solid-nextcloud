@@ -16,6 +16,10 @@ use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
 use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+
 class ServerController extends Controller {
 	private $userId;
 
@@ -126,11 +130,12 @@ class ServerController extends Controller {
 //			return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
-		$parser = new \Lcobucci\JWT\Parser();
+                $jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
+		$token = $jwtConfig->parser()->parse($_GET['request']);
 
 		try {
-			$token = $parser->parse($_GET['request']);
-			$this->session->set("nonce", $token->getClaim('nonce'));
+			$token = $jwtConfig->parser()->parse($_GET['request']);
+			$this->session->set("nonce", $token->claims()->get('nonce'));
 		} catch(\Exception $e) {
 			$this->session->set("nonce", $_GET['nonce']);
 		}
