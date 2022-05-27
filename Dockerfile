@@ -1,4 +1,4 @@
-FROM nextcloud:24
+FROM nextcloud:24.0.1
 COPY site.conf /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod ssl
 RUN mkdir /tls
