@@ -246,7 +246,7 @@ EOF;
 				$result->addHeader($header, $value);
 			}
 		}
-		$origin = $_SERVER['HTTP_ORIGIN'];
+		$origin = $_SERVER['HTTP_ORIGIN'] ?? "*";
 		$result->addHeader('Access-Control-Allow-Credentials', 'true');
 		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 		$result->addHeader('Access-Control-Allow-Origin', $origin);
