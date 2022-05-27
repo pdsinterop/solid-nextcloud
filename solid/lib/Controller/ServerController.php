@@ -114,18 +114,6 @@ class ServerController extends Controller {
 	}
 
 	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function openid() {
-		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-		$response = $server->respondToOpenIdMetadataRequest();
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
-	}
-	
-	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
