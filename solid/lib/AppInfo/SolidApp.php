@@ -1,13 +1,13 @@
 <?php
 namespace OCA\Solid\AppInfo;
 
-use OCA\Solid\Service\UserService;
-use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
-
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+
+use OCA\Solid\Service\UserService;
+use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
 
 class SolidApp extends App implements IBootstrap {
 
