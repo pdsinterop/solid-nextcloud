@@ -49,7 +49,7 @@ class ProfileController extends Controller {
 		// Create the Nextcloud Calendar Adapter
 		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudProfile($userId, $profile, $defaultAcl, $this->config);
 
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
@@ -327,7 +327,7 @@ EOF;
 
 		$baseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card")));
 		$baseProfile = $this->config->getProfileData($userId);
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 		$graph->parse($baseProfile, "turtle", $baseUrl);
 		$graph->parse($generatedProfile, "turtle", $baseUrl);
 		$combinedProfile = $graph->serialise("turtle");

@@ -44,7 +44,7 @@ class ContactsController extends Controller {
 		// Create the Nextcloud Contacts Adapter
 		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudContacts($userId, $defaultAcl);
 
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();

@@ -43,7 +43,7 @@ class StorageController extends Controller {
 	private function getFileSystem() {
 		// Create the Nextcloud Adapter
 		$adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
