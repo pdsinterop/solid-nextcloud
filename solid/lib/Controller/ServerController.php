@@ -106,11 +106,11 @@ class ServerController extends Controller {
 	 */
 	public function cors($path) {
 		$origin = $_SERVER['HTTP_ORIGIN'];
-		return (new DataResponse('OK'))
-		->addHeader('Access-Control-Allow-Origin', $origin)
-		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-		->addHeader('Access-Control-Allow-Methods', 'POST')
-		->addHeader('Access-Control-Allow-Credentials', 'true');
+		return (new DataResponse('OK'));
+//		->addHeader('Access-Control-Allow-Origin', $origin)
+//		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+//		->addHeader('Access-Control-Allow-Methods', 'POST')
+//		->addHeader('Access-Control-Allow-Credentials', 'true');
 	}
 
 	/**
@@ -122,7 +122,8 @@ class ServerController extends Controller {
 		if (!$this->userManager->userExists($this->userId)) {
 			$result = new JSONResponse('Authorization required');
 			$result->setStatus(401);
-			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			return $result;
+//			return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		$parser = new \Lcobucci\JWT\Parser();
@@ -145,14 +146,16 @@ class ServerController extends Controller {
 			if (!isset($token)) {
 				$result = new JSONResponse('Bad request, does not contain valid token');
 				$result->setStatus(400);
-				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				return $result;
+//				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 			try {
 				$getVars['redirect_uri'] = $token->getClaim("redirect_uri");
 			} catch(\Exception $e) {
 				$result = new JSONResponse('Bad request, missing redirect uri');
 				$result->setStatus(400);
-				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				return $result;
+//				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 		}
 		$clientId = $getVars['client_id'];
@@ -162,7 +165,7 @@ class ServerController extends Controller {
 			$result->setStatus(302);
 			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
 			$result->addHeader("Location", $approvalUrl);
-			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
@@ -175,7 +178,7 @@ class ServerController extends Controller {
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
 		
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	private function checkApproval($clientId) {
@@ -248,7 +251,7 @@ class ServerController extends Controller {
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey(), $dpopKey);
 
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	/**
@@ -294,9 +297,9 @@ class ServerController extends Controller {
 		);
 		error_log('allowingin POST:' . $origin);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration))
-		->addHeader('Access-Control-Allow-Origin', $origin)
-		->addHeader('Access-Control-Allow-Methods', 'POST');
+		return (new JSONResponse($registration));
+//		->addHeader('Access-Control-Allow-Origin', $origin)
+//		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
 	
 	/**
@@ -347,7 +350,7 @@ class ServerController extends Controller {
 			}
 		}
 		$result->setStatus($statusCode);
-		$result->addHeader('Access-Control-Allow-Origin', '*');
+//		$result->addHeader('Access-Control-Allow-Origin', '*');
 		return $result;
 	}
 
