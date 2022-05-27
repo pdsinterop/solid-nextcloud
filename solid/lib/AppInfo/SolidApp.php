@@ -1,14 +1,17 @@
 <?php
 namespace OCA\Solid\AppInfo;
 
-use OCP\AppFramework\App;
-
 use OCA\Solid\Service\UserService;
+use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
 
+use OCP\AppFramework\App;
+use OCP\AppFramework\Bootstrap\IBootContext;
+use OCP\AppFramework\Bootstrap\IBootstrap;
+use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
-class SolidApp extends App {
+class SolidApp extends App implements IBootstrap {
 
-	public const APP_ID = 'solid';
+    public const APP_ID = 'solid';
 
     public function __construct(){
         parent::__construct(self::APP_ID);
@@ -29,4 +32,11 @@ class SolidApp extends App {
             return $c->query('UserSession')->getUser();
         });
     }
+
+    public function register(IRegistrationContext $context): void {
+        include_once __DIR__ . '/../../vendor/autoload.php';
+        $context->registerWellKnownHandler(OpenIdConfigurationHandler::class);
+    }
+
+    public function boot(IBootContext $context): void {}
 }
