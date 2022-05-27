@@ -33,7 +33,6 @@ class Application extends App implements IBootstrap {
 	}
 
 	public function register(IRegistrationContext $context): void {
-		$context->registerWellKnownHandler(SecurityTxtHandler::class);
 		$context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
 
 		/**
