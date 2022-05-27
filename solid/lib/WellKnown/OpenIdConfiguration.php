@@ -30,9 +30,8 @@ class OpenIdConfigurationHandler implements IHandler {
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
 	
-	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config) 
+	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager) 
 	{
-		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->request     = $request;
