@@ -130,14 +130,16 @@ class ServerController extends Controller {
 //			return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
-                $jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
-		$token = $jwtConfig->parser()->parse($_GET['request']);
-
-		try {
+		if ($_GET['request']) {
+			$jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
 			$token = $jwtConfig->parser()->parse($_GET['request']);
-			$this->session->set("nonce", $token->claims()->get('nonce'));
-		} catch(\Exception $e) {
-			$this->session->set("nonce", $_GET['nonce']);
+
+			try {
+				$token = $jwtConfig->parser()->parse($_GET['request']);
+				$this->session->set("nonce", $token->claims()->get('nonce'));
+			} catch(\Exception $e) {
+				$this->session->set("nonce", $_GET['nonce']);
+			}
 		}
 
 		$getVars = $_GET;
