@@ -53,8 +53,8 @@ class Application extends App implements IBootstrap {
 		$context->registerService('User', function($c) {
 			return $c->query('UserSession')->getUser();
 		});
-
 	}
 
-	public function boot(IBootContext $context): void {}
+	public function boot(IBootContext $context): void {
+	}
 }
