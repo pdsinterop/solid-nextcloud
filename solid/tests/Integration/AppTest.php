@@ -12,7 +12,6 @@ use Test\TestCase;
  * against the database
  */
 class AppTest extends TestCase {
-
     private $container;
 
     public function setUp() {
@@ -25,5 +24,4 @@ class AppTest extends TestCase {
         $appManager = $this->container->query('OCP\App\IAppManager');
         $this->assertTrue($appManager->isInstalled('solid'));
     }
-
 }
