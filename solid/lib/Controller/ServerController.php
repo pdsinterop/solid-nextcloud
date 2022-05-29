@@ -191,6 +191,9 @@ class ServerController extends Controller {
 		if ($clientId == md5("tester")) { // FIXME: Double check that this is not a security issue; It is only here to help the test suite;
 			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
 		}
+		if ($clientId == md5("https://tester")) { // FIXME: Double check that this is not a security issue; It is only here to help the test suite;
+			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
+		}
 		if (in_array($clientId, $allowedClients)) {
 			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
 		} else {
