@@ -9,7 +9,6 @@
 	 * @package OCA\Solid
 	 */
 	class ServerConfig {
-
 		/** @var IConfig */
 		private $config;
 
