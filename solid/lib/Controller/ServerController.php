@@ -155,7 +155,7 @@ class ServerController extends Controller {
 //				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 			try {
-				$getVars['redirect_uri'] = $token->claims->get("redirect_uri");
+				$getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
 			} catch(\Exception $e) {
 				$result = new JSONResponse('Bad request, missing redirect uri');
 				$result->setStatus(400);
