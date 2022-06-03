@@ -30,7 +30,8 @@
         "pdsinterop/flysystem-nextcloud":"dev-feature/nextcloud24",
         "pdsinterop/flysystem-rdf": "dev-feature/nextcloud24",
         "pdsinterop/solid-auth": "dev-feature/nextcloud24",
-        "pdsinterop/solid-crud": "dev-feature/nextcloud24"
+        "pdsinterop/solid-crud": "dev-feature/nextcloud24",
+        "psr/log" : "1.1.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^8 || ^9"
