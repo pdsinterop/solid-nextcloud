@@ -257,7 +257,7 @@ class ServerController extends Controller {
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey(), $dpopKey);
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], ($_SESSION['nonce'] ?? ''), $this->config->getPrivateKey(), $dpopKey);
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
