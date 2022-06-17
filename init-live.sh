@@ -1,6 +1,6 @@
 #!/bin/bash
 export PHP_MEMORY_LIMIT="512M"
-php console.php maintenance:install --admin-user admin --admin-pass $MARIADB_ROOT_PASSWORD --database "mysql" --database-name "nextcloud" --database-user "root" --database-pass "$MARIADB_ROOT_PASSWORD" --database-host "db"
+php console.php maintenance:install --admin-user admin --admin-pass $MARIADB_ROOT_PASSWORD --database "mysql" --database-name "nextcloud" --database-user "root" --database-pass "$MARIADB_ROOT_PASSWORD" --database-host "127.0.0.1"
 php console.php status
 php console.php app:enable solid
 sed -i '96 i\  RewriteRule ^\\.well-known/openid-configuration /apps/solid/openid [R=302,L]' /var/www/html/.htaccess

@@ -23,4 +23,5 @@ RUN php /install/composer.phar update
 RUN php /install/composer.phar install --no-dev --prefer-dist
 WORKDIR /var/www/html
 ADD init.sh /
+ADD init-live.sh /
 EXPOSE 443
