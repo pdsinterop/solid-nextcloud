@@ -16,6 +16,10 @@ use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
 use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+
 class ServerController extends Controller {
 	private $userId;
 
@@ -106,25 +110,13 @@ class ServerController extends Controller {
 	 */
 	public function cors($path) {
 		$origin = $_SERVER['HTTP_ORIGIN'];
-		return (new DataResponse('OK'))
-		->addHeader('Access-Control-Allow-Origin', $origin)
-		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-		->addHeader('Access-Control-Allow-Methods', 'POST')
-		->addHeader('Access-Control-Allow-Credentials', 'true');
+		return (new DataResponse('OK'));
+//		->addHeader('Access-Control-Allow-Origin', $origin)
+//		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+//		->addHeader('Access-Control-Allow-Methods', 'POST')
+//		->addHeader('Access-Control-Allow-Credentials', 'true');
 	}
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function openid() {
-		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
-		$response = $server->respondToOpenIdMetadataRequest();
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
-	}
-	
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
@@ -134,16 +126,18 @@ class ServerController extends Controller {
 		if (!$this->userManager->userExists($this->userId)) {
 			$result = new JSONResponse('Authorization required');
 			$result->setStatus(401);
-			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			return $result;
+//			return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
-		$parser = new \Lcobucci\JWT\Parser();
-
-		try {
-			$token = $parser->parse($_GET['request']);
-			$this->session->set("nonce", $token->getClaim('nonce'));
-		} catch(\Exception $e) {
-			$this->session->set("nonce", $_GET['nonce']);
+		if (isset($_GET['request'])) {
+			$jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
+			try {
+				$token = $jwtConfig->parser()->parse($_GET['request']);
+				$this->session->set("nonce", $token->claims()->get('nonce'));
+			} catch(\Exception $e) {
+				$this->session->set("nonce", $_GET['nonce']);
+			}
 		}
 
 		$getVars = $_GET;
@@ -157,14 +151,16 @@ class ServerController extends Controller {
 			if (!isset($token)) {
 				$result = new JSONResponse('Bad request, does not contain valid token');
 				$result->setStatus(400);
-				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				return $result;
+//				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 			try {
-				$getVars['redirect_uri'] = $token->getClaim("redirect_uri");
+				$getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
 			} catch(\Exception $e) {
 				$result = new JSONResponse('Bad request, missing redirect uri');
 				$result->setStatus(400);
-				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				return $result;
+//				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 		}
 		$clientId = $getVars['client_id'];
@@ -174,7 +170,7 @@ class ServerController extends Controller {
 			$result->setStatus(302);
 			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
 			$result->addHeader("Location", $approvalUrl);
-			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
@@ -187,12 +183,15 @@ class ServerController extends Controller {
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
 		
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	private function checkApproval($clientId) {
 		$allowedClients = $this->config->getAllowedClients($this->userId);
 		if ($clientId == md5("tester")) { // FIXME: Double check that this is not a security issue; It is only here to help the test suite;
+			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
+		}
+		if ($clientId == md5("https://tester")) { // FIXME: Double check that this is not a security issue; It is only here to help the test suite;
 			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
 		}
 		if (in_array($clientId, $allowedClients)) {
@@ -258,9 +257,9 @@ class ServerController extends Controller {
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], $_SESSION['nonce'], $this->config->getPrivateKey(), $dpopKey);
+		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], ($_SESSION['nonce'] ?? ''), $this->config->getPrivateKey(), $dpopKey);
 
-		return $this->respond($response)->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
 	/**
@@ -306,9 +305,9 @@ class ServerController extends Controller {
 		);
 		error_log('allowingin POST:' . $origin);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration))
-		->addHeader('Access-Control-Allow-Origin', $origin)
-		->addHeader('Access-Control-Allow-Methods', 'POST');
+		return (new JSONResponse($registration));
+//		->addHeader('Access-Control-Allow-Origin', $origin)
+//		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
 	
 	/**
@@ -359,7 +358,7 @@ class ServerController extends Controller {
 			}
 		}
 		$result->setStatus($statusCode);
-		$result->addHeader('Access-Control-Allow-Origin', '*');
+//		$result->addHeader('Access-Control-Allow-Origin', '*');
 		return $result;
 	}
 

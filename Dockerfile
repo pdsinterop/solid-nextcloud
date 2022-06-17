@@ -1,4 +1,4 @@
-FROM nextcloud:24
+FROM nextcloud:24.0.1
 COPY site.conf /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod ssl
 RUN mkdir /tls
@@ -18,7 +18,6 @@ ADD ./solid /usr/src/nextcloud/apps/solid
 # Run composer:
 WORKDIR /usr/src/nextcloud/apps/solid
 RUN ls
-RUN php /install/composer.phar require lcobucci/jwt:3.3.3
 RUN php /install/composer.phar update
 RUN php /install/composer.phar install --no-dev --prefer-dist
 WORKDIR /var/www/html

@@ -2,7 +2,6 @@
 namespace OCA\Solid\Service;
 
 class UserService {
-
     private $userSession;
 
     public function __construct($userSession){
@@ -16,5 +15,4 @@ class UserService {
     public function logout() {
         $this->userSession->logout();
     }
-
 }
