@@ -305,7 +305,7 @@ class ServerController extends Controller {
 		);
 		error_log('allowingin POST:' . $origin);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration));
+		return (new JSONResponse($registration, Http::CREATED));
 //		->addHeader('Access-Control-Allow-Origin', $origin)
 //		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
