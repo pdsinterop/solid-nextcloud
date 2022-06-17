@@ -30,5 +30,4 @@ docker run -d --name=nextcloud --network=host -v /root/tls:/tls solid-nextcloud
 
 sleep 15
 
-docker exec -u www-data -it -e SERVER_ROOT=https://$HOST nextcloud sh /init.sh
-docker exec -u www-data -it -e SERVER_ROOT=https://$HOST nextcloud sed -i "28 i\    4 => '$HOST'," /var/www/html/config/config.php
+docker exec -u www-data -it -e HOST=$HOST -e MARIADB_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD nextcloud sh /init-live.sh
