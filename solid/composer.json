@@ -21,16 +21,17 @@
         }
     ],
     "require": {
-        "php": "^7.3",
+        "php": "^8.0",
         "ext-json": "*",
         "ext-openssl": "*",
-        "easyrdf/easyrdf": "^0.9.1",
-        "laminas/laminas-diactoros": "^2.4",
-        "lcobucci/jwt": "3.3.3",
-        "pdsinterop/flysystem-nextcloud":"^0.1",
-        "pdsinterop/flysystem-rdf": "^0.3",
-        "pdsinterop/solid-auth": "^v0.6.3",
-        "pdsinterop/solid-crud": "^0.3"
+        "easyrdf/easyrdf": "^1.1.1",
+        "laminas/laminas-diactoros": "^2.8",
+        "lcobucci/jwt": "^4.1",
+        "pdsinterop/flysystem-nextcloud":"^0.2",
+        "pdsinterop/flysystem-rdf": "^0.5",
+        "pdsinterop/solid-auth": "^0.7",
+        "pdsinterop/solid-crud": "^0.6",
+        "psr/log" : "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^8 || ^9"

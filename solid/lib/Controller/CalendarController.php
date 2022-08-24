@@ -44,7 +44,7 @@ class CalendarController extends Controller {
 		// Create the Nextcloud Calendar Adapter
 		$adapter = new \Pdsinterop\Flysystem\Adapter\NextcloudCalendar($userId, $defaultAcl);
 
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();

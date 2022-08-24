@@ -43,7 +43,7 @@ class StorageController extends Controller {
 	private function getFileSystem() {
 		// Create the Nextcloud Adapter
 		$adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
-		$graph = new \EasyRdf_Graph();
+		$graph = new \EasyRdf\Graph();
 
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
@@ -388,11 +388,10 @@ EOF;
 				$result->addHeader($header, $value);
 			}
 		}
-		$origin = $_SERVER['HTTP_ORIGIN'];
-		$result->addHeader('Access-Control-Allow-Credentials', 'true');
-		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-		$result->addHeader('Access-Control-Allow-Origin', $origin);
-
+//		$origin = $_SERVER['HTTP_ORIGIN'];
+//		$result->addHeader('Access-Control-Allow-Credentials', 'true');
+//		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//		$result->addHeader('Access-Control-Allow-Origin', $origin);
 		
 		$result->setStatus($statusCode);
 		return $result;

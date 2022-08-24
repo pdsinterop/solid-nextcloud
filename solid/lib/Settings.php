@@ -7,7 +7,6 @@ use OcP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 
 class Settings implements ISettings {
-	
 	private $config;
 
 	public function __construct(Serverconfig $config) {
