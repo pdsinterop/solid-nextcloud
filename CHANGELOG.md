@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.5.0](https://github.com/pdsinterop/solid-nextcloud/tree/v0.5.0) (2022-08-24)
+
+[Full Changelog](https://github.com/pdsinterop/solid-nextcloud/compare/v0.4.3...v0.5.0)
+
+### Closes
+
+- Nextcloud Store version is crashing on install [\#74](https://github.com/pdsinterop/solid-nextcloud/issues/74)
+
+### Pull request(s) without label
+
+- Feature/nextcloud 24 [\#78](https://github.com/pdsinterop/solid-nextcloud/pull/78) (@Potherca)
+- Add script for setting up a test server [\#75](https://github.com/pdsinterop/solid-nextcloud/pull/75) (@michielbdejong)
+
 ## [v0.4.3](https://github.com/pdsinterop/solid-nextcloud/tree/v0.4.3) (2022-01-12)
 
 [Full Changelog](https://github.com/pdsinterop/solid-nextcloud/compare/v0.4.2...v0.4.3)
