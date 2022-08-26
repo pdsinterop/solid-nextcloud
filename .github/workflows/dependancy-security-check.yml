@@ -47,4 +47,4 @@ jobs:
         run: chmod +x ./local-php-security-checker_2.0.4_linux_amd64
 
       - name: Check against insecure dependencies
-        run: ./local-php-security-checker_2.0.4_linux_amd64 --path=composer.lock
+        run: ./local-php-security-checker_2.0.4_linux_amd64 --path=solid/composer.lock
