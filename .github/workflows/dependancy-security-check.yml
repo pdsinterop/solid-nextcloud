@@ -36,6 +36,8 @@ jobs:
       # @link https://github.com/marketplace/actions/install-composer-dependencies
       - name: Install Composer dependencies
         uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "solid"
 
       - name: Download security checker
         # yamllint disable-line rule:line-length
@@ -45,4 +47,4 @@ jobs:
         run: chmod +x ./local-php-security-checker_2.0.4_linux_amd64
 
       - name: Check against insecure dependencies
-        run: ./local-php-security-checker_2.0.4_linux_amd64 --path=solid/composer.lock
+        run: ./local-php-security-checker_2.0.4_linux_amd64 --path=composer.lock
