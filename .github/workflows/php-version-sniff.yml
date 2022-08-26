@@ -24,8 +24,8 @@ jobs:
       - uses: pipeline-components/php-codesniffer@master
         with:
           options: >-
-            -s 
-            --ignore='*vendor/*' 
+            -s
+            --ignore='*vendor/*'
             --standard=PHPCompatibility
             --extensions=php
             --runtime-set testVersion ${{ matrix.php }}
