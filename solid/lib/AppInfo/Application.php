@@ -31,7 +31,10 @@ class Application extends App implements IBootstrap {
 	 */
 	public function __construct(array $urlParams = []) {
 		parent::__construct(self::APP_ID, $urlParams);
-                $container->registerService(SolidCorsMiddleware::class, function(IServerContainer $c): SolidCorsMiddleware{
+
+                $container = $this->getContainer();
+
+                $container->registerService(SolidCorsMiddleware::class, function($c): SolidCorsMiddleware{
                         return new SolidCorsMiddleware(
                                 $c->get(IRequest::class)
                         );
