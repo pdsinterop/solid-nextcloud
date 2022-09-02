@@ -58,14 +58,14 @@ class Application extends App implements IBootstrap {
                 /**
                  * Middleware
                  */
-                $container->registerService(SolidCorsMiddleware::class, function(IServerContainer $c): SolidCorsMiddleware{
+                $context->registerService('SolidCorsMiddleware', function($c) {
                         return new SolidCorsMiddleware(
                             $c->get(IRequest::class)
                         );
                 });
 
                 // executed in the order that it is registered
-                $container->registerMiddleware(SolidCorsMiddleware::class);
+                $context->registerMiddleware('SolidCorsMiddleware');
 	}
 
 	public function boot(IBootContext $context): void {
