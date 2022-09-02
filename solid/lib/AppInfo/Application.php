@@ -11,6 +11,7 @@ use OC\Server;
 
 use OCA\Solid\Service\UserService;
 use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
+use OCA\Solid\Middleware\SolidCorsMiddleware;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -53,6 +54,12 @@ class Application extends App implements IBootstrap {
 		$context->registerService('User', function($c) {
 			return $c->query('UserSession')->getUser();
 		});
+
+		$context->registerService('SolidCorsMiddleware', function($c) {
+		        return new SolidCorsMiddleware();
+		});
+
+		$context->registerMiddleware('SolidCorsMiddleware');
 	}
 
 	public function boot(IBootContext $context): void {
