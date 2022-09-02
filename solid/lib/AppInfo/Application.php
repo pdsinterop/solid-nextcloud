@@ -31,7 +31,15 @@ class Application extends App implements IBootstrap {
 	 */
 	public function __construct(array $urlParams = []) {
 		parent::__construct(self::APP_ID, $urlParams);
-	}
+                $container->registerService(SolidCorsMiddleware::class, function(IServerContainer $c): SolidCorsMiddleware{
+                        return new SolidCorsMiddleware(
+                                $c->get(IRequest::class)
+                        );
+                });
+
+                // executed in the order that it is registered
+                $container->registerMiddleware(SolidCorsMiddleware::class);
+        }
 
 	public function register(IRegistrationContext $context): void {
 		$context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
@@ -54,18 +62,6 @@ class Application extends App implements IBootstrap {
 		$context->registerService('User', function($c) {
 			return $c->query('UserSession')->getUser();
 		});
-
-                /**
-                 * Middleware
-                 */
-                $context->registerService('SolidCorsMiddleware', function($c) {
-                        return new SolidCorsMiddleware(
-                            $c->get(IRequest::class)
-                        );
-                });
-
-                // executed in the order that it is registered
-                $context->registerMiddleware('SolidCorsMiddleware');
 	}
 
 	public function boot(IBootContext $context): void {
