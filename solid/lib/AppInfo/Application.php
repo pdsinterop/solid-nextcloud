@@ -11,6 +11,7 @@ use OC\Server;
 
 use OCA\Solid\Service\UserService;
 use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
+use OCA\Solid\Middleware\SolidCorsMiddleware;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -23,38 +24,49 @@ use OCP\Settings\IManager;
 use OCP\Util;
 
 class Application extends App implements IBootstrap {
-	public const APP_ID = 'solid';
+    public const APP_ID = 'solid';
 
-	/**
-	 * @param array $urlParams
-	 */
-	public function __construct(array $urlParams = []) {
-		parent::__construct(self::APP_ID, $urlParams);
-	}
+    /**
+     * @param array $urlParams
+     */
+    public function __construct(array $urlParams = []) {
+        parent::__construct(self::APP_ID, $urlParams);
 
-	public function register(IRegistrationContext $context): void {
-		$context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
+        $container = $this->getContainer();
 
-		/**
-		 * Core class wrappers
-		 */
+        $container->registerService(SolidCorsMiddleware::class, function($c): SolidCorsMiddleware {
+            return new SolidCorsMiddleware(
+                $c->get(IRequest::class)
+            );
+        });
 
-		$context->registerService('UserService', function($c) {
-			return new \OCA\Solid\Service\UserService(
-				$c->query('UserSession')
-			);
-		});
-		$context->registerService('UserSession', function($c) {
-			return $c->query('ServerContainer')->getUserSession();
-		});
+        // executed in the order that it is registered
+        $container->registerMiddleware(SolidCorsMiddleware::class);
+    }
 
-		// currently logged in user, userId can be gotten by calling the
-		// getUID() method on it
-		$context->registerService('User', function($c) {
-			return $c->query('UserSession')->getUser();
-		});
-	}
+    public function register(IRegistrationContext $context): void {
+        $context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
 
-	public function boot(IBootContext $context): void {
-	}
+        /**
+         * Core class wrappers
+         */
+
+        $context->registerService('UserService', function($c) {
+            return new \OCA\Solid\Service\UserService(
+                $c->query('UserSession')
+            );
+        });
+        $context->registerService('UserSession', function($c) {
+            return $c->query('ServerContainer')->getUserSession();
+        });
+
+        // currently logged in user, userId can be gotten by calling the
+        // getUID() method on it
+        $context->registerService('User', function($c) {
+            return $c->query('UserSession')->getUser();
+        });
+    }
+
+    public function boot(IBootContext $context): void {
+    }
 }
