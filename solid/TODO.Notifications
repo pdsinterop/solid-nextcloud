@@ -1,0 +1,9 @@
+- [ ] advertise the notifications channel in well-known
+- [ ] advertise the notifications channel in HTTP headers
+- [ ] reinstate the updates-via header in HEAD requests, which was removed from solid-crud
+- [ ] add notifications controller
+- [ ] handle register requests - this must validate that the requestor has read access to the resource;
+- [ ] handle unregister requests
+- [ ] implement function to get subscription in SolidWebHook
+- [ ] add actor to notifications
+- [ ] add UUID to notifications
