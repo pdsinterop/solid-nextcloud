@@ -3,6 +3,7 @@ namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
 use OCA\Solid\PlainResponse;
+use OCA\Solid\Notifications\SolidNotifications;
 
 use OCP\IRequest;
 use OCP\IUserManager;
@@ -287,8 +288,9 @@ EOF;
 		$baseUrl = $this->getStorageUrl($userId);		
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
-		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
-		$this->resourceServer->setPubSubUrl($pubsub);
+
+		$notifications = new SolidNotifications();
+		$this->resourceServer->setNotifications($notifications);
 
 		try {
 			$webId = $this->DPop->getWebId($request);
