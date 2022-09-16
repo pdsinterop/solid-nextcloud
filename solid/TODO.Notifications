@@ -2,8 +2,14 @@
 - [ ] advertise the notifications channel in HTTP headers
 - [ ] reinstate the updates-via header in HEAD requests, which was removed from solid-crud
 - [ ] add notifications controller
+- [ ] create a solid-notifications-subscription database table - columns should have: id, webid, path, url, expiry
+
 - [ ] handle register requests - this must validate that the requestor has read access to the resource;
-- [ ] handle unregister requests
+- [ ] handle unregister requests - only the webid that subscribed should be able to unsubscribe
 - [ ] implement function to get subscription in SolidWebHook
 - [ ] add actor to notifications
 - [ ] add UUID to notifications
+
+- [ ] Add support for the rate limit feature.
+- [ ] create a solid-notifications-lastsent database table - columns are subscription_id and lastsent;
+- [ ] how can we stop sending notifications when read access was revoked?
