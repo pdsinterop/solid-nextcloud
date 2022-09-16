@@ -10,6 +10,7 @@
             }
         }
         private function getSubscribedUrls($path, $type) {
+	    return []; // FIXME: Read this from the subscriptions
         }
         private function postUpdate($url, $path, $type) {
             try {
