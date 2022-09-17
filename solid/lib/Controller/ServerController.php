@@ -40,11 +40,11 @@ class ServerController extends Controller {
 
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
-	
+
 	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
-	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
+
+	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService)
 	{
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
@@ -55,8 +55,8 @@ class ServerController extends Controller {
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
-		$this->authServerConfig = $this->createAuthServerConfig(); 
-		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();		
+		$this->authServerConfig = $this->createAuthServerConfig();
+		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 		$this->tokenGenerator = (new \Pdsinterop\Solid\Auth\TokenGenerator($this->authServerConfig));
 	}
 
@@ -72,10 +72,10 @@ class ServerController extends Controller {
 			"registration_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.register"))
 		];
 	}
-	
+
 	private function getKeys() {
 		$encryptionKey = $this->config->getEncryptionKey();
-		$privateKey    = $this->config->getPrivateKey();		
+		$privateKey    = $this->config->getPrivateKey();
 		$key           = openssl_pkey_get_private($privateKey);
 		$publicKey     = openssl_pkey_get_details($key)['key'];
 		return [
@@ -84,7 +84,7 @@ class ServerController extends Controller {
 			"publicKey"     => $publicKey
 		];
 	}
-	
+
 	private function createAuthServerConfig() {
 		$clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
 		$client = $this->getClient($clientId);
@@ -164,7 +164,7 @@ class ServerController extends Controller {
 			}
 		}
 		$clientId = $getVars['client_id'];
-		$approval = $this->checkApproval($clientId);	
+		$approval = $this->checkApproval($clientId);
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
@@ -182,7 +182,7 @@ class ServerController extends Controller {
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
-		
+
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
@@ -200,7 +200,7 @@ class ServerController extends Controller {
 			return \Pdsinterop\Solid\Auth\Enum\Authorization::DENIED;
 		}
 	}
-	
+
 	private function getProfilePage() {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
@@ -228,7 +228,7 @@ class ServerController extends Controller {
 	public function session() {
 		return new JSONResponse("ok");
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -309,7 +309,7 @@ class ServerController extends Controller {
 //		->addHeader('Access-Control-Allow-Origin', $origin)
 //		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -320,7 +320,6 @@ class ServerController extends Controller {
 		unset($clientRegistration['client_secret']);
 		return new JSONResponse($clientRegistration);
 	}
-	
 
 	/**
 	 * @PublicPage
@@ -351,7 +350,7 @@ class ServerController extends Controller {
 			$body = 'ok';
 		}
 		$result = new JSONResponse($body);
-		
+
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
 				$result->addHeader($header, $value);
