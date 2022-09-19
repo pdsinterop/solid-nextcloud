@@ -50,7 +50,8 @@ class SolidWebhookController extends Controller {
 
 		$this->DPop = new DPop();
 		try {
-			$this->webId = $this->DPop->getWebId($request);
+			$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+			$this->webId = $this->DPop->getWebId($rawRequest);
 		} catch(\Exception $e) {
 			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
 			return $this->respond($response);
