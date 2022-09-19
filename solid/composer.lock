@@ -1541,12 +1541,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "e2bd63594caa7f29bfd9d6c3699a6e921655d2b2"
+                "reference": "27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/e2bd63594caa7f29bfd9d6c3699a6e921655d2b2",
-                "reference": "e2bd63594caa7f29bfd9d6c3699a6e921655d2b2",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf",
+                "reference": "27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf",
                 "shasum": ""
             },
             "require": {
@@ -1567,7 +1567,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Pdsinterop\\Solid\\Resources\\": "src/"
+                    "Pdsinterop\\Solid\\Resources\\": "src/",
+                    "Pdsinterop\\Solid\\SolidNotifications\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1579,7 +1580,7 @@
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
                 "source": "https://github.com/pdsinterop/php-solid-crud/tree/feature/notificationsInterface"
             },
-            "time": "2022-09-19T06:45:41+00:00"
+            "time": "2022-09-19T14:41:18+00:00"
         },
         {
             "name": "pietercolpaert/hardf",
