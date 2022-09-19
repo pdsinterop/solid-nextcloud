@@ -5,14 +5,14 @@
     {
         public function send($path, $type) {
             $subscribedUrls = $this->getSubscribedUrls($path, $type);
-            foreach ($subscribedUrls as $url) {
-                $this->postUpdate($url, $path, $type);
+            foreach ($subscribedUrls as $webhookUrl) {
+                $this->postUpdate($webhookUrl, $path, $type);
             }
         }
         private function getSubscribedUrls($path, $type) {
 	    return []; // FIXME: Read this from the subscriptions
         }
-        private function postUpdate($url, $path, $type) {
+        private function postUpdate($webhookUrl, $path, $type) {
             try {
                 $postData = $this->createUpdatePayload($path, $type);
                 $opts = array('http' =>
@@ -23,7 +23,7 @@
                     )
                 );
                 $context  = stream_context_create($opts);
-                $result = file_get_contents($webhook, false, $context);
+                $result = file_get_contents($webhookUrl, false, $context);
             } catch (\Exception $exception) {
                 throw new Exception('Could not write to webhook server', 502, $exception);
             }
