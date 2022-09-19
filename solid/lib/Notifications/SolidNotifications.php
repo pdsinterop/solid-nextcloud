@@ -3,7 +3,7 @@
 
     use OCA\Solid\Notifications\SolidPubSub;
     use OCA\Solid\Notifications\SolidWebhook;
-    use Pdsinterop\Solid\SolidNotificationsInterface;
+    use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
 
     class SolidNotifications implements SolidNotificationsInterface
     {

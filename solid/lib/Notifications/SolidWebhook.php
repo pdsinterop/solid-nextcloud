@@ -1,6 +1,8 @@
 <?php
     namespace OCA\Solid\Notifications;
-
+    
+    use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
+    
     class SolidWebhook implements SolidNotificationsInterface
     {
         public function send($path, $type) {
