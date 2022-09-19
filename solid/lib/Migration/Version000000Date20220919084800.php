@@ -10,7 +10,6 @@ use OCP\Migration\SimpleMigrationStep;
 use OCP\Migration\IOutput;
 
 class Version000000Date20220919084800 extends SimpleMigrationStep {
-
 	/**
 	 * @param IOutput $output
 	 * @param Closure $schemaClosure The `\Closure` returns a `ISchemaWrapper`
@@ -21,14 +20,14 @@ class Version000000Date20220919084800 extends SimpleMigrationStep {
 		/** @var ISchemaWrapper $schema */
 		$schema = $schemaClosure();
 
-		if (!$schema->hasTable('solid_notifications_webhooks')) {
-			$table = $schema->createTable('solid_notifications_webhooks');
+		if (!$schema->hasTable('solid_webhooks')) {
+			$table = $schema->createTable('solid_webhooks');
 			// id, webid, path, url, expiry
 			$table->addColumn('id', 'integer', [
 				'autoincrement' => true,
 				'notnull' => true,
 			]);
-			$table->addColumn('webid', 'string', [
+			$table->addColumn('web_id', 'string', [
 				'notnull' => true,
 				'length' => 2048
 			]);
@@ -46,8 +45,8 @@ class Version000000Date20220919084800 extends SimpleMigrationStep {
 			]);
 
 			$table->setPrimaryKey(['id']);
-			$table->addIndex(['webid'], 'solid_notifications_webhooks_webid_index');
-			$table->addIndex(['path'], 'solid_notifications_webhooks_path_index');
+			$table->addIndex(['web_id'], 'solid_webhooks_web_id_index');
+			$table->addIndex(['path'], 'solid_webhooks_path_index');
 		}
 		return $schema;
 	}
