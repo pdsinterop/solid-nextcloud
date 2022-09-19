@@ -11,7 +11,6 @@ use OCA\Solid\Db\SolidWebhook;
 use OCA\Solid\Db\SolidWebhookMapper;
 
 class SolidWebhookService {
-
 	/** @var SolidWebhookMapper */
 	private $mapper;
 
@@ -28,8 +27,10 @@ class SolidWebhookService {
 	}
 
 	private function handleException(Exception $e): void {
-		if ($e instanceof DoesNotExistException ||
-			$e instanceof MultipleObjectsReturnedException) {
+		if (
+			$e instanceof DoesNotExistException ||
+			$e instanceof MultipleObjectsReturnedException
+		) {
 			throw new SolidWebhookNotFound($e->getMessage());
 		} else {
 			throw $e;
