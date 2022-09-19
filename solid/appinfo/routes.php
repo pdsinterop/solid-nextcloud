@@ -51,6 +51,10 @@ return [
         ['name' => 'contacts#handlePatch', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
         ['name' => 'contacts#handleHead', 'url' => '/@{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
 
+        ['name' => 'solidwebhook#listWebhooks', 'url' => '/webhook/list', 'verb' => 'GET'],
+        ['name' => 'solidwebhook#register', 'url' => '/webhook/register', 'verb' => 'POST'],
+        ['name' => 'solidwebhook#unregister', 'url' => '/webhook/unregister', 'verb' => 'POST'],
+        
         ['name' => 'app#appLauncher', 'url' => '/', 'verb' => 'GET'],
     ]
 ];
