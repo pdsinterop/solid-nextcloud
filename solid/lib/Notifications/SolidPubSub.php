@@ -2,7 +2,7 @@
     namespace OCA\Solid\Notifications;
 
     use WebSocket\Client;
-    use Pdsinterop\Solid\SolidNotificationsInterface;
+    use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
 
     class SolidPubSub implements SolidNotificationsInterface
     {
