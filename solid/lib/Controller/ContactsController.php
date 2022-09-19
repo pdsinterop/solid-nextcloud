@@ -127,7 +127,7 @@ EOF;
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$notifications = new SolidNotifications();
-		$this->resourceServer->setNotifications($notification);
+		$this->resourceServer->setNotifications($notifications);
 
 		try {
 			$webId = $this->DPop->getWebId($request);
