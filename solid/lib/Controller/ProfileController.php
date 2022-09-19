@@ -144,7 +144,7 @@ EOF;
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$notifications = new SolidNotifications();
-		$this->resourceServer->setNotifications($notification);
+		$this->resourceServer->setNotifications($notifications);
 
 		if ($request->getHeaderLine("DPop")) {
 			try {
