@@ -1,25 +1,21 @@
 <?php
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\ServerConfig;
 use OCA\Solid\PlainResponse;
 
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Contacts\IManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IConfig;
-
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
-use Pdsinterop\Solid\Resources\Server as ResourceServer;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
-use Pdsinterop\Solid\Auth\WAC as WAC;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\Contacts\IManager;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
+use Pdsinterop\Solid\Auth\WAC;
+use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class ProfileController extends Controller {
 	/* @var IURLGenerator */
