@@ -22,14 +22,16 @@
     ],
     "require": {
         "php": "^8.0",
+        "ext-dom": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "ext-openssl": "*",
         "easyrdf/easyrdf": "^1.1.1",
         "laminas/laminas-diactoros": "^2.8",
         "lcobucci/jwt": "^4.1",
         "pdsinterop/flysystem-nextcloud":"^0.2",
         "pdsinterop/flysystem-rdf": "^0.5",
-        "pdsinterop/solid-auth": "^0.7",
+        "pdsinterop/solid-auth": "^0.8",
         "pdsinterop/solid-crud": "^0.6",
         "psr/log" : "^1.1"
     },
