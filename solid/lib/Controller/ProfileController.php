@@ -1,6 +1,7 @@
 <?php
 namespace OCA\Solid\Controller;
 
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 
 use OCP\AppFramework\Controller;
@@ -18,14 +19,26 @@ use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class ProfileController extends Controller {
+	use DpopFactoryTrait;
+
 	/* @var IURLGenerator */
 	private $urlGenerator;
 
 	/* @var ISession */
 	private $session;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IManager $contactsManager, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
-	{
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		ISession $session,
+		IManager $contactsManager,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		\OCA\Solid\Service\UserService $UserService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
@@ -34,6 +47,8 @@ class ProfileController extends Controller {
 		$this->userManager = $userManager;
 		$this->contactsManager = $contactsManager;
 		$this->session = $session;
+
+		$this->setJtiStorage($connection);
 	}
 
 	private function getFileSystem($userId) {
@@ -132,7 +147,6 @@ EOF;
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
         $this->WAC = new WAC($this->filesystem);
-		$this->DPop = new DPop();
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getProfileUrl($userId);		
@@ -141,11 +155,14 @@ EOF;
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
+		$dpop = $this->getDpop();
+
 		if ($request->getHeaderLine("DPop")) {
 			try {
-				$webId = $this->DPop->getWebId($request);
-			} catch(\Exception $e) {
-				$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+				$webId = $dpop->getWebId($request);
+			} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+				$response = $this->resourceServer->getResponse()
+					->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 				return $this->respond($response);
 			}
 		} else {

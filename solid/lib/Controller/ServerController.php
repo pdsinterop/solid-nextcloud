@@ -1,6 +1,7 @@
 <?php
 namespace OCA\Solid\Controller;
 
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\ServerConfig;
 
 use OCP\AppFramework\Controller;
@@ -19,6 +20,9 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 
 class ServerController extends Controller {
+
+	use DpopFactoryTrait;
+
 	private $userId;
 
 	/* @var IUserManager */
@@ -42,8 +46,17 @@ class ServerController extends Controller {
 	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
 
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService)
-	{
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		ISession $session,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		\OCA\Solid\Service\UserService $UserService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
@@ -53,9 +66,15 @@ class ServerController extends Controller {
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
+		$this->setJtiStorage($connection);
+
 		$this->authServerConfig = $this->createAuthServerConfig();
 		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
-		$this->tokenGenerator = (new \Pdsinterop\Solid\Auth\TokenGenerator($this->authServerConfig));
+
+		$this->tokenGenerator = new \Pdsinterop\Solid\Auth\TokenGenerator(
+			$this->authServerConfig,
+			$this->getDpopValidFor()
+		);
 	}
 
 	private function getOpenIdEndpoints() {
@@ -239,12 +258,13 @@ class ServerController extends Controller {
 
 		$response = new \Laminas\Diactoros\Response();
 
-		$DPop = new DPop();
-		$dpop = $request->getServerParams()['HTTP_DPOP'];
+		$dpop = $this->getDpop();
+		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
+
 		try {
-			$dpopKey = $DPop->getDPopKey($dpop, $request);
-		} catch(\Exception $e) {
-			$response = $response->withStatus(409, "Invalid token");
+			$dpopKey = $dpop->getDPopKey($httpDpop, $request);
+		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+			$response = $response->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 			return $this->respond($response);
 		}
 
