@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
       # Run the Solid test-suite
       - name: Run the Solid test suite
-      # Until the test-suite has been fixed, allow the tests to fail.
+        # Until the test-suite has been fixed, allow the tests to fail.
         # See: https://github.com/pdsinterop/solid-nextcloud/issues/69
         continue-on-error: true
         shell: 'script -q -e -c "bash {0}"'

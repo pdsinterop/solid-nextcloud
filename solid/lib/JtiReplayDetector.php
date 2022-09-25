@@ -10,14 +10,15 @@ use Pdsinterop\Solid\Auth\ReplayDetectorInterface;
 
 class JtiReplayDetector implements ReplayDetectorInterface
 {
-
     ////////////////////////////// CLASS PROPERTIES \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     private string $table = 'solid_jti';
 
     //////////////////////////////// PUBLIC API \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    public function __construct(private DateInterval $interval, private IDBConnection $connection) {}
+    public function __construct(private DateInterval $interval, private IDBConnection $connection)
+    {
+    }
 
     public function detect(string $jti, string $targetUri): bool
     {

@@ -17,8 +17,8 @@ use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
-class StorageController extends Controller {
-
+class StorageController extends Controller
+{
 	use DpopFactoryTrait;
 
 	/* @var IURLGenerator */

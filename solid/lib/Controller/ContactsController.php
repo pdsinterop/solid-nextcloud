@@ -17,8 +17,8 @@ use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
-class ContactsController extends Controller {
-
+class ContactsController extends Controller
+{
 	use DpopFactoryTrait;
 
 	/* @var IURLGenerator */
