@@ -10,8 +10,8 @@ function setup {
   docker tag solidtestsuite/webid-provider-tests:v2.0.3 webid-provider-tests
   docker pull solidtestsuite/solid-crud-tests:v6.0.0
   docker tag solidtestsuite/solid-crud-tests:v6.0.0 solid-crud-tests
-  docker pull solidtestsuite/web-access-control-tests:v7.0.0
-  docker tag solidtestsuite/web-access-control-tests:v7.0.0 web-access-control-tests
+  docker pull solidtestsuite/web-access-control-tests:v7.1.0
+  docker tag solidtestsuite/web-access-control-tests:v7.1.0 web-access-control-tests
 }
 function teardown {
   docker stop `docker ps --filter network=testnet -q`
