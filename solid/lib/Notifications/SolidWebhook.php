@@ -1,12 +1,14 @@
 <?php
     namespace OCA\Solid\Notifications;
     
+    use OCA\Solid\Service\SolidWebhookService;
     use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
     
     class SolidWebhook implements SolidNotificationsInterface
     {
-        public function __construct(\OCA\Solid\Service\SolidWebhookService $webhookService) {
-            $this->webhookService = $webhookService;
+        public function __construct() {
+            $app = new \OCP\AppFramework\App('solid');
+            $this->webhookService = $app->getContainer()->get(SolidWebhookService::class);
         }
 
         public function send($path, $type) {
