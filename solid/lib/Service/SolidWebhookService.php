@@ -49,9 +49,9 @@ class SolidWebhookService {
 		$webhook = new SolidWebhook();
 		$webhook->setWebId($webId);
 		$webhook->setPath($path);
-		$webHook->setUrl($url);
-		$webHook->setExpiry($expiry);
-		return $this->mapper->insert($note);
+		$webhook->setUrl($url);
+		$webhook->setExpiry($expiry);
+		return $this->mapper->insert($webhook);
 	}
 
 	public function delete($webId, $path) {
