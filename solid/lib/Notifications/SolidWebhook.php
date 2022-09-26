@@ -5,14 +5,23 @@
     
     class SolidWebhook implements SolidNotificationsInterface
     {
+        public function __construct(\OCA\Solid\Service\SolidWebhookService $webhookService) {
+            $this->webhookService = $webhookService;
+        }
+
         public function send($path, $type) {
-            $subscribedUrls = $this->getSubscribedUrls($path, $type);
-            foreach ($subscribedUrls as $webhookUrl) {
-                $this->postUpdate($webhookUrl, $path, $type);
+            $webhooks = $this->getWebhooks($path);
+            foreach ($webhooks as $webhook) {
+                try {
+                    $this->postUpdate($webhook['url'], $path, $type);
+                } catch(\Exception $e) {
+                    // FIXME: add retry code here?
+                }
             }
         }
-        private function getSubscribedUrls($path, $type) {
-	    return []; // FIXME: Read this from the subscriptions
+        private function getWebhooks($path, $type) {
+            $urls = $this->webhookService->findByPath($path);
+            return $urls;
         }
         private function postUpdate($webhookUrl, $path, $type) {
             try {
