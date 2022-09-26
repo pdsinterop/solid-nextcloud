@@ -2,6 +2,7 @@
 
 namespace OCA\Solid\Controller;
 
+use Closure;
 use OCA\Solid\AppInfo\Application;
 use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\ServerConfig;
@@ -52,6 +53,7 @@ class SolidWebhookController extends Controller {
 		try {
 			$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 			$this->webId = $this->DPop->getWebId($this->rawRequest);
+			// FIXME: Should we handle webhooks for 'public'?
 		} catch(\Exception $e) {
 			return new PlainResponse("Invalid token", 409);
 		}
@@ -187,5 +189,14 @@ class SolidWebhookController extends Controller {
 			return false;
 		}
 		return true;
+	}
+
+	private function handleNotFound(Closure $callback): DataResponse {
+		try {
+			return new DataResponse($callback());
+		} catch (SolidWebhookNotFound $e) {
+			$message = ['message' => $e->getMessage()];
+			return new DataResponse($message, Http::STATUS_NOT_FOUND);
+		}
 	}
 }
