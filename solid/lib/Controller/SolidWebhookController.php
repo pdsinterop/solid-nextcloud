@@ -152,7 +152,7 @@ class SolidWebhookController extends Controller {
 		$serverParams = [];
 		$fileParams = [];
 		$method = "GET";
-		$body = null;
+		$body = 'php://memory';
 		$headers = [];
 
 		return new \Laminas\Diactoros\ServerRequest(
