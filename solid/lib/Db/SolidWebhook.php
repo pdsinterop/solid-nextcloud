@@ -7,7 +7,7 @@ use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
 
 class SolidWebhook extends Entity implements JsonSerializable {
-	protected $id;
+	public $id;
 	protected $path;
 	protected $webId;
 	protected $url;
