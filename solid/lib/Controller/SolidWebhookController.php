@@ -53,8 +53,7 @@ class SolidWebhookController extends Controller {
 			$rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 			$this->webId = $this->DPop->getWebId($rawRequest);
 		} catch(\Exception $e) {
-			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
-			return $this->respond($response);
+			return new PlainResponse("Invalid token", 409);
 		}
 	}
 
@@ -124,7 +123,7 @@ class SolidWebhookController extends Controller {
 		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
 		return $storageUrl;
 	}
-	private function getAppBaseUrl($userId) {
+	private function getAppBaseUrl() {
 		$appBaseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher"));
 		return $appBaseUrl;
 	}
@@ -138,12 +137,15 @@ class SolidWebhookController extends Controller {
 		// targetUrl = https://nextcloud.server/solid/@alice/storage/foo/bar
 		$appBaseUrl = $this->getAppBaseUrl(); //  https://nextcloud.server/solid/
 		$internalUrl = str_replace($appBaseUrl, '', $targetUrl); // @alice/storage/foo/bar
-		$pathicles = explode($internalUrl, "/");
+		$pathicles = explode("/", $internalUrl);
 		$userId = $pathicles[0]; // alice
 		
 		$storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
 		$storagePath = str_replace($storageUrl, '/', $targetUrl); // /foo/bar
-		return array("userId" => $userId, "path", $storagePath);
+		return array(
+			"userId" => $userId,
+			"path" => $storagePath
+		);
 	}
 	
 	private function createGetRequest($targetUrl) {
