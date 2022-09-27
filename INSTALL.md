@@ -82,8 +82,8 @@ root@ubuntu-s-4vcpu-8gb-amd-ams3-01:~# 
 
 <img width="1152" alt="Screenshot 5" src="https://user-images.githubusercontent.com/408412/140734504-5cdc4837-9e35-4b47-b091-69b9ff913081.png">
 
-* If you can't find v0.0.3 in through the search function, you can also download it explicitly:
-> `root@ubuntu-s-4vcpu-8gb-amd-ams3-01:/var/snap/nextcloud/current/nextcloud/extra-apps# wget https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.3/solid.tar.gz`
+* If you can't find v0.4.3 in through the search function, you can also download it explicitly:
+> `root@ubuntu-s-4vcpu-8gb-amd-ams3-01:/var/snap/nextcloud/current/nextcloud/extra-apps# wget https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.4.3/solid.tar.gz`
 * In all cases, make sure you click 'Enable' for the Solid app on https://test-nextcloud-snap.michielbdejong.com/index.php/settings/apps
 * Now test with your browser: `https://test-nextcloud-snap.michielbdejong.com/index.php/apps/solid/openid`
 * It should be a JSON document, something like `{"id_token_signing_alg_values_supported":["RS256"],"subject_types_supported":["public"],"response_types_supported":[...`
