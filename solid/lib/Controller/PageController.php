@@ -86,8 +86,11 @@ class PageController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function approval($clientId) {
+	public function approval($clientIdUrlEncoded) {
+		$clientId = urldecode($clientIdUrlEncoded);
+		error_log("decoded clientId as " . $clientId);
 		$clientRegistration = $this->config->getClientRegistration($clientId);
+		error_log("got client registration " . var_export($clientRegistration, true));
 		$params = array(
 			"clientId" => $clientId,
 			"clientName" => $clientRegistration['client_name'],

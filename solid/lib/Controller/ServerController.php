@@ -168,7 +168,11 @@ class ServerController extends Controller {
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
-			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
+			error_log("creating approval link!");
+			error_log(var_export(urlencode($clientId), true));
+			// $clientId = 'asdf';
+			error_log("creating approval link!");
+			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientIdUrlEncoded" => urlencode($clientId), "returnUrl" => $_SERVER['REQUEST_URI'])));
 			$result->addHeader("Location", $approvalUrl);
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
