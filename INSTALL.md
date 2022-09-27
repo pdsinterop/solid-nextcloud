@@ -5,24 +5,17 @@ After installing and enabling the appin your Nextcloud instance, take the JSON f
 
 `https://cloud.pondersource.org/index.php/apps/solid/openid` (depending on your hostname and whether you have the `index.php/` part in there)
 
-and put that into e.g. `/var/www/html/.well-known/openid-configuration` (depending on your webroot being e.g. `/var/www/html`)
-Or you should
-[edit your .htaccess file](https://github.com/solid/test-suite/blob/665824af763ddd5dd7242cbc8b18faad4ac304e3/servers/nextcloud-server/init.sh#L5)
-and then test whether https://your-nextcloud-server.com/.well-known/openid-configuration redirects to https://your-nextcloud-server.com/apps/solid/openid.
-
-Check that it works: `https://cloud.pondersource.org/.well-known/openid-configuration`
-Then, take the CORS instructions from site.conf and add them to your own webserver configuration.
-In particular, add this section to your apache site.conf:
-```
-<Directory /var/www/html/.well-known/>
-    Header always set Access-Control-Allow-Origin: *
-</Directory>
-```
-Then restart Apache.
+and put that into e.g. `/var/www/html/.well-known/openid-configuration` (depending on your webroot being e.g. `/var/www/html`).
 
 In earlier versions of this app (e.g. the one in the Dockerfile we use for running the Solid test suite) we
 used a redirect from /.well-known/openid-configuration to /index.php/apps/solid/openid but it's difficult
 to add CORS headers to a redirect, so that's why just copying the file into a folder like that is preferable.
+
+If you do want to try doing it with the redirect, you should
+[edit your .htaccess file](https://github.com/solid-contrib/test-suite/blob/665824af763ddd5dd7242cbc8b18faad4ac304e3/servers/nextcloud-server/init.sh#L5)
+and then test whether https://your-nextcloud-server.com/.well-known/openid-configuration redirects to https://your-nextcloud-server.com/apps/solid/openid.
+
+Check that it works: `https://cloud.pondersource.org/.well-known/openid-configuration`
 
 ## If your Nextcloud was installed using Snap
 
