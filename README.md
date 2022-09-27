@@ -2,7 +2,7 @@
 A plugin to make Nextcloud compatible with Solid.
 
 You can download it via the Nextcloud app store: https://apps.nextcloud.com/apps/solid
-IMPORTANT: Follow the [additional install instructions!](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
+IMPORTANT: Follow the [install instructions!](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
 
 ## Development install
 Clone https://github.com/pdsinterop/test-suites, cd into it, and run:
@@ -21,11 +21,7 @@ docker exec -u root -it server service apache2 reload
 Now visit https://localhost and log in as alice / alice123.
 
 ## Manual install
-If you enable this app in your Nextcloud instance, you should
-[edit your .htaccess file](https://github.com/solid/test-suite/blob/665824af763ddd5dd7242cbc8b18faad4ac304e3/servers/nextcloud-server/init.sh#L5)
-and then test whether https://your-nextcloud-server.com/.well-known/openid-configuration redirects to https://your-nextcloud-server.com/apps/solid/openid.
-
-Also, take the CORS instructions from site.conf and add them to your own webserver configuration.
+Pleas follow the [install instructions](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
 
 ## Unattended testing
 There is a [GitHub Action](https://github.com/pdsinterop/solid-nextcloud/actions/workflows/ci.yml) that runs a [Docker-based test script](https://github.com/pdsinterop/solid-nextcloud/blob/585b968/.github/workflows/ci.yml#L29).
