@@ -8,10 +8,10 @@ use OCP\AppFramework\Db\Entity;
 
 class SolidWebhook extends Entity implements JsonSerializable {
 	public $id;
-	protected $path;
-	protected $webId;
-	protected $url;
-	protected $expiry;
+	public $path;
+	public $webId;
+	public $url;
+	public $expiry;
 
 	public function jsonSerialize(): array {
 		return [
