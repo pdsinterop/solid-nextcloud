@@ -21,7 +21,7 @@
                 }
             }
         }
-        private function getWebhooks($path, $type) {
+        private function getWebhooks($path) {
             $urls = $this->webhookService->findByPath($path);
             return $urls;
         }
