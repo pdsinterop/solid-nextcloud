@@ -21,9 +21,21 @@ jobs:
         os: [ ubuntu-latest ]
 
     steps:
-      - uses: actions/checkout@v2
-      # Run the Solid test-suite
+      - uses: actions/checkout@v3
+
+      - name: Setup Solid test suite
+        shell: 'script -q -e -c "bash {0}"'
+        run: >-
+          source ./run-solid-test-suite.sh
+          && setup
+          && startPubSub
+          && startSolidNextcloud server
+          && startSolidNextcloud thirdparty
+
       - name: Run the Solid test suite
         shell: 'script -q -e -c "bash {0}"'
-        run: |
-          bash ./run-solid-test-suite.sh
+        run: >-
+          source ./run-solid-test-suite.sh
+          && runTests webid-provider
+          && runTests solid-crud
+          && runTests web-access-control
