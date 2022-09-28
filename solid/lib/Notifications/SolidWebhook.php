@@ -15,7 +15,7 @@
             $webhooks = $this->getWebhooks($path);
             foreach ($webhooks as $webhook) {
                 try {
-                    $this->postUpdate($webhook['url'], $path, $type);
+                    $this->postUpdate($webhook->{'url'}, $path, $type);
                 } catch(\Exception $e) {
                     // FIXME: add retry code here?
                 }
@@ -28,11 +28,15 @@
         private function postUpdate($webhookUrl, $path, $type) {
             try {
                 $postData = $this->createUpdatePayload($path, $type);
-                $opts = array('http' =>
-                    array(
+                $opts = array(
+                    'http' => array(
                         'method'  => 'POST',
                         'header'  => 'Content-Type: application/ld+json',
                         'content' => $postData
+                    ),
+                    'ssl' => array(
+                        'verify_peer' => false, // FIXME: Do we need to be more strict here?
+                        'verify_peer_name' => false
                     )
                 );
                 $context  = stream_context_create($opts);
