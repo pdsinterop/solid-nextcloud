@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12a2c4145b59310bde3d280fa2b453f9",
+    "content-hash": "52be29b032feab04113911c7ac367863",
     "packages": [
         {
             "name": "arc/base",
@@ -1486,16 +1486,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.8.0",
+            "version": "v0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "e705275694ab9d9f9df9fe62b2fc4bc76e1f1281"
+                "reference": "176fe0fb3b19e06ab786b1cf47ee2c828c7f53c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/e705275694ab9d9f9df9fe62b2fc4bc76e1f1281",
-                "reference": "e705275694ab9d9f9df9fe62b2fc4bc76e1f1281",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/176fe0fb3b19e06ab786b1cf47ee2c828c7f53c0",
+                "reference": "176fe0fb3b19e06ab786b1cf47ee2c828c7f53c0",
                 "shasum": ""
             },
             "require": {
@@ -1529,9 +1529,9 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.8.0"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.8.1"
             },
-            "time": "2022-09-23T09:30:08+00:00"
+            "time": "2022-09-28T12:32:07+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
