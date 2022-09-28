@@ -8,11 +8,16 @@ use OCP\DB\QueryBuilder\IExpressionBuilder;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\DB\IResult;
 use PHPUnit\Framework\TestCase;
-require_once __DIR__.'/../../lib/JtiReplayDetector.php';
 
-class JtiReplayDetectorTest extends TestCase {
+class JtiReplayDetectorTest extends TestCase
+{
+	public static function setUpBeforeClass(): void
+	{
+		require_once __DIR__.'/../../lib/JtiReplayDetector.php';
+	}
 
-	private function createMocks($result) {
+	private function createMocks($result)
+	{
 		$mockIDBConnection = $this->createMock(IDBConnection::class);
 		$mockQueryBuilder = $this->createMock(IQueryBuilder::class);
 		$mockExpr = $this->createMock(IExpressionBuilder::class);
@@ -62,7 +67,8 @@ class JtiReplayDetectorTest extends TestCase {
 		return $mockIDBConnection;
 	}
 
-	public function testJtiDetected() {
+	public function testJtiDetected(): void
+    {
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(true);
 					
@@ -75,7 +81,8 @@ class JtiReplayDetectorTest extends TestCase {
 		$this->assertTrue($result);
 	}
 
-	public function testJtiNotDetected() {
+	public function testJtiNotDetected(): void
+	{
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(false);
 					
