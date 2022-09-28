@@ -34,10 +34,8 @@
             $response->addHeader('Access-Control-Expose-Headers', $corsExposeHeaders);
             $response->addHeader('Accept-Patch', 'text/n3');
 
-            if (strtolower($methodName) == "head") {
-                $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
-                $response->addHeader('updates-via', $pubsub);
-	    }
+            $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
+            $response->addHeader('updates-via', $pubsub);
 
             return $response;
         }
