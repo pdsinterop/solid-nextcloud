@@ -11,23 +11,23 @@
             $this->webhookService = $app->getContainer()->get(SolidWebhookService::class);
         }
 
-        public function send($path, $type) {
-            $webhooks = $this->getWebhooks($path);
+        public function send($topic, $type) {
+            $webhooks = $this->getWebhooks($topic);
             foreach ($webhooks as $webhook) {
                 try {
-                    $this->postUpdate($webhook->{'url'}, $path, $type);
+                    $this->postUpdate($webhook->{'target'}, $topic, $type);
                 } catch(\Exception $e) {
                     // FIXME: add retry code here?
                 }
             }
         }
-        private function getWebhooks($path) {
-            $urls = $this->webhookService->findByPath($path);
+        private function getWebhooks($topic) {
+            $urls = $this->webhookService->findByTopic($topic);
             return $urls;
         }
-        private function postUpdate($webhookUrl, $path, $type) {
+        private function postUpdate($webhookUrl, $topic, $type) {
             try {
-                $postData = $this->createUpdatePayload($path, $type);
+                $postData = $this->createUpdatePayload($topic, $type);
                 $opts = array(
                     'http' => array(
                         'method'  => 'POST',
@@ -45,11 +45,11 @@
                 throw new Exception('Could not write to webhook server', 502, $exception);
             }
         }
-        private function createUpdatePayload($path, $type) {
+        private function createUpdatePayload($topic, $type) {
             //$updateId = "urn:uuid:<uuid>";
             //$actor = "<WebID>";
             $object = [
-                "id" => $path,
+                "id" => $topic,
                 "type" => [
                     "http://www.w3.org/ns/ldp#Resource"
                 ]

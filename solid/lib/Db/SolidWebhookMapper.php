@@ -15,18 +15,18 @@ class SolidWebhookMapper extends QBMapper {
 
 	/**
 	 * @param string $webId
-	 * @param string $path
+	 * @param string $topic
 	 * @return Entity|SolidWebhook
 	 * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
 	 * @throws DoesNotExistException
 	 */
-	public function find(string $webId, string $path): SolidWebhook {
+	public function find(string $webId, string $topic): SolidWebhook {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from('solid_webhooks')
 			->where($qb->expr()->eq('web_id', $qb->createNamedParameter($webId)))
-			->andWhere($qb->expr()->eq('path', $qb->createNamedParameter($path)));
+			->andWhere($qb->expr()->eq('topic', $qb->createNamedParameter($topic)));
 		return $this->findEntity($qb);
 	}
 
@@ -44,15 +44,15 @@ class SolidWebhookMapper extends QBMapper {
 	}
 
 	/**
-	 * @param string $path
+	 * @param string $topic
 	 * @return array
 	 */
-	public function findByPath(string $path): array {
+	public function findByTopic(string $topic): array {
 		/* @var $qb IQueryBuilder */
 		$qb = $this->db->getQueryBuilder();
 		$qb->select('*')
 			->from('solid_webhooks')
-			->where($qb->expr()->eq('path', $qb->createNamedParameter($path)));
+			->where($qb->expr()->eq('topic', $qb->createNamedParameter($topic)));
 		return $this->findEntities($qb);
 	}
 }

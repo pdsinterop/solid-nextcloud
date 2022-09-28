@@ -73,10 +73,15 @@ class SolidWebhookController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function register(string $targetUrl, string $webhookUrl, string $expiry): DataResponse {
-		// FIXME: Validate WAC read access to the target URL for $this->webId
-		if ($this->checkReadAccess($targetUrl)) {
-			return new DataResponse($this->webhookService->create($this->webId, $targetUrl, $webhookUrl, $expiry));
+	public function register(string $topic, string $target): DataResponse {
+		if (!$this->isValidWebhookTarget($target)) {
+			return new DataResponse("Error: invalid webhook target", 422);
+		}
+
+		if ($this->checkReadAccess($topic)) {
+			return new DataResponse($this->webhookService->create($this->webId, $topic, $target));
+		} else {
+			return new DataResponse("Error: denied access", 401);
 		}
 	}
 
@@ -85,12 +90,18 @@ class SolidWebhookController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function unregister(string $targetUrl): DataResponse {
-		return $this->handleNotFound(function () use ($targetUrl) {
-			return $this->webhookService->delete($this->webId, $targetUrl);
+	public function unregister(string $topic): DataResponse {
+		return $this->handleNotFound(function () use ($topic) {
+			return $this->webhookService->delete($this->webId, $topic);
 		});
 	}
 
+	private function isValidWebhookTarget($target) {
+		if (!preg_match("|^https://|", $target)) {
+			return false;
+		}
+		return true;
+	}
 
 	private function getFileSystem() {
 		// Create the Nextcloud Adapter
@@ -135,22 +146,22 @@ class SolidWebhookController extends Controller {
 		$this->filesystem = $this->getFileSystem();
 	}
 
-	private function parseTargetUrl($targetUrl) {
-		// targetUrl = https://nextcloud.server/solid/@alice/storage/foo/bar
+	private function parseTopic($topic) {
+		// topic = https://nextcloud.server/solid/@alice/storage/foo/bar
 		$appBaseUrl = $this->getAppBaseUrl(); //  https://nextcloud.server/solid/
-		$internalUrl = str_replace($appBaseUrl, '', $targetUrl); // @alice/storage/foo/bar
+		$internalUrl = str_replace($appBaseUrl, '', $topic); // @alice/storage/foo/bar
 		$pathicles = explode("/", $internalUrl);
 		$userId = $pathicles[0]; // @alice
 		$userId = preg_replace("/^@/", "", $userId); // alice
                 $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
-		$storagePath = str_replace($storageUrl, '/', $targetUrl); // /foo/bar
+		$storagePath = str_replace($storageUrl, '/', $topic); // /foo/bar
 		return array(
 			"userId" => $userId,
 			"path" => $storagePath
 		);
 	}
 	
-	private function createGetRequest($targetUrl) {
+	private function createGetRequest($topic) {
 		$serverParams = [];
 		$fileParams = [];
 		$method = "GET";
@@ -160,18 +171,18 @@ class SolidWebhookController extends Controller {
 		return new \Laminas\Diactoros\ServerRequest(
 			$serverParams,
 			$fileParams,
-			$targetUrl,
+			$topic,
 			$method,
 			$body,
 			$headers
 		);
 	}
 	
-	private function checkReadAccess($targetUrl) {
-		// split out $targetUrl into $userId and $path https://nextcloud.server/solid/@alice/storage/foo/bar
+	private function checkReadAccess($topic) {
+		// split out $topic into $userId and $path https://nextcloud.server/solid/@alice/storage/foo/bar
 		// - userId in this case is the pod owner (not the one doing the request). (alice)
 		// - path is the path within the storage pod (/foo/bar)
-		$target = $this->parseTargetUrl($targetUrl);
+		$target = $this->parseTopic($topic);
 		$userId = $target["userId"];
 		$path = $target["path"];
 		
@@ -184,7 +195,7 @@ class SolidWebhookController extends Controller {
 		$serverParams = [];
 		$fileParams = [];
 
-		$request = $this->createGetRequest($targetUrl);
+		$request = $this->createGetRequest($topic);
 		if (!$this->WAC->isAllowed($request, $this->webId)) { // Deny if we don't have read grants on the URL;
 			return false;
 		}

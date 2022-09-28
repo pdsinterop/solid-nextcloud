@@ -8,18 +8,16 @@ use OCP\AppFramework\Db\Entity;
 
 class SolidWebhook extends Entity implements JsonSerializable {
 	public $id;
-	public $path;
+	public $topic;
 	public $webId;
-	public $url;
-	public $expiry;
+	public $target;
 
 	public function jsonSerialize(): array {
 		return [
 			'id' => $this->id,
 			'webId' => $this->webId,
-			'path' => $this->path,
-			'url' => $this->url,
-			'expiry' => $this->expiry
+			'topic' => $this->topic,
+			'target' => $this->target
 		];
 	}
 }

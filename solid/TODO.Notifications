@@ -1,7 +1,6 @@
 TODO:
 - [ ] advertise the notifications channel in well-known
 - [ ] advertise the notifications channel in HTTP headers
-- [ ] implement function to get subscription in SolidWebhook
 
 Backlog / later:
 - [ ] add actor to notifications
@@ -17,3 +16,4 @@ Done:
 - [v] handle register requests - this must validate that the requestor has read access to the resource;
 - [v] handle unregister requests - only the webid that subscribed should be able to unsubscribe
 - [v] reinstate the updates-via header in HEAD requests, which was removed from solid-crud
+- [v] implement function to get subscription in SolidWebhook

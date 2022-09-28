@@ -22,7 +22,7 @@ class Version000000Date20220919084800 extends SimpleMigrationStep {
 
 		if (!$schema->hasTable('solid_webhooks')) {
 			$table = $schema->createTable('solid_webhooks');
-			// id, webid, path, url, expiry
+			// id, webid, topic, target
 			$table->addColumn('id', 'integer', [
 				'autoincrement' => true,
 				'notnull' => true,
@@ -31,22 +31,18 @@ class Version000000Date20220919084800 extends SimpleMigrationStep {
 				'notnull' => true,
 				'length' => 2048
 			]);
-			$table->addColumn('path', 'string', [
+			$table->addColumn('topic', 'string', [
 				'notnull' => true,
 				'length' => 2048,
 			]);
-			$table->addColumn('url', 'string', [
-				'notnull' => true,
-				'length' => 2048,
-			]);
-			$table->addColumn('expiry', 'string', [
+			$table->addColumn('target', 'string', [
 				'notnull' => true,
 				'length' => 2048,
 			]);
 
 			$table->setPrimaryKey(['id']);
 			$table->addIndex(['web_id'], 'solid_webhooks_web_id_index');
-			$table->addIndex(['path'], 'solid_webhooks_path_index');
+			$table->addIndex(['target'], 'solid_webhooks_target_index');
 		}
 		return $schema;
 	}

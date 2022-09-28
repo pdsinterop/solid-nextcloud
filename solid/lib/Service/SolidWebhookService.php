@@ -22,8 +22,8 @@ class SolidWebhookService {
 		return $this->mapper->findAll($webId);
 	}
 
-	public function findByPath(string $path): array {
-		return $this->mapper->findByPath($path);
+	public function findByTopic(string $topic): array {
+		return $this->mapper->findByTopic($topic);
 	}
 
 	private function handleException(Exception $e): void {
@@ -37,26 +37,25 @@ class SolidWebhookService {
 		}
 	}
 
-	public function find($webId, $path) {
+	public function find($webId, $topic) {
 		try {
-			return $this->mapper->find($webId, $path);
+			return $this->mapper->find($webId, $topic);
 		} catch (Exception $e) {
 			$this->handleException($e);
 		}
 	}
 
-	public function create($webId, $path, $url, $expiry) {
+	public function create($webId, $topic, $target) {
 		$webhook = new SolidWebhook();
 		$webhook->setWebId($webId);
-		$webhook->setPath($path);
-		$webhook->setUrl($url);
-		$webhook->setExpiry($expiry);
+		$webhook->setTopic($topic);
+		$webhook->setTarget($target);
 		return $this->mapper->insert($webhook);
 	}
 
-	public function delete($webId, $path) {
+	public function delete($webId, $topic) {
 		try {
-			$webhook = $this->mapper->find($webId, $path);
+			$webhook = $this->mapper->find($webId, $topic);
 			$this->mapper->delete($webhook);
 			return $webhook;
 		} catch (Exception $e) {
