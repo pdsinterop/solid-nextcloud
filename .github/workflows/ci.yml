@@ -7,7 +7,9 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+    - main
+    - cleanup/ci
   pull_request:
     branches: [ main ]
 
