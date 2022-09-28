@@ -1,7 +1,6 @@
 TODO:
 - [ ] advertise the notifications channel in well-known
 - [ ] advertise the notifications channel in HTTP headers
-- [ ] reinstate the updates-via header in HEAD requests, which was removed from solid-crud
 - [ ] implement function to get subscription in SolidWebhook
 
 Backlog / later:
@@ -10,9 +9,11 @@ Backlog / later:
 - [ ] Add support for the rate limit feature.
 - [ ] create a solid-notifications-lastsent database table - columns are subscription_id and lastsent;
 - [ ] how can we stop sending notifications when read access was revoked?
+- [ ] use a background process to send notifications so they are out of bound with requests
 
 Done:
 - [v] create a solid-notifications-subscription database table - columns should have: id, webid, path, url, expiry
 - [v] add notifications controller
 - [v] handle register requests - this must validate that the requestor has read access to the resource;
 - [v] handle unregister requests - only the webid that subscribed should be able to unsubscribe
+- [v] reinstate the updates-via header in HEAD requests, which was removed from solid-crud
