@@ -11,6 +11,7 @@ use OC\Server;
 
 use OCA\Solid\Service\UserService;
 use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
+use OCA\Solid\WellKnown\SolidHandler;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
 
 use OCP\AppFramework\App;
@@ -58,6 +59,7 @@ class Application extends App implements IBootstrap {
 
     public function register(IRegistrationContext $context): void {
         $context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
+        $context->registerWellKnownHandler(\OCA\Solid\WellKnown\SolidHandler::class);
 
         /**
          * Core class wrappers
