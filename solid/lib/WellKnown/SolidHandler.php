@@ -26,7 +26,11 @@ class SolidHandler implements IHandler {
                 if ($service !== 'solid') {
                         return $previousResponse;
                 }
-
+		$webhooksRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.solidWebhook.register');
+		// FIXME: this shouldn't happen:
+		if (strlen($webhooksRegisterEndpoint) == 0) {
+			$webhooksRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.app.appLauncher') . 'webhook/register';
+		}
 		$body = [
 			"@context" => [
 				"https://www.w3.org/ns/solid/notification/v1"
@@ -40,7 +44,7 @@ class SolidHandler implements IHandler {
 				[
 					"id" => "webhookNotification",
 					"type" => ["WebHookSubscription2022"],
-					"subscription" => $this->urlGenerator->linkToRoute("solid.soldWebhook.register"),
+					"subscription" => $webhooksRegisterEndpoint,
 					"feature" => []
 				]
 			]

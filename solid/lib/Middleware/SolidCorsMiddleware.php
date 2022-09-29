@@ -36,6 +36,7 @@
 
             $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
             $response->addHeader('updates-via', $pubsub);
+            $response->addHeader('Link', '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"');
 
             return $response;
         }
