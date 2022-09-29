@@ -7,6 +7,7 @@ use OCP\IURLGenerator;
 use OCP\IConfig;
 
 use OCP\AppFramework\Http\JSONResponse;
+use OCP\Http\WellKnown\GenericResponse;
 use OCP\Http\WellKnown\IHandler;
 use OCP\Http\WellKnown\IRequestContext;
 use OCP\Http\WellKnown\IResponse;
@@ -34,14 +35,19 @@ class SolidHandler implements IHandler {
 				[
 					"id" => "websocketNotification",
 					"type" => ["WebSocketSubscription2021"],
-					"subscription" => "https://websocket.example/subscription",
-					"feature" => ["state", "rate", "expiration"]
+					"feature" => []
+				],
+				[
+					"id" => "webhookNotification",
+					"type" => ["WebHookSubscription2022"],
+					"subscription" => $this->urlGenerator->linkToRoute("solid.soldWebhook.register"),
+					"feature" => []
 				]
 			]
-				];
+		];
 		$result = new JSONResponse($body);
 		$result->addHeader("Access-Control-Allow-Origin", "*");
 		$result->setStatus(200);
-		return $result;
+		return new GenericResponse($result);
 	}
 }
