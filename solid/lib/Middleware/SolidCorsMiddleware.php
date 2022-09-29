@@ -36,7 +36,12 @@
 
             $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
             $response->addHeader('updates-via', $pubsub);
-            $response->addHeader('Link', '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"');
+            $linkHeaders = '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"';
+            $existingHeaders = $response->getHeaders();
+            if (isset($existingHeaders['Link'])) { // careful - this dictionary key is case sensitive here
+                $linkHeaders .= ', ' . $existingHeaders['Link'];
+            }
+            $response->addHeader('Link', $linkHeaders);
 
             // Note that apart from these, the Link header with rel="acl" and the WAC-Allow header
             // are already added by these lines in vendor/pdsinterop/solid-auth:
