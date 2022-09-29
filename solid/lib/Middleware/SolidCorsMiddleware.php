@@ -38,6 +38,9 @@
             $response->addHeader('updates-via', $pubsub);
             $response->addHeader('Link', '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"');
 
+            // Note that apart from these, the Link header with rel="acl" and the WAC-Allow header
+            // are already added by these lines in vendor/pdsinterop/solid-auth:
+            // https://github.com/pdsinterop/php-solid-auth/blob/e07c22d/src/WAC.php#L39-L40
             return $response;
         }
     }
