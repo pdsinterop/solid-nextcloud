@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5675e6996cec07511e49d0f6fa4a9e50",
+    "content-hash": "25870616d02851226edb7d55f5e9e4f0",
     "packages": [
         {
             "name": "arc/base",
@@ -4244,5 +4244,5 @@
         "ext-openssl": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }
