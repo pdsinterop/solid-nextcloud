@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25870616d02851226edb7d55f5e9e4f0",
+    "content-hash": "97758acf86706e9d00cf51f32abbd10d",
     "packages": [
         {
             "name": "arc/base",
@@ -1535,16 +1535,16 @@
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "dev-feature/notificationsInterface",
+            "version": "v0.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf"
+                "reference": "4059f0a196e3b12c0809dec29566971aa375f3ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf",
-                "reference": "27fd9c35dbd5fd879958e5114eb4389f0d1fa6cf",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/4059f0a196e3b12c0809dec29566971aa375f3ad",
+                "reference": "4059f0a196e3b12c0809dec29566971aa375f3ad",
                 "shasum": ""
             },
             "require": {
@@ -1576,9 +1576,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/feature/notificationsInterface"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.7.0"
             },
-            "time": "2022-09-19T14:41:18+00:00"
+            "time": "2022-09-30T14:46:38+00:00"
         },
         {
             "name": "pietercolpaert/hardf",
@@ -4231,9 +4231,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "pdsinterop/solid-crud": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

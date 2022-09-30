@@ -32,8 +32,8 @@
         "pdsinterop/flysystem-nextcloud": "^0.2",
         "pdsinterop/flysystem-rdf": "^0.5",
         "pdsinterop/solid-auth": "v0.10.1",
-        "pdsinterop/solid-crud": "dev-feature/notificationsInterface",
-        "psr/log" : "^1.1"
+        "pdsinterop/solid-crud": "^0.7.0",
+        "psr/log": "^1.1"
     },
     "require-dev": {
         "doctrine/dbal": "*",
