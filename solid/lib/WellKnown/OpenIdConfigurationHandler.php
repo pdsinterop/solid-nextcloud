@@ -119,6 +119,7 @@ class OpenIdConfigurationHandler implements IHandler {
 
 		$result->addHeader("Access-Control-Allow-Origin", "*");
 		$result->setStatus($statusCode);
+		$result->addHeader('Access-Control-Allow-Origin', '*');
 		return $result;
 	}
 }
