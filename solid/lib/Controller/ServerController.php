@@ -43,7 +43,7 @@ class ServerController extends Controller
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
 
-	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
+	/* @var \Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
 
 	public function __construct(
@@ -73,7 +73,8 @@ class ServerController extends Controller
 
 		$this->tokenGenerator = new \Pdsinterop\Solid\Auth\TokenGenerator(
 			$this->authServerConfig,
-			$this->getDpopValidFor()
+			$this->getDpopValidFor(),
+			$this->getDpop()
 		);
 	}
 
@@ -198,7 +199,13 @@ class ServerController extends Controller
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
+		$response = $this->tokenGenerator->addIdTokenToResponse(
+            $response,
+            $clientId,
+            $this->getProfilePage(),
+            $this->session->get("nonce"),
+            $this->config->getPrivateKey()
+        );
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
@@ -256,17 +263,7 @@ class ServerController extends Controller
 		$code = $request->getParsedBody()['code'];
 		$clientId = $request->getParsedBody()['client_id'];
 
-		$response = new \Laminas\Diactoros\Response();
-
-		$dpop = $this->getDpop();
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
-
-		try {
-			$dpopKey = $dpop->getDPopKey($httpDpop, $request);
-		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
-			$response = $response->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
-			return $this->respond($response);
-		}
 
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
@@ -275,7 +272,14 @@ class ServerController extends Controller
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], ($_SESSION['nonce'] ?? ''), $this->config->getPrivateKey(), $dpopKey);
+		$response = $this->tokenGenerator->addIdTokenToResponse(
+            $response,
+			$clientId,
+			$codeInfo['user_id'],
+			($_SESSION['nonce'] ?? ''),
+			$this->config->getPrivateKey(),
+			$httpDpop
+		);
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
