@@ -1,0 +1,21 @@
+# Markdown files
+* text=auto
+README.md           merge=union
+
+# PHP files
+*.php diff=php
+composer.json       merge=ours
+
+# export-ignore
+/.gitignore         export-ignore
+/build              export-ignore
+/CHANGELOG.md       export-ignore
+/docs               export-ignore
+/phpunit.dist.xml   export-ignore
+/phpunit.xml.dist   export-ignore
+/tests              export-ignore
+/UPGRADE-*.md       export-ignore
+
+# (Handle like) binary files
+/**/*.js.map        binary
+/**/*.min.js        binary

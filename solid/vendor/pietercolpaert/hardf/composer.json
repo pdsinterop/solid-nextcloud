@@ -1,0 +1,51 @@
+{
+    "name": "pietercolpaert/hardf",
+    "description": "A fast parser for RDF serializations such as turtle, n-triples, n-quads, trig and N3",
+    "homepage": "https://github.com/pietercolpaert/hardf",
+    "keywords": ["turtle","rdf","rdf1.1", "quads", "triples","n-triples","n-quads","trig", "n3","linked data", "open data", "streaming"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Pieter Colpaert",
+            "homepage": "https://pietercolpaert.be",
+            "email": "pieter.colpaert@ugent.be",
+            "role": "developer"
+        },
+        {
+            "name": "Ruben Verborgh",
+            "homepage": "https://ruben.verborgh.org",
+            "email": "ruben.verborgh@ugent.be",
+            "role": "developer"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/pietercolpaert/hardf",
+        "issues": "https://github.com/pietercolpaert/hardf/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "pietercolpaert\\hardf\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\hardf\\": "test/"
+        }
+    },
+    "require": {
+        "php": "^7.1|^8.0"
+    },
+    "require-dev" : {
+        "friendsofphp/php-cs-fixer": "*",
+        "phpstan/phpstan": "^0.12.36",
+        "phpunit/phpunit": "^7 || ^8 || ^9"
+    },
+    "scripts": {
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "cs-dry-run": "vendor/bin/php-cs-fixer fix --dry-run",
+        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon -vvv",
+        "phpunit": "vendor/bin/phpunit",
+        "phpunit-with-coverage": "vendor/bin/phpunit --coverage-text"
+    }
+}

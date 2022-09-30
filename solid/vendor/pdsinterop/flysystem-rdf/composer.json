@@ -1,0 +1,25 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Pdsinterop\\Rdf\\": "src/"
+    }
+  },
+  "config": {
+    "bin-dir": "./bin",
+    "sort-packages": true
+  },
+  "description": "Flysystem plugin to transform RDF data between various serialization formats.",
+  "license": "MIT",
+  "name": "pdsinterop/flysystem-rdf",
+  "require": {
+    "php": "^8.0",
+    "ext-mbstring": "*",
+    "easyrdf/easyrdf": "^1.1.1",
+    "league/flysystem": "^1.0",
+    "ml/json-ld": "^1.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8|^9"
+  },
+  "type": "library"
+}

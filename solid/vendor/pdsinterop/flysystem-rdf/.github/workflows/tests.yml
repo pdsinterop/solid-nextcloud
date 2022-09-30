@@ -1,0 +1,24 @@
+---
+name: Test jobs
+
+on:
+  - pull_request
+  - push
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-20.04
+
+    strategy:
+      matrix:
+        php: ['8.0', '8.1']
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+      - uses: "ramsey/composer-install@v1"
+        with:
+          composer-options: --no-scripts
+      - run: bin/phpunit

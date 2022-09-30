@@ -1,0 +1,40 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Pdsinterop\\Solid\\Resources\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pdsinterop\\Solid\\Resources\\": "tests/unit/"
+    }
+  },
+  "config": {
+    "bin-dir": "./bin",
+    "sort-packages": true
+  },
+  "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
+  "license": "MIT",
+  "name": "pdsinterop/solid-crud",
+  "require": {
+    "php": "^8.0",
+    "ext-mbstring": "*",
+    "laminas/laminas-diactoros": "^2.14",
+    "league/flysystem": "^1.0",
+    "mjrider/flysystem-factory": "^0.7",
+    "pdsinterop/flysystem-rdf": "^0.5",
+    "pietercolpaert/hardf": "^0.3",
+    "psr/http-factory": "^1.0",
+    "psr/http-message": "^1.0",
+    "textalk/websocket": "^1.5"
+  },
+  "scripts": {
+    "dev:example": "php -S localhost:${PORT:-8080} -t ./src/ ./src/example.php",
+    "tests:unit": "phpunit ./tests/unit"
+  },
+  "scripts-descriptions": {
+    "dev:example": "Run internal PHP development server with example code",
+    "tests:unit": "Run unit-test with PHPUnit"
+  },
+  "type": "library"
+}

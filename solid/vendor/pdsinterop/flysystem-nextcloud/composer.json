@@ -1,0 +1,54 @@
+{
+  "autoload": {
+    "psr-4": {
+      "Pdsinterop\\Flysystem\\Adapter\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "bin-dir": "./bin",
+    "platform": {
+      "php": "8.0",
+      "ext-mbstring": "0.0.0"
+    }
+  },
+  "description": "Flysystem adapter for the Nextcloud filesystem.",
+  "license": "MIT",
+  "name": "pdsinterop/flysystem-nextcloud",
+  "repositories": [
+    {
+      "type": "package",
+      "package": {
+        "name": "nextcloud/server",
+        "version": "24.0.0",
+        "dist": {
+          "url": "https://github.com/nextcloud/server/archive/refs/tags/v24.0.0.zip",
+          "type": "zip"
+        },
+        "source": {
+          "url": "https://github.com/nextcloud/server.git",
+          "type": "git",
+          "reference": "master"
+        },
+        "autoload": {
+          "psr-4": {
+            "": "lib/private/legacy",
+            "OC\\": "lib/private",
+            "OC\\Core\\": "core/",
+            "OCP\\": "lib/public"
+          }
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": "^8.0",
+    "ext-mbstring": "*",
+    "league/flysystem": "^1.0"
+  },
+  "require-dev": {
+    "nextcloud/server": "*",
+    "phpunit/phpunit": "^7|^8|^9"
+  },
+  "type": "library"
+}

@@ -1,0 +1,29 @@
+language: php
+php:
+  - '5.6'
+  - '7.0'
+  - 'hhvm'
+
+matrix:
+   allow_failures:
+      - php: 'hhvm'
+
+
+before_script:
+   - composer install
+
+script: vendor/bin/phpunit --coverage-clover=coverage.clover
+
+notifications:
+  email: false
+  irc:
+    channels:
+        secure: "Pbv768EEF1C//A7xbIL9g24hP3Ujc/0+90ZvegxqAKXHwq1of995IxGo6W3GME+qwipZ9QOnPYqTP8zsR8T4qrnfHyGgepcj+NQ6IC2i4n+8MtXlaWL3QviczYJs6QbmGV8Atpm1twS6clcnnmtHHytqrD3lDHQDQQXkS3WqjWg="
+    on_success: change
+    on_failure: always
+after_script:
+    - wget https://scrutinizer-ci.com/ocular.phar
+    - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+
+sudo: false

@@ -1,0 +1,46 @@
+{
+  "autoload": {
+    "files": [
+      "src/Exceptions.inc.php"
+    ],
+    "psr-4": {
+      "Pdsinterop\\Solid\\Auth\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Pdsinterop\\Solid\\Auth\\": "tests/unit/"
+    }
+  },
+  "config": {
+    "bin-dir": "./bin",
+    "sort-packages": true
+  },
+  "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
+  "license": "MIT",
+  "name": "pdsinterop/solid-auth",
+  "require": {
+    "php": "^8.0",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-openssl": "*",
+    "laminas/laminas-diactoros": "^2.8",
+    "lcobucci/jwt": "^4.1",
+    "league/oauth2-server": "^8.3.5",
+    "web-token/jwt-core": "^2.2"
+  },
+  "require-dev": {
+    "ext-xdebug": "*",
+    "ext-xml": "*",
+    "phpunit/phpunit": "^9"
+  },
+  "scripts": {
+    "tests:example": "php -S localhost:8080 -t ./tests/ ./tests/example.php",
+    "tests:unit": "phpunit ./tests/unit"
+  },
+  "scripts-descriptions": {
+    "tests:example": "Run internal PHP development server with example code",
+    "tests:unit": "Run unit-test with PHPUnit"
+  },
+  "type": "library"
+}

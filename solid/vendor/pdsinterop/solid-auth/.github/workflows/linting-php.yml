@@ -1,0 +1,21 @@
+---
+name: Linting PHP
+
+on:
+  - push
+  - pull_request
+  # Allow manually triggering the workflow.
+  - workflow_dispatch
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
+jobs:
+  lint-php:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pipeline-components/php-linter@master

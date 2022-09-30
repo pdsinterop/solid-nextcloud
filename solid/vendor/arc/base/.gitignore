@@ -1,0 +1,6 @@
+composer.lock
+tests/composer.lock
+tests/vendor/
+*~
+/vendor/
+/.idea/

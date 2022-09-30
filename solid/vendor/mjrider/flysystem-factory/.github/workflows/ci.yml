@@ -1,0 +1,106 @@
+---
+name: CI
+
+on: [push]
+
+jobs:
+  # Linters
+  php-linter:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pipeline-components/php-linter@master
+  lint-remark:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check markdown
+        uses: pipeline-components/remark-lint@master
+  php-security-checker:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: php-actions/composer@v6
+        with:
+          suggest: "no"
+          dev: "no"
+          args: --profile --ignore-platform-reqs
+      - name: Check php composer for security issues
+        uses: pipeline-components/php-security-checker@master
+  php-codesniffer:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check php code for code issues
+        uses: pipeline-components/php-codesniffer@master
+  yamllint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check yaml for issues
+        uses: pipeline-components/yamllint@master
+  lint-json:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint php
+        uses: "docker://pipelinecomponents/jsonlint:latest"
+        with:
+          args: "find . -not -path './.git/*' -name '*.json' -type f -exec jsonlint --quiet {} ;"
+  # Tests
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1']
+        experimental: [false]
+    name: "Test: PHP ${{ matrix.php }}"
+    continue-on-error: ${{ matrix.experimental }}
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image
+        image: redis
+        ports:
+          - '6379:6379'
+      minio:
+        image: bitnami/minio:latest
+        ports:
+          - "9999:9999"
+          - "9000:9000"
+        env:
+          MINIO_ACCESS_KEY: 'TRAVISACCESSPHPUNIT'
+          MINIO_SECRET_KEY: 'wJalrXUtnFEMI/K7MDENG/TRAVISKEYPHPUNIT'
+      ftp:
+        image: jack12816/ftpd_test
+        ports:
+          - "21:21"
+          - "30000-30009:30000-30009"
+        env:
+          PUBLICHOST: 'localhost'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Install composer
+        uses: php-actions/composer@v6
+        with:
+          php_version: ${{ matrix.php }}
+          suggest: "no"
+          dev: "yes"
+          args: --prefer-dist
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - name: Run the unit tests
+        run: vendor/bin/phpunit --no-coverage
+        env:
+          TEST_S3_LOCATION: '//TRAVISACCESSPHPUNIT:wJalrXUtnFEMI%2FSECRET%2FTRAVISPHPUNIT@us-east-1/?endpoint=http%3A%2F%2F127.0.0.1%3A9000&use_path_style_endpoint=1'
+          TEST_FTP_LOCATION: 'ftp://test:test@localhost'

@@ -1,0 +1,28 @@
+language: php
+
+dist: xenial
+
+os: linux
+
+php:
+    - '7.1'
+    - '7.2'
+    - '7.3'
+
+jobs:
+    fast_finish: true
+    include:
+    - php: 7.4
+      env: LINTER_RUN=run
+    - php: nightly
+
+install:
+    - composer update --prefer-dist --no-progress --no-suggest --optimize-autoloader
+
+script:
+    # linter
+    - if [ "$LINTER_RUN" = "run" ]; then composer cs-dry-run ; fi;
+    - if [ "$LINTER_RUN" = "run" ]; then composer phpstan ; fi;
+    - if [ "$LINTER_RUN" = "run" ]; then composer phpunit-with-coverage ; fi;
+    # no linter
+    - if [ "$LINTER_RUN" != "run" ]; then composer phpunit ; fi;

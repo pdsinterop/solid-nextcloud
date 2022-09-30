@@ -1,0 +1,50 @@
+---
+baseurl: /flysystem-rdf
+description: Flysystem plugin to transform RDF data between various serialization formats
+repository: pdsinterop/flysystem-rdf
+title: Flysystem RDF plugin
+url: https://pdsinterop.org
+
+permalink: pretty
+remote_theme: Potherca/extend-the-docs@v0.3.1
+
+exclude:
+  - "bin/"
+  - "src/"
+  - "tests/"
+  - "vendor/"
+  - "Gemfile"
+  - "*.json"
+  - "*.lock"
+
+plugins:
+  - github-pages
+  - jekyll-github-metadata
+  - jekyll-remote-theme
+  - jekyll-seo-tag
+
+# Extend the Docs settings (see https://pother.ca/extend-the-docs/)
+nav:
+  cross_repository:
+    exclude:
+      - jekyll-theme
+      - pdsinterop.github.io
+    show_archived: true
+    show_homepage: false
+  exclude:
+    - /
+    - /404.html
+  favicon_ico : /favicon.ico
+  main_title:
+    link: '/'
+  recurse: true
+
+# Just the Docs settings (see https://pmarsceill.github.io/just-the-docs/docs/configuration/)
+aux_links:
+  "PDS Interop on GitHub":
+    - https://github.com/pdsinterop
+footer_content: '<p xmlns:dct="http://purl.org/dc/terms/" property="dct:rights">Copyright © <span property="dct:dateCopyrighted">2020-2021</span> <span property="dct:publisher">PDS Interop</span>. Distributed under a <a rel="license" href="https://pdsinterop.org/license/">MIT license</a>.</p>'
+gh_edit_link: true
+gh_edit_repository: https://github.com/pdsinterop/flysystem-rdf
+logo: https://avatars3.githubusercontent.com/u/65920341
+search_enabled: true
