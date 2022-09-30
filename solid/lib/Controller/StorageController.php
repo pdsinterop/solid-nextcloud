@@ -222,7 +222,7 @@ EOF;
 profile:me
 	a solid:Developer;
 	solid:privateTypeIndex <privateTypeIndex.ttl>;
-	solid:publicTypeIndex <publicTypeIndex.ttl>;
+	solid:publicTypeIndex <publicTypeIndex.ttl>.
 EOF;
 
 		$profileUri = $this->getUserProfile($userId);
