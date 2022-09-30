@@ -210,6 +210,7 @@ EOF;
 		$preferences = <<< EOF
 # Preferences
 @prefix : <#>.
+@prefix sp: <http://www.w3.org/ns/pim/space#>.
 @prefix dct: <http://purl.org/dc/terms/>.
 @prefix profile: <{user-profile-uri}>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
