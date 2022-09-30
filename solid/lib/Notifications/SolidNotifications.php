@@ -13,12 +13,12 @@
             $this->notifications = [
             	new SolidWebhook(),
             	new SolidPubSub($pubsub)
-	    ];
+	        ];
         }
 
         public function send($path, $type) {
             foreach ($this->notifications as $notification) {
                 $notification->send($path, $type);
+	        }
 	    }
-	}
     }
