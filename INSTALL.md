@@ -13,7 +13,6 @@ rm -r solid
 git clone https://github.com/pdsinterop/solid-nextcloud
 ln -s solid-nextcloud/solid
 cd solid
-git checkout well-known-cors
 apt update
 apt install -y php git php-curl php-gd php-opcache php-xml php-gd \
   php-curl php-zip php-json libxml2 libxml2-dev php-xml php-mbstring \
