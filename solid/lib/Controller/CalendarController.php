@@ -3,6 +3,7 @@ namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
+use OCA\Solid\Notifications\SolidNotifications;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -129,14 +130,14 @@ EOF;
 		$this->filesystem = $this->getFileSystem($userId);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
-        $this->WAC = new WAC($this->filesystem);
+		$this->WAC = new WAC($this->filesystem);
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getCalendarUrl($userId);		
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
-		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
-		$this->resourceServer->setPubSubUrl($pubsub);
+		$notifications = new SolidNotifications();
+		$this->resourceServer->setNotifications($notifications);
 
 		$dpop = $this->getDpop();
 
