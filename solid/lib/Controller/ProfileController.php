@@ -1,36 +1,45 @@
 <?php
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\ServerConfig;
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
 
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Contacts\IManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IConfig;
-
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
-use Pdsinterop\Solid\Resources\Server as ResourceServer;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
-use Pdsinterop\Solid\Auth\WAC as WAC;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\Contacts\IManager;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
+use Pdsinterop\Solid\Auth\WAC;
+use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class ProfileController extends Controller {
+	use DpopFactoryTrait;
+
 	/* @var IURLGenerator */
 	private $urlGenerator;
 
 	/* @var ISession */
 	private $session;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IManager $contactsManager, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
-	{
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		ISession $session,
+		IManager $contactsManager,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		\OCA\Solid\Service\UserService $UserService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
@@ -39,6 +48,8 @@ class ProfileController extends Controller {
 		$this->userManager = $userManager;
 		$this->contactsManager = $contactsManager;
 		$this->session = $session;
+
+		$this->setJtiStorage($connection);
 	}
 
 	private function getFileSystem($userId) {
@@ -137,7 +148,6 @@ EOF;
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
 		$this->WAC = new WAC($this->filesystem);
-		$this->DPop = new DPop();
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getProfileUrl($userId);		
@@ -146,11 +156,14 @@ EOF;
 		$notifications = new SolidNotifications();
 		$this->resourceServer->setNotifications($notifications);
 
+		$dpop = $this->getDpop();
+
 		if ($request->getHeaderLine("DPop")) {
 			try {
-				$webId = $this->DPop->getWebId($request);
-			} catch(\Exception $e) {
-				$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+				$webId = $dpop->getWebId($request);
+			} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+				$response = $this->resourceServer->getResponse()
+					->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 				return $this->respond($response);
 			}
 		} else {
@@ -278,7 +291,8 @@ EOF;
 					'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
 					'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
 					'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
-					'storage' => $this->getStorageUrl($userId)
+					'storage' => $this->getStorageUrl($userId),
+					'issuer' => $this->urlGenerator->getBaseURL()
 				);
 				return $profile;
 			}
@@ -313,6 +327,7 @@ EOF;
 		solid:account ser:;
 		solid:privateTypeIndex <<?php echo $profile['privateTypeIndex']; ?>>;
 		solid:publicTypeIndex <<?php echo $profile['publicTypeIndex']; ?>>;
+		solid:oidcIssuer <<?php echo $profile['issuer']; ?>>;
 	<?php
 	foreach ($profile['friends'] as $key => $friend) {
 	?>

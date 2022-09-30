@@ -1,26 +1,28 @@
 <?php
 namespace OCA\Solid\Controller;
 
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\ServerConfig;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IConfig;
 
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 
-class ServerController extends Controller {
+class ServerController extends Controller
+{
+	use DpopFactoryTrait;
+
 	private $userId;
 
 	/* @var IUserManager */
@@ -40,12 +42,21 @@ class ServerController extends Controller {
 
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
-	
-	/* @var Pdsinterop\Solid\Auth\TokenGenerator */
+
+	/* @var \Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
-	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
-	{
+
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		ISession $session,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		\OCA\Solid\Service\UserService $UserService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
@@ -55,9 +66,16 @@ class ServerController extends Controller {
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
-		$this->authServerConfig = $this->createAuthServerConfig(); 
-		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();		
-		$this->tokenGenerator = (new \Pdsinterop\Solid\Auth\TokenGenerator($this->authServerConfig));
+		$this->setJtiStorage($connection);
+
+		$this->authServerConfig = $this->createAuthServerConfig();
+		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
+
+		$this->tokenGenerator = new \Pdsinterop\Solid\Auth\TokenGenerator(
+			$this->authServerConfig,
+			$this->getDpopValidFor(),
+			$this->getDpop()
+		);
 	}
 
 	private function getOpenIdEndpoints() {
@@ -72,10 +90,10 @@ class ServerController extends Controller {
 			"registration_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.register"))
 		];
 	}
-	
+
 	private function getKeys() {
 		$encryptionKey = $this->config->getEncryptionKey();
-		$privateKey    = $this->config->getPrivateKey();		
+		$privateKey    = $this->config->getPrivateKey();
 		$key           = openssl_pkey_get_private($privateKey);
 		$publicKey     = openssl_pkey_get_details($key)['key'];
 		return [
@@ -84,7 +102,7 @@ class ServerController extends Controller {
 			"publicKey"     => $publicKey
 		];
 	}
-	
+
 	private function createAuthServerConfig() {
 		$clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
 		$client = $this->getClient($clientId);
@@ -164,7 +182,7 @@ class ServerController extends Controller {
 			}
 		}
 		$clientId = $getVars['client_id'];
-		$approval = $this->checkApproval($clientId);	
+		$approval = $this->checkApproval($clientId);
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
@@ -181,8 +199,14 @@ class ServerController extends Controller {
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $this->getProfilePage(), $this->session->get("nonce"), $this->config->getPrivateKey());
-		
+		$response = $this->tokenGenerator->addIdTokenToResponse(
+            $response,
+            $clientId,
+            $this->getProfilePage(),
+            $this->session->get("nonce"),
+            $this->config->getPrivateKey()
+        );
+
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
@@ -200,7 +224,7 @@ class ServerController extends Controller {
 			return \Pdsinterop\Solid\Auth\Enum\Authorization::DENIED;
 		}
 	}
-	
+
 	private function getProfilePage() {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
@@ -228,7 +252,7 @@ class ServerController extends Controller {
 	public function session() {
 		return new JSONResponse("ok");
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -239,16 +263,7 @@ class ServerController extends Controller {
 		$code = $request->getParsedBody()['code'];
 		$clientId = $request->getParsedBody()['client_id'];
 
-		$response = new \Laminas\Diactoros\Response();
-
-		$DPop = new DPop();
-		$dpop = $request->getServerParams()['HTTP_DPOP'];
-		try {
-			$dpopKey = $DPop->getDPopKey($dpop, $request);
-		} catch(\Exception $e) {
-			$response = $response->withStatus(409, "Invalid token");
-			return $this->respond($response);
-		}
+		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
 
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
@@ -257,7 +272,14 @@ class ServerController extends Controller {
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse($response, $clientId, $codeInfo['user_id'], ($_SESSION['nonce'] ?? ''), $this->config->getPrivateKey(), $dpopKey);
+		$response = $this->tokenGenerator->addIdTokenToResponse(
+            $response,
+			$clientId,
+			$codeInfo['user_id'],
+			($_SESSION['nonce'] ?? ''),
+			$this->config->getPrivateKey(),
+			$httpDpop
+		);
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
@@ -309,7 +331,7 @@ class ServerController extends Controller {
 //		->addHeader('Access-Control-Allow-Origin', $origin)
 //		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -320,7 +342,6 @@ class ServerController extends Controller {
 		unset($clientRegistration['client_secret']);
 		return new JSONResponse($clientRegistration);
 	}
-	
 
 	/**
 	 * @PublicPage
@@ -351,7 +372,7 @@ class ServerController extends Controller {
 			$body = 'ok';
 		}
 		$result = new JSONResponse($body);
-		
+
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
 				$result->addHeader($header, $value);
