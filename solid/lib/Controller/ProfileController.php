@@ -290,7 +290,8 @@ EOF;
 					'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
 					'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
 					'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
-					'storage' => $this->getStorageUrl($userId)
+					'storage' => $this->getStorageUrl($userId),
+					'issuer' => $this->urlGenerator->getBaseURL()
 				);
 				return $profile;
 			}
@@ -325,6 +326,7 @@ EOF;
 		solid:account ser:;
 		solid:privateTypeIndex <<?php echo $profile['privateTypeIndex']; ?>>;
 		solid:publicTypeIndex <<?php echo $profile['publicTypeIndex']; ?>>;
+		solid:oidcIssuer <<?php echo $profile['issuer']; ?>>;
 	<?php
 	foreach ($profile['friends'] as $key => $friend) {
 	?>
