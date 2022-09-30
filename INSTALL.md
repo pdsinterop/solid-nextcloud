@@ -5,7 +5,7 @@ you should be able to run the latest version of this app.
 
 ## Building from source
 In the future you will be able to install the app just from the app store, or by running `sudo nextcloud.occ app:install solid`.
-But currently (September 2022) that still installs version 0.0.3, which means you need to install from source. Specifically, you will need code from [this PR](https://github.com/pdsinterop/solid-nextcloud/pull/93) which is still unmerge at the time of writing. To switch the version of your Solid app from the "store-bought" version to the latest unreleased version, you will need to build from source:
+But currently (September 2022) that still installs version 0.0.3, which means you need to install from source. To switch the version of your Solid app from the "store-bought" version to the latest unreleased version, you will need to build from source:
 ```
 sudo /bin/bash
 cd /var/snap/nextcloud/current/nextcloud/extra-apps/
