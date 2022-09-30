@@ -57,6 +57,6 @@ startPubSub
 startSolidNextcloud server
 startSolidNextcloud thirdparty
 runTests webid-provider
-runTests solid-crud
 runTests web-access-control
+runTests solid-crud
 teardown
