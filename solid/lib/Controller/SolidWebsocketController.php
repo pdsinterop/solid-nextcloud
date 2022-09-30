@@ -5,7 +5,7 @@ namespace OCA\Solid\Controller;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
 
-class SolidWebhookController extends Controller
+class SolidWebsocketController extends Controller
 {
     /**
      * @PublicPage
