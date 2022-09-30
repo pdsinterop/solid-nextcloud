@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab258d6208b4a89c140fb21224963a88",
+    "content-hash": "442305e84dea7a1af38ca3c380e2221d",
     "packages": [
         {
             "name": "arc/base",
@@ -1302,16 +1302,16 @@
         },
         {
             "name": "ml/json-ld",
-            "version": "1.2.0",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lanthaler/JsonLD.git",
-                "reference": "c74a1aed5979ed1cfb1be35a55a305fd30e30b93"
+                "reference": "537e68e87a6bce23e57c575cd5dcac1f67ce25d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lanthaler/JsonLD/zipball/c74a1aed5979ed1cfb1be35a55a305fd30e30b93",
-                "reference": "c74a1aed5979ed1cfb1be35a55a305fd30e30b93",
+                "url": "https://api.github.com/repos/lanthaler/JsonLD/zipball/537e68e87a6bce23e57c575cd5dcac1f67ce25d8",
+                "reference": "537e68e87a6bce23e57c575cd5dcac1f67ce25d8",
                 "shasum": ""
             },
             "require": {
@@ -1349,9 +1349,9 @@
             ],
             "support": {
                 "issues": "https://github.com/lanthaler/JsonLD/issues",
-                "source": "https://github.com/lanthaler/JsonLD/tree/1.2.0"
+                "source": "https://github.com/lanthaler/JsonLD/tree/1.2.1"
             },
-            "time": "2020-06-16T17:45:06+00:00"
+            "time": "2022-09-29T08:45:17+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1486,16 +1486,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.9.0",
+            "version": "v0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "ea830b64a62468eda6afdbc3fb15231036d32ef5"
+                "reference": "e5453e01792f9c3be8682c85b92615a0fc14eb0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/ea830b64a62468eda6afdbc3fb15231036d32ef5",
-                "reference": "ea830b64a62468eda6afdbc3fb15231036d32ef5",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/e5453e01792f9c3be8682c85b92615a0fc14eb0b",
+                "reference": "e5453e01792f9c3be8682c85b92615a0fc14eb0b",
                 "shasum": ""
             },
             "require": {
@@ -1529,9 +1529,9 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.9.0"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.10.0"
             },
-            "time": "2022-09-30T07:51:27+00:00"
+            "time": "2022-09-30T11:29:01+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
@@ -1965,12 +1965,12 @@
             "version": "0.1.6",
             "source": {
                 "type": "git",
-                "url": "git@gitlab.com:stella-maris/clock.git",
+                "url": "https://github.com/stella-maris-solutions/clock.git",
                 "reference": "a94228dac03c9a8411198ce8c8dacbbe99c930c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/stella-maris%2Fclock/repository/archive.zip?sha=a94228dac03c9a8411198ce8c8dacbbe99c930c3",
+                "url": "https://api.github.com/repos/stella-maris-solutions/clock/zipball/a94228dac03c9a8411198ce8c8dacbbe99c930c3",
                 "reference": "a94228dac03c9a8411198ce8c8dacbbe99c930c3",
                 "shasum": ""
             },
@@ -2001,6 +2001,10 @@
                 "point in time",
                 "psr20"
             ],
+            "support": {
+                "issues": "https://github.com/stella-maris-solutions/clock/issues",
+                "source": "https://github.com/stella-maris-solutions/clock/tree/0.1.6"
+            },
             "time": "2022-09-27T15:03:11+00:00"
         },
         {
