@@ -31,6 +31,12 @@ class SolidHandler implements IHandler {
 		if (strlen($webhooksRegisterEndpoint) == 0) {
 			$webhooksRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.app.appLauncher') . 'webhook/register';
 		}
+
+		$websocketsRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.solidWebsocket.register');
+		// FIXME: this shouldn't happen:
+		if (strlen($websocketsRegisterEndpoint) == 0) {
+			$websocketsRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.app.appLauncher') . 'websocket/register';
+		}
 		$body = [
 			"@context" => [
 				"https://www.w3.org/ns/solid/notification/v1"
@@ -39,6 +45,7 @@ class SolidHandler implements IHandler {
 				[
 					"id" => "websocketNotification",
 					"type" => ["WebSocketSubscription2021"],
+					"subscription" => $websocketsRegisterEndpoint,
 					"feature" => []
 				],
 				[
