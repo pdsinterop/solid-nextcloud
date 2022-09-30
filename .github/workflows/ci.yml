@@ -3,41 +3,101 @@
 # For more information see:
 # https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: CI
+name: Solid Test Suites
 
 on:
   push:
     branches:
-    - main
-    - cleanup/ci
+      - main
+      - cleanup/ci # @TODO: Remove this before merging to main
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ ubuntu-latest ]
+  docker-build-pub-sub:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Solid test suite
-        shell: 'script -q -e -c "bash {0}"'
-        run: >-
-          source ./run-solid-test-suite.sh
-          && setup
-          && startPubSub
-          && startSolidNextcloud server
-          && startSolidNextcloud thirdparty
+      - name: Build Pub-Sub Docker image
+        run: |
+          docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
+          docker push ghcr.io/pdsinterop/solid-nextcloud:latest
 
-      - name: Run the Solid test suite
-        shell: 'script -q -e -c "bash {0}"'
-        run: >-
+  docker-build-nextcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Solid-Nextcloud Docker image
+        run: |
+          docker build -t solid-nextcloud .
+          docker push ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+
+  run-tests:
+    needs:
+      - docker-build-nextcloud
+      - docker-build-pub-sub
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run Solid webid-provider test suite
+        run: |
+          docker pull michielbdejong/nextcloud-cookie
+          docker pull solidtestsuite/webid-provider-tests:v2.1.0
+
+          docker network create testnet
+          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+
           source ./run-solid-test-suite.sh
-          && runTests webid-provider
-          && runTests solid-crud
-          && runTests web-access-control
+          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
+          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
+
+          docker run --rm --network=testnet \
+            --env COOKIE="$COOKIE_server" \
+            --env COOKIE_ALICE="$COOKIE_server" \
+            --env COOKIE_BOB="$COOKIE_thirdparty" \
+            --env-file ./env-vars-testers.list \
+            solidtestsuite/webid-provider-tests:v2.1.0
+
+      - name: Run Solid solid-crud test suite
+        run: |
+          docker pull michielbdejong/nextcloud-cookie
+          docker pull solidtestsuite/solid-crud-tests:v6.0.0
+
+          docker network create testnet
+          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+
+          source ./run-solid-test-suite.sh
+          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
+          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
+
+          docker run --rm --network=testnet \
+            --env COOKIE="$COOKIE_server" \
+            --env COOKIE_ALICE="$COOKIE_server" \
+            --env COOKIE_BOB="$COOKIE_thirdparty" \
+            --env-file ./env-vars-testers.list \
+            solidtestsuite/solid-crud-tests:v6.0.0
+
+      - name: Run Solid web-access-control test suite
+        run: |
+          docker pull michielbdejong/nextcloud-cookie
+          docker pull solidtestsuite/web-access-control-tests:v7.1.0
+
+          docker network create testnet
+          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+
+          source ./run-solid-test-suite.sh
+          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
+          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
+
+          docker run --rm --network=testnet \
+            --env COOKIE="$COOKIE_server" \
+            --env COOKIE_ALICE="$COOKIE_server" \
+            --env COOKIE_BOB="$COOKIE_thirdparty" \
+            --env-file ./env-vars-testers.list \
+            solidtestsuite/web-access-control-tests:v7.1.0
