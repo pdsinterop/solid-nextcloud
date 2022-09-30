@@ -1,39 +1,51 @@
 <?php
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\ServerConfig;
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IConfig;
-
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
 use OCP\AppFramework\Controller;
-use Pdsinterop\Solid\Resources\Server as ResourceServer;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
-use Pdsinterop\Solid\Auth\WAC as WAC;
+use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
-class ContactsController extends Controller {
+use Pdsinterop\Solid\Auth\WAC;
+use Pdsinterop\Solid\Resources\Server as ResourceServer;
+
+class ContactsController extends Controller
+{
+	use DpopFactoryTrait;
+
 	/* @var IURLGenerator */
 	private $urlGenerator;
 
 	/* @var ISession */
 	private $session;
 	
-	public function __construct($AppName, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, \OCA\Solid\Service\UserService $UserService) 
-	{
+	public function __construct(
+		$AppName,
+		IRequest $request,
+		ISession $session,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		\OCA\Solid\Service\UserService $UserService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
+
+		$this->setJtiStorage($connection);
 	}
 
 	private function getFileSystem($userId) {
@@ -118,8 +130,7 @@ EOF;
 		$this->filesystem = $this->getFileSystem($userId);
 
 		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
-        $this->WAC = new WAC($this->filesystem);
-		$this->DPop = new DPop();
+       $this->WAC = new WAC($this->filesystem);
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getContactsUrl($userId);		
@@ -128,10 +139,13 @@ EOF;
 		$pubsub = getenv('PUBSUB_URL') ?: ("http://pubsub:8080/");
 		$this->resourceServer->setPubSubUrl($pubsub);
 
+		$dpop = $this->getDpop();
+
 		try {
-			$webId = $this->DPop->getWebId($request);
-		} catch(\Exception $e) {
-			$response = $this->resourceServer->getResponse()->withStatus(409, "Invalid token");
+			$webId = $dpop->getWebId($request);
+		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+			$response = $this->resourceServer->getResponse()
+				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 			return $this->respond($response);
 		}
 		

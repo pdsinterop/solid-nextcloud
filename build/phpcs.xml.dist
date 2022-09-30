@@ -18,7 +18,7 @@
     <exclude-pattern>*/vendor/*|*/build/*</exclude-pattern>
 
     <rule ref="PHPCompatibility"/>
-    <config name="testVersion" value="7.3-"/>
+    <config name="testVersion" value="8.0-"/>
 
     <!-- Include the whole PSR-12 standard -->
     <rule ref="PSR12">

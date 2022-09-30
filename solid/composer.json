@@ -22,18 +22,48 @@
     ],
     "require": {
         "php": "^8.0",
+        "ext-dom": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "ext-openssl": "*",
         "easyrdf/easyrdf": "^1.1.1",
         "laminas/laminas-diactoros": "^2.8",
         "lcobucci/jwt": "^4.1",
-        "pdsinterop/flysystem-nextcloud":"^0.2",
+        "pdsinterop/flysystem-nextcloud": "^0.2",
         "pdsinterop/flysystem-rdf": "^0.5",
-        "pdsinterop/solid-auth": "^0.7",
+        "pdsinterop/solid-auth": "v0.10.1",
         "pdsinterop/solid-crud": "^0.6",
-        "psr/log" : "^1.1"
+        "psr/log": "^1.1"
     },
     "require-dev": {
+        "doctrine/dbal": "*",
+        "nextcloud/server": "*",
         "phpunit/phpunit": "^8 || ^9"
-    }
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "nextcloud/server",
+                "version": "24.0.0",
+                "dist": {
+                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v24.0.0.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "url": "https://github.com/nextcloud/server.git",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "": "lib/private/legacy",
+                        "OC\\": "lib/private",
+                        "OC\\Core\\": "core/",
+                        "OCP\\": "lib/public"
+                    }
+                }
+            }
+        }
+    ]
 }
