@@ -8,8 +8,8 @@ function setup {
   docker pull michielbdejong/nextcloud-cookie
   docker pull solidtestsuite/webid-provider-tests:v2.1.0
   docker tag solidtestsuite/webid-provider-tests:v2.1.0 webid-provider-tests
-  docker pull solidtestsuite/solid-crud-tests:v7.0.0
-  docker tag solidtestsuite/solid-crud-tests:v7.0.0 solid-crud-tests
+  docker pull solidtestsuite/solid-crud-tests:v7.0.2
+  docker tag solidtestsuite/solid-crud-tests:v7.0.2 solid-crud-tests
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
   docker tag solidtestsuite/web-access-control-tests:v7.1.0 web-access-control-tests
 }
