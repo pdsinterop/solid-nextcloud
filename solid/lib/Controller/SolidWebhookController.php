@@ -8,6 +8,7 @@ use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\ServerConfig;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
+use OCA\Solid\DpopFactoryTrait;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\DataResponse;
@@ -15,6 +16,7 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\ISession;
+use OCP\IDBConnection;
 use OCP\IConfig;
 use OCP\Files\IRootFolder;
 use OCP\Files\IHomeStorage;
@@ -29,6 +31,8 @@ use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {
+	use DpopFactoryTrait;
+
 	/* @var IURLGenerator */
 	private $urlGenerator;
 
@@ -38,8 +42,18 @@ class SolidWebhookController extends Controller {
 	/** @var SolidWebhookService */
 	private $webhookService;
 
-	public function __construct($AppName, IRootFolder $rootFolder, IRequest $request, ISession $session, IUserManager $userManager, IURLGenerator $urlGenerator, $userId, IConfig $config, SolidWebhookService $webhookService)
-	{
+	public function __construct(
+		$AppName,
+		IRootFolder $rootFolder,
+		IRequest $request,
+		ISession $session,
+		IUserManager $userManager,
+		IURLGenerator $urlGenerator,
+		$userId,
+		IConfig $config,
+		SolidWebhookService $webhookService,
+		IDBConnection $connection,
+	) {
 		parent::__construct($AppName, $request);
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
@@ -49,7 +63,8 @@ class SolidWebhookController extends Controller {
 		$this->session = $session;
 		$this->webhookService = $webhookService;
 
-		$this->DPop = new DPop();
+		$this->setJtiStorage($connection);
+		$this->DPop = $this->getDpop();
 		try {
 			$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 			$this->webId = $this->DPop->getWebId($this->rawRequest);
