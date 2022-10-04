@@ -44,6 +44,7 @@ function startSolidNextcloud {
 function runTests {
   echo "Running $1 tests against server with cookie $COOKIE_server"
   docker run --rm --network=testnet \
+    --name tester \
     --env COOKIE="$COOKIE_server" \
     --env COOKIE_ALICE="$COOKIE_server" \
     --env COOKIE_BOB="$COOKIE_thirdparty" \

@@ -9,4 +9,3 @@ SERVER_ROOT_ESCAPED=https:\/\/server
 SERVER_ROOT=https://server
 STORAGE_ROOT=https://server/apps/solid/@alice/storage/
 SKIP_CONC=1
-SKIP_WEBHOOKS=1
