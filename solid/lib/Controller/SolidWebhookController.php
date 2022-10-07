@@ -88,6 +88,31 @@ class SolidWebhookController extends Controller {
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
+	public function registerWs(string $topic): DataResponse {
+		$toSub = "http://pubsub:8081";
+		$toPub = "http://pubsub:8082";
+		// FIXME: is this secure enough?
+		// https://www.php.net/manual/en/function.random-bytes.php says it
+		// generates "cryptographically secure pseudo-random bytes"
+		$token = bin2hex(random_bytes(20));
+		$target = "$toPub/$token?" . urlencode($topic);
+		if ($this->checkReadAccess($topic)) {
+			$webhook = $this->webhookService->create($this->webId, $topic, $target);
+			return new DataResponse([
+				"@context" => "https://www.w3.org/ns/solid/notification/v1",
+				"type" => "WebSocketSubscription2021",
+				"source" => "$toSub/$token"
+			]);
+		} else {
+			return new DataResponse("Error: denied access", 401);
+		}
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
 	public function register(string $topic, string $target): DataResponse {
 		if (!$this->isValidWebhookTarget($target)) {
 			return new DataResponse("Error: invalid webhook target", 422);

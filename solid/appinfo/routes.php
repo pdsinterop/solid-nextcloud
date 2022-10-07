@@ -55,7 +55,7 @@ return [
         ['name' => 'solidWebhook#register', 'url' => '/webhook/register', 'verb' => 'POST'],
         ['name' => 'solidWebhook#unregister', 'url' => '/webhook/unregister', 'verb' => 'POST'],
 
-        ['name' => 'solidWebsocket#register', 'url' => '/websocket/register', 'verb' => 'POST'],
+        ['name' => 'solidWebhook#registerWs', 'url' => '/websocket/register', 'verb' => 'POST'],
 
         ['name' => 'app#appLauncher', 'url' => '/', 'verb' => 'GET'],
     ]
