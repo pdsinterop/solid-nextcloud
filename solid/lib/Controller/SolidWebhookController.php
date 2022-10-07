@@ -95,7 +95,7 @@ class SolidWebhookController extends Controller {
 		// https://www.php.net/manual/en/function.random-bytes.php says it
 		// generates "cryptographically secure pseudo-random bytes"
 		$token = bin2hex(random_bytes(20));
-		$target = "$toPub/$token?" . urlencode($topic);
+		$target = "$toPub/$token";
 		if ($this->checkReadAccess($topic)) {
 			$webhook = $this->webhookService->create($this->webId, $topic, $target);
 			return new DataResponse([
