@@ -21,6 +21,7 @@ function teardown {
 
 function startPubSub {
   docker run -d --name pubsub --network=testnet pubsub-server
+  docker exec -it pubsub php server/serverWh2Ws.php &
 }
 
 function startSolidNextcloud {
