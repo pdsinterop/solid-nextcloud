@@ -3,16 +3,19 @@
 set -e
 
 function setup {
-  docker network create testnet
-  docker build -t solid-nextcloud .
   docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
+  docker build -t solid-nextcloud .
+
+  docker network create testnet
+
   docker pull michielbdejong/nextcloud-cookie
-  docker pull solidtestsuite/webid-provider-tests:v2.1.0
-  docker tag solidtestsuite/webid-provider-tests:v2.1.0 webid-provider-tests
   docker pull solidtestsuite/solid-crud-tests:v7.0.5
-  docker tag solidtestsuite/solid-crud-tests:v7.0.5 solid-crud-tests
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
+  docker pull solidtestsuite/webid-provider-tests:v2.1.0
+
+  docker tag solidtestsuite/solid-crud-tests:v7.0.5 solid-crud-tests
   docker tag solidtestsuite/web-access-control-tests:v7.1.0 web-access-control-tests
+  docker tag solidtestsuite/webid-provider-tests:v2.1.0 webid-provider-tests
 }
 
 function teardown {
@@ -37,8 +40,8 @@ function startSolidNextcloud {
 
   docker logs "$1"
   echo "Running init script for Nextcloud $1 ..."
-  docker exec -u www-data -it -e SERVER_ROOT="https://$1" "$1" sh /init.sh
-  docker exec -u root -it "$1" service apache2 reload
+  docker exec -u www-data -i -e SERVER_ROOT="https://$1" "$1" sh /init.sh
+  docker exec -u root -i "$1" service apache2 reload
   echo Getting cookie for "$1"...
   export COOKIE_$1="$(docker run --cap-add=SYS_ADMIN --network=testnet --env-file "./env-vars-$1.list" michielbdejong/nextcloud-cookie)"
 }

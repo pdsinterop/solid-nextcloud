@@ -1,8 +1,4 @@
-# This workflow will do a clean install of node dependencies, build the source
-# code and run tests across different versions of node
-# For more information see:
-# https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
+---
 name: Solid Test Suites
 
 on:
@@ -14,90 +10,93 @@ on:
     branches: [ main ]
 
 jobs:
-  docker-build-pub-sub:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build Pub-Sub Docker image
-        run: |
-          docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
-          docker push ghcr.io/pdsinterop/solid-nextcloud:latest
-
   docker-build-nextcloud:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # @FIXME: In stead of `latest` docker images need to be tagged with the MR/PR reference (or commit hash)
       - name: Build Solid-Nextcloud Docker image
         run: |
-          docker build -t solid-nextcloud .
-          docker push ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+          docker build -t "ghcr.io/pdsinterop/solid-nextcloud:latest" .
+          docker push "ghcr.io/pdsinterop/solid-nextcloud:latest"
 
   run-tests:
     needs:
       - docker-build-nextcloud
-      - docker-build-pub-sub
 
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Run Solid webid-provider test suite
         run: |
           docker pull michielbdejong/nextcloud-cookie
           docker pull solidtestsuite/webid-provider-tests:v2.1.0
+          docker pull ghcr.io/pdsinterop/solid-nextcloud:latest
+          docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:latest
 
           docker network create testnet
-          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+          docker run -i --network=testnet -d --name 'pubsub' "ghcr.io/pdsinterop/php-solid-pubsub-server:latest"
 
           source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
-          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
+          startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:latest"
+          startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:latest"
 
-          docker run --rm --network=testnet \
+          docker run -i --rm --network=testnet \
             --env COOKIE="$COOKIE_server" \
             --env COOKIE_ALICE="$COOKIE_server" \
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
             solidtestsuite/webid-provider-tests:v2.1.0
 
-      - name: Run Solid solid-crud test suite
-        run: |
-          docker pull michielbdejong/nextcloud-cookie
-          docker pull solidtestsuite/solid-crud-tests:v6.0.0
-
-          docker network create testnet
-          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
-
-          source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
-          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
-
-          docker run --rm --network=testnet \
-            --env COOKIE="$COOKIE_server" \
-            --env COOKIE_ALICE="$COOKIE_server" \
-            --env COOKIE_BOB="$COOKIE_thirdparty" \
-            --env-file ./env-vars-testers.list \
-            solidtestsuite/solid-crud-tests:v6.0.0
-
-      - name: Run Solid web-access-control test suite
-        run: |
-          docker pull michielbdejong/nextcloud-cookie
-          docker pull solidtestsuite/web-access-control-tests:v7.1.0
-
-          docker network create testnet
-          docker run --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
-
-          source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' 'ghcr.io/pdsinterop/solid-nextcloud'
-          startSolidNextcloud 'thirdparty' 'ghcr.io/pdsinterop/solid-nextcloud'
-
-          docker run --rm --network=testnet \
-            --env COOKIE="$COOKIE_server" \
-            --env COOKIE_ALICE="$COOKIE_server" \
-            --env COOKIE_BOB="$COOKIE_thirdparty" \
-            --env-file ./env-vars-testers.list \
-            solidtestsuite/web-access-control-tests:v7.1.0
+#      - name: Run Solid solid-crud test suite
+#        run: |
+#          docker pull michielbdejong/nextcloud-cookie
+#          docker pull solidtestsuite/solid-crud-tests:v6.0.0
+#
+#          docker network create testnet
+#          docker run -i --network=testnet -d --name pubsub ghcr.io/pdsinterop/php-solid-pubsub-server:latest
+#
+#          source ./run-solid-test-suite.sh
+#          startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:latest"
+#          startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:latest"
+#
+#          docker run -i --rm --network=testnet \
+#            --env COOKIE="$COOKIE_server" \
+#            --env COOKIE_ALICE="$COOKIE_server" \
+#            --env COOKIE_BOB="$COOKIE_thirdparty" \
+#            --env-file ./env-vars-testers.list \
+#            solidtestsuite/solid-crud-tests:v6.0.0
+#
+#      - name: Run Solid web-access-control test suite
+#        run: |
+#          docker pull michielbdejong/nextcloud-cookie
+#          docker pull solidtestsuite/web-access-control-tests:v7.1.0
+#
+#          docker network create testnet
+#          docker run -i --network=testnet -d --name 'pubsub' "ghcr.io/pdsinterop/php-solid-pubsub-server:latest"
+#
+#          source ./run-solid-test-suite.sh
+#          startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:latest"
+#          startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:latest"
+#
+#          docker run -i --rm --network=testnet \
+#            --env COOKIE="$COOKIE_server" \
+#            --env COOKIE_ALICE="$COOKIE_server" \
+#            --env COOKIE_BOB="$COOKIE_thirdparty" \
+#            --env-file ./env-vars-testers.list \
+#            solidtestsuite/web-access-control-tests:v7.1.0

@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -yq \
       git \
       sudo \
       vim \
+      zip \
     && rm -rf /var/lib/apt/lists/* \
     && a2enmod ssl \
     && mkdir /tls \
