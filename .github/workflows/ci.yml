@@ -28,11 +28,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # @FIXME: In stead of `latest` docker images need to be tagged with the MR/PR reference (or commit hash)
       - name: Build Solid-Nextcloud Docker image
         run: |
-          docker build -t "ghcr.io/pdsinterop/solid-nextcloud:latest" .
-          docker push "ghcr.io/pdsinterop/solid-nextcloud:latest"
+          docker build -t "ghcr.io/pdsinterop/solid-nextcloud:${{ github.sha }}" .
+          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ github.sha }}"
 
   solid-testsuite:
     strategy:
@@ -61,7 +60,7 @@ jobs:
         run: |
           docker pull michielbdejong/nextcloud-cookie
           docker pull ${{ matrix.test }}
-          docker pull ghcr.io/pdsinterop/solid-nextcloud:latest
+          docker pull ghcr.io/pdsinterop/solid-nextcloud:${{ github.sha }}
           docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:latest
 
       - name: Start Docker Containers
@@ -70,8 +69,8 @@ jobs:
           docker run -i --network=testnet -d --name 'pubsub' "ghcr.io/pdsinterop/php-solid-pubsub-server:latest"
 
           source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:latest" ${{ matrix.test }}
-          startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:latest" ${{ matrix.test }}
+          startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:${{ github.sha }}" ${{ matrix.test }}
+          startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:${{ github.sha }}" ${{ matrix.test }}
 
           echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
           echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
