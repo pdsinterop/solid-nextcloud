@@ -24,6 +24,11 @@ jobs:
   build-docker-nextcloud:
     runs-on: ubuntu-latest
     steps:
+      - name: Creat docker tag from git reference
+        # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
+        run: |
+          echo "TAG=$(echo -n "${{ github.ref_name }}" | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_ENV}"
+
       - uses: actions/cache@v3
         id: cache-solid-nextcloud-docker
         with:
@@ -41,12 +46,12 @@ jobs:
       - name: Build Solid-Nextcloud Docker image
         run: |
           docker build \
-            --tag "solid-nextcloud:${{ github.ref_name }}" \
-            --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ github.ref_name }}" \
+            --tag "solid-nextcloud:${{ env.TAG }}" \
+            --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}" \
           .
-          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ github.ref_name }}"
+          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
-          docker image save solid-nextcloud:${{ github.ref_name }} --output ./cache/solid-nextcloud/${{ github.sha }}.tar
+          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}.tar
 
   solid-testsuite:
     strategy:
@@ -63,6 +68,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Creat docker tag from git reference
+        # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
+        run: |
+          echo "TAG=$(echo -n "${{ github.ref_name }}" | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_ENV}"
+
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
@@ -95,8 +105,8 @@ jobs:
             "ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}"
 
           source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' "solid-nextcloud:${{ github.ref_name }}" ${{ matrix.test }}
-          startSolidNextcloud 'thirdparty' "solid-nextcloud:${{ github.ref_name }}" ${{ matrix.test }}
+          startSolidNextcloud 'server' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
+          startSolidNextcloud 'thirdparty' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
 
           echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
           echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
