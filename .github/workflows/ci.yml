@@ -69,11 +69,18 @@ jobs:
           docker network create testnet
           docker run -i --network=testnet -d --name 'pubsub' "ghcr.io/pdsinterop/php-solid-pubsub-server:latest"
 
-      - name: Run tests - ${{ matrix.test }}
-        run: |
           source ./run-solid-test-suite.sh
           startSolidNextcloud 'server' "ghcr.io/pdsinterop/solid-nextcloud:latest" ${{ matrix.test }}
           startSolidNextcloud 'thirdparty' "ghcr.io/pdsinterop/solid-nextcloud:latest" ${{ matrix.test }}
+
+          echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
+          echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
+
+      - name: Run tests - ${{ matrix.test }}
+        run: |
+          export COOKIE_server="${{ env.COOKIE_server }}"
+          export COOKIE_thirdparty="${{ env.COOKIE_thirdparty }}"
+
           docker run -i --rm --network=testnet \
             --name tester \
             --env COOKIE="$COOKIE_server" \
