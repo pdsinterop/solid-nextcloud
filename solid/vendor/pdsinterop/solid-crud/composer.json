@@ -1,7 +1,8 @@
 {
   "autoload": {
     "psr-4": {
-      "Pdsinterop\\Solid\\Resources\\": "src/"
+      "Pdsinterop\\Solid\\Resources\\": "src/",
+      "Pdsinterop\\Solid\\SolidNotifications\\": "src/"
     }
   },
   "autoload-dev": {
@@ -36,5 +37,8 @@
     "dev:example": "Run internal PHP development server with example code",
     "tests:unit": "Run unit-test with PHPUnit"
   },
-  "type": "library"
+  "type": "library",
+  "require-dev": {
+    "phpunit/phpunit": "^9"
+  }
 }

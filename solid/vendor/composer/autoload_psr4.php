@@ -13,6 +13,7 @@ return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
     'Psr\\Cache\\' => array($vendorDir . '/psr/cache/src'),
+    'Pdsinterop\\Solid\\SolidNotifications\\' => array($vendorDir . '/pdsinterop/solid-crud/src'),
     'Pdsinterop\\Solid\\Resources\\' => array($vendorDir . '/pdsinterop/solid-crud/src'),
     'Pdsinterop\\Solid\\Auth\\' => array($vendorDir . '/pdsinterop/solid-auth/src'),
     'Pdsinterop\\Rdf\\' => array($vendorDir . '/pdsinterop/flysystem-rdf/src'),

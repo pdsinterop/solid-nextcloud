@@ -1601,17 +1601,17 @@
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "v0.6.0",
-            "version_normalized": "0.6.0.0",
+            "version": "v0.7.0",
+            "version_normalized": "0.7.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "f7a892c6f3a85f5e618e30e2ddb87b211f3c5474"
+                "reference": "4059f0a196e3b12c0809dec29566971aa375f3ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/f7a892c6f3a85f5e618e30e2ddb87b211f3c5474",
-                "reference": "f7a892c6f3a85f5e618e30e2ddb87b211f3c5474",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/4059f0a196e3b12c0809dec29566971aa375f3ad",
+                "reference": "4059f0a196e3b12c0809dec29566971aa375f3ad",
                 "shasum": ""
             },
             "require": {
@@ -1626,12 +1626,16 @@
                 "psr/http-message": "^1.0",
                 "textalk/websocket": "^1.5"
             },
-            "time": "2022-08-24T08:13:54+00:00",
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "time": "2022-09-30T14:46:38+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
                 "psr-4": {
-                    "Pdsinterop\\Solid\\Resources\\": "src/"
+                    "Pdsinterop\\Solid\\Resources\\": "src/",
+                    "Pdsinterop\\Solid\\SolidNotifications\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1641,7 +1645,7 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.6.0"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.7.0"
             },
             "install-path": "../pdsinterop/solid-crud"
         },

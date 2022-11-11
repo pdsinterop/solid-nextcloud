@@ -50,6 +50,7 @@ class ComposerStaticInit4cdbb684abf850368899aa739cbf1c97
             'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Cache\\' => 10,
+            'Pdsinterop\\Solid\\SolidNotifications\\' => 36,
             'Pdsinterop\\Solid\\Resources\\' => 27,
             'Pdsinterop\\Solid\\Auth\\' => 22,
             'Pdsinterop\\Rdf\\' => 15,
@@ -126,6 +127,10 @@ class ComposerStaticInit4cdbb684abf850368899aa739cbf1c97
         'Psr\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/cache/src',
+        ),
+        'Pdsinterop\\Solid\\SolidNotifications\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/pdsinterop/solid-crud/src',
         ),
         'Pdsinterop\\Solid\\Resources\\' => 
         array (
