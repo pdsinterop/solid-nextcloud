@@ -1,26 +1,26 @@
 FROM nextcloud:24.0.1
-COPY site.conf /etc/apache2/sites-enabled/000-default.conf
-RUN a2enmod ssl
-RUN mkdir /tls
-RUN openssl req -new -x509 -days 365 -nodes \
-  -out /tls/server.cert \
-  -keyout /tls/server.key \
-  -subj "/C=RO/ST=Bucharest/L=Bucharest/O=IT/CN=www.example.ro"
+
 RUN apt-get update && apt-get install -yq \
-  git \
-  vim \
-  sudo
-WORKDIR /install
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-RUN php composer-setup.php
-RUN php -r "unlink('composer-setup.php');"
-ADD ./solid /usr/src/nextcloud/apps/solid
-# Run composer:
-WORKDIR /usr/src/nextcloud/apps/solid
-RUN ls
-RUN php /install/composer.phar update
-RUN php /install/composer.phar install --no-dev --prefer-dist
+      git \
+      sudo \
+      vim \
+      zip \
+    && rm -rf /var/lib/apt/lists/* \
+    && a2enmod ssl \
+    && mkdir /tls \
+    && openssl req -new -x509 -days 365 -nodes \
+      -keyout /tls/server.key \
+      -out /tls/server.cert \
+      -subj "/C=RO/ST=Bucharest/L=Bucharest/O=IT/CN=www.example.ro"
+
+COPY solid/ /usr/src/nextcloud/apps/solid
+COPY init.sh /
+COPY init-live.sh /
+COPY site.conf /etc/apache2/sites-enabled/000-default.conf
+
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+RUN composer install --working-dir=/usr/src/nextcloud/apps/solid --no-dev --prefer-dist \
+    && rm  /usr/local/bin/composer
+
 WORKDIR /var/www/html
-ADD init.sh /
-ADD init-live.sh /
 EXPOSE 443
