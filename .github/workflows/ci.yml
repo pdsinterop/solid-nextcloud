@@ -1,29 +1,130 @@
-# This workflow will do a clean install of node dependencies, build the source
-# code and run tests across different versions of node
-# For more information see:
-# https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+---
+name: Solid Test Suites
 
-name: CI
+env:
+  # Docker Hub digest (i.e. hash) of the used Docker Images that do not have a version tag.
+  PUBSUB_TAG: latest@sha256:35166933e3d30bde801fd156bd2f21ebba9cdeca464ebd574c6be4cdb14d35cd
+  COOKIE_TAG: latest@sha256:c71a3947f97d96ce09823743182582e0d919738be0d4ef5c8c55a9c22c615b91
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
     branches: [ main ]
 
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  # @TODO: Instead of building the docker image here, take a pre-build image and mount the code
+  #        (only build when the Dockerfile changes)
+  build-docker-nextcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create docker tag from git reference
+        # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
+        run: |
+          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
+            >> "${GITHUB_ENV}"
 
-    runs-on: ${{ matrix.os }}
+      - uses: actions/cache@v3
+        id: cache-solid-nextcloud-docker
+        with:
+          path: cache/solid-nextcloud
+          key: solid-nextcloud-docker-${{ github.sha }}
 
+      - uses: actions/checkout@v3
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Solid-Nextcloud Docker image
+        run: |
+          docker build \
+            --tag "solid-nextcloud:${{ env.TAG }}" \
+            --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}" \
+          .
+          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
+          mkdir -p cache/solid-nextcloud
+          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}.tar
+
+  solid-testsuite:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest ]
+        test:
+          - 'solidtestsuite/solid-crud-tests:v7.0.5'
+          - 'solidtestsuite/web-access-control-tests:v7.1.0'
+          - 'solidtestsuite/webid-provider-tests:v2.1.0'
+
+    needs:
+      - build-docker-nextcloud
+
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      # Run the Solid test-suite
-      - name: Run the Solid test suite
-        shell: 'script -q -e -c "bash {0}"'
+      - name: Create docker tag from git reference
+        # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
-          bash ./run-solid-test-suite.sh
+          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
+            >> "${GITHUB_ENV}"
+
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        id: cache-solid-nextcloud-docker
+        with:
+          path: cache/solid-nextcloud
+          key: solid-nextcloud-docker-${{ github.sha }}
+
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull docker Images
+        run: |
+          docker image load --input ./cache/solid-nextcloud/${{ github.sha }}.tar
+          docker pull michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}
+          docker pull ${{ matrix.test }}
+          docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}
+
+      - name: Start Docker Containers
+        run: |
+          docker network create testnet
+          docker run \
+            --detach \
+            --interactive \
+            --name 'pubsub' \
+            --network=testnet \
+            "ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}"
+
+          source ./run-solid-test-suite.sh
+          startSolidNextcloud 'server' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
+          startSolidNextcloud 'thirdparty' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
+
+          echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
+          echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
+
+      - name: Run tests - ${{ matrix.test }}
+        run: |
+          export COOKIE_server="${{ env.COOKIE_server }}"
+          export COOKIE_thirdparty="${{ env.COOKIE_thirdparty }}"
+
+          docker run -i --rm --network=testnet \
+            --name tester \
+            --env COOKIE="$COOKIE_server" \
+            --env COOKIE_ALICE="$COOKIE_server" \
+            --env COOKIE_BOB="$COOKIE_thirdparty" \
+            --env-file ./env-vars-testers.list \
+            ${{ matrix.test }}
