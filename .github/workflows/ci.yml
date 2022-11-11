@@ -9,7 +9,6 @@ on:
   push:
     branches:
       - main
-      - cleanup/ci # @TODO: Remove this before merging to main
   pull_request:
     branches: [ main ]
 
@@ -20,14 +19,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # @TODO: Instead of building the docker image here, take a pre-build image and mount the code (only build when the Dockerfile changes)
+  # @TODO: Instead of building the docker image here, take a pre-build image and mount the code
+  #        (only build when the Dockerfile changes)
   build-docker-nextcloud:
     runs-on: ubuntu-latest
     steps:
-      - name: Creat docker tag from git reference
+      - name: Create docker tag from git reference
         # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
-          echo "TAG=$(echo -n "${{ github.ref_name }}" | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_ENV}"
+          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
+            >> "${GITHUB_ENV}"
 
       - uses: actions/cache@v3
         id: cache-solid-nextcloud-docker
@@ -68,10 +70,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Creat docker tag from git reference
+      - name: Create docker tag from git reference
         # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
-          echo "TAG=$(echo -n "${{ github.ref_name }}" | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_ENV}"
+          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
+            >> "${GITHUB_ENV}"
 
       - uses: actions/checkout@v3
 
