@@ -22,11 +22,13 @@ class JtiReplayDetector implements ReplayDetectorInterface
 
     public function detect(string $jti, string $targetUri): bool
     {
+        $hash = sha1($targetUri);
+
         // @TODO: $this->rotateBuckets();
-        $has = $this->has($jti, $targetUri);
+        $has = $this->has($jti, $hash);
 
         if ($has === false) {
-            $this->store($jti, $targetUri);
+            $this->store($jti, $hash);
         }
 
         return $has;
