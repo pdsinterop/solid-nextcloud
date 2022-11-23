@@ -48,7 +48,7 @@ jobs:
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
-          key: solid-nextcloud-docker-${{ github.sha }}
+          key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
       - uses: actions/checkout@v3
 
@@ -108,7 +108,7 @@ jobs:
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
-          key: solid-nextcloud-docker-${{ github.sha }}
+          key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
       - uses: docker/login-action@v2
         with:
