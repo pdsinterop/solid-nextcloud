@@ -29,12 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # For the latest version information see: https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
+        # Versions before 22 are not tested as they run on PHP versions lower than 8.0
+        # Versions before 24 are not tested as they do not support `.well-known` entries
+        # Latest is not tested here, as that could cause failures unrelated to project changes
         nextcloud_version:
-          - 22
-          - 23
           - 24
           - 25
-          - latest
 
     steps:
       - name: Create docker tag from git reference
@@ -70,6 +71,7 @@ jobs:
           docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
   solid-testsuite:
+    timeout-minutes: 30
     needs:
       - build-docker-nextcloud
 
@@ -78,21 +80,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Versions older than 22 are not tested as they run on PHP versions lower than 8.0
         nextcloud_version:
-          - 22
-          - 23
           - 24
           - 25
-          - latest
         test:
           - 'solidtestsuite/solid-crud-tests:v7.0.5'
           - 'solidtestsuite/web-access-control-tests:v7.1.0'
           - 'solidtestsuite/webid-provider-tests:v2.1.0'
 
-    # For the latest version information see: https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
-    # Allow EOL or non-stable versions of Nextcloud to fail the test-suite
-    continue-on-error: ${{ contains(fromJson('[23, 24, 25]'), matrix.nextcloud_version) == false }}
+    # Prevent EOL or non-stable versions of Nextcloud to fail the test-suite
+    continue-on-error: ${{ contains(fromJson('[24, 25]'), matrix.nextcloud_version) == false }}
 
     steps:
       - name: Create docker tag from git reference
