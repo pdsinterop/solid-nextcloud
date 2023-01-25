@@ -12,6 +12,8 @@ on:
       - main
   pull_request:
     branches: [ main ]
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
 
 # Cancels all previous workflow runs for the same branch that have not yet completed.
 concurrency:
@@ -20,15 +22,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # @TODO: Instead of building the docker image here, take a pre-build image and mount the code
-  #        (only build when the Dockerfile changes)
+  # @TODO: Instead of building the docker image here, take a pre-build image and mount the code?
+  #        (only build when the Dockerfile changes) Or only push when tagged/main?
   build-docker-nextcloud:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # For the latest version information see: https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
+        # Versions before 22 are not tested as they run on PHP versions lower than 8.0
+        # Versions before 24 are not tested as they do not support `.well-known` entries
+        # Latest is not tested here, as that could cause failures unrelated to project changes
+        nextcloud_version:
+          - 24
+          - 25
+
     steps:
       - name: Create docker tag from git reference
         # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
-          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+          echo "TAG=$(echo -n "${{ github.ref_name }}-${{ matrix.nextcloud_version }}" \
             | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
             >> "${GITHUB_ENV}"
 
@@ -36,7 +48,7 @@ jobs:
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
-          key: solid-nextcloud-docker-${{ github.sha }}
+          key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
       - uses: actions/checkout@v3
 
@@ -46,35 +58,43 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Solid-Nextcloud Docker image
+      - name: Build Solid-Nextcloud Docker image from NC-${{ matrix.nextcloud_version }}
         run: |
           docker build \
             --tag "solid-nextcloud:${{ env.TAG }}" \
             --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}" \
+            --build-arg 'NEXTCLOUD_VERSION=${{ matrix.nextcloud_version }}' \
           .
           docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
-          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}.tar
+          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
   solid-testsuite:
-    strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - 'solidtestsuite/solid-crud-tests:v7.0.5'
-          - 'solidtestsuite/web-access-control-tests:v7.1.0'
-          - 'solidtestsuite/webid-provider-tests:v2.1.0'
-
+    timeout-minutes: 30
     needs:
       - build-docker-nextcloud
 
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        nextcloud_version:
+          - 24
+          - 25
+        test:
+          - 'solidtestsuite/solid-crud-tests:v7.0.5'
+          - 'solidtestsuite/web-access-control-tests:v7.1.0'
+          - 'solidtestsuite/webid-provider-tests:v2.1.0'
+
+    # Prevent EOL or non-stable versions of Nextcloud to fail the test-suite
+    continue-on-error: ${{ contains(fromJson('[24, 25]'), matrix.nextcloud_version) == false }}
+
     steps:
       - name: Create docker tag from git reference
         # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
-          echo "TAG=$(echo -n "${{ github.ref_name }}" \
+          echo "TAG=$(echo -n "${{ github.ref_name }}-${{ matrix.nextcloud_version }}" \
             | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
             >> "${GITHUB_ENV}"
 
@@ -84,7 +104,7 @@ jobs:
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
-          key: solid-nextcloud-docker-${{ github.sha }}
+          key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
       - uses: docker/login-action@v2
         with:
@@ -92,9 +112,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # FIXME: The `docker pull` should be moved to a previous step and cached
       - name: Pull docker Images
         run: |
-          docker image load --input ./cache/solid-nextcloud/${{ github.sha }}.tar
+          docker image load --input ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
           docker pull michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}
           docker pull ${{ matrix.test }}
           docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}
