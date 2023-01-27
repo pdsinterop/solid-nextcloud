@@ -34,8 +34,10 @@
             $response->addHeader('Access-Control-Expose-Headers', $corsExposeHeaders);
             $response->addHeader('Accept-Patch', 'text/n3');
 
-            $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
-            $response->addHeader('updates-via', $pubsub);
+            $pubsub = getenv("PUBSUB_URL");
+            if ($pubsub) {
+                $response->addHeader('updates-via', $pubsub);
+            }
             $linkHeaders = '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"';
             $existingHeaders = $response->getHeaders();
             if (isset($existingHeaders['Link'])) { // careful - this dictionary key is case sensitive here

@@ -14,7 +14,9 @@ class SolidWebsocketController extends Controller
      */
     public function register(): DataResponse
     {
+        // @FIXME: If there is no PUBSUB_URL what should be returned? 404? 500? Yo'mamma? 2023/01/27/BMP
         $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
+
         return new DataResponse([
             "@context" => "https://www.w3.org/ns/solid/notification/v1",
             "type" => "WebSocketSubscription2021",
