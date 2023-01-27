@@ -45,9 +45,14 @@
             }
             $response->addHeader('Link', $linkHeaders);
 
-            // Note that apart from these, the Link header with rel="acl" and the WAC-Allow header
-            // are already added by these lines in vendor/pdsinterop/solid-auth:
-            // https://github.com/pdsinterop/php-solid-auth/blob/e07c22d/src/WAC.php#L39-L40
+            /**
+             * Please note that the Link header with rel='acl' and the WAC-Allow
+             * header have already been added by pdsinterop/solid-auth, and Link
+             * headers with rel='type' by pdsinterop/php-solid-crud.
+             *
+             * @see https://github.com/pdsinterop/php-solid-auth/blob/v0.10.1/src/WAC.php#L39-L40
+             * @see https://github.com/pdsinterop/php-solid-crud/blob/v0.7.1/src/Server.php#L679-L683
+             */
             return $response;
         }
     }
