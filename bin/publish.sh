@@ -11,6 +11,17 @@ set -o errexit -o nounset
 
 : "${PROJECT_DIR:="$(dirname "$(dirname "$(realpath "$0")")")"}"
 
+# This script is meant to be called *after* a release has been tagged on GitHub
+# (by creating a release). So the assumption made in this script is that a
+# Release Page exists where a package can be uploaded to.The assumption is also
+# made that `transfer/solid.key` and `transfer/solid.crt` exist, as these are
+# both needed to create a signature.
+#
+# Usage example:
+#
+#     bash bin/publish.sh "${PWD}" 'v0.7.2' "${NEXTCLOUD_TOKEN}" "${GITHUB_TOKEN}"
+#
+
 publish() {
     local githubToken keyFile nextcloudToken  signatureFile sourceDirectory tarball version
 
@@ -23,29 +34,12 @@ publish() {
     readonly signatureFile="${PROJECT_DIR}/signature.base64"
     readonly tarball='solid.tar.gz'
 
-    createTag() {
+    checkoutTag() {
         local version
 
         readonly version="${1?One parameter required: <version>}"
 
-        "${GIT}" tag --annotate --message="Release ${version}" --sign "${version}"
-        "${GIT}" push --tags
-    }
-
-    updateLocalReleaseBranch() {
-        local branch
-
-        readonly branch="${1?One parameter required: <branch-name>}"
-
-        "${GIT}" checkout "${branch}"
-        "${GIT}" pull
-        "${GIT}" merge main
-    }
-
-    updateRemoteReleaseBranch() {
-      "${GIT}" commit -am "build" # (at least `solid.tar.gz` and `vendor/composer/installed.php` will have changed)
-      git push
-      "${GIT}" checkout -
+        "${GIT}" checkout "${version}"
     }
 
     installDependencies() {
@@ -75,30 +69,6 @@ publish() {
         readonly tarball="${2?Two parameters required: <subject-path> <tarball-name>}"
 
         "${TAR}" --create --file "${tarball}" --gzip "${sourceDirectory}/solid"
-    }
-
-    createGithubRelease() {
-        local description githubToken json tag version
-
-        readonly version="${1?Two parameters required: <version> <github-token>}"
-        readonly githubToken="${2?Two parameters required: <version> <github-token>}"
-
-        readonly description="Release ${version}"
-        readonly tag="${version}"
-
-        json="$(printf '{"tag_name":"%s","target_commitish":"%s","name":"%s","body":"%s","draft":false,"prerelease":false,"generate_release_notes":true}' \
-            "${tag}" \
-            "main" \
-            "${version}" \
-            "${description}" \
-        )"
-
-        "${CURL}" \
-              --data "${json}" \
-              --header "Accept: application/vnd.github+json" \
-              --header "Authorization: Bearer ${githubToken}" \
-              --request POST \
-              https://api.github.com/repos/pdsinterop/solid-nextcloud/releases
     }
 
     uploadAssetToGithub() {
@@ -150,13 +120,15 @@ publish() {
             'https://apps.nextcloud.com/api/v1/apps/releases'
     }
 
-    createTag "${version}"
-    updateLocalReleaseBranch 'publish'
+    # Building a package
+    checkoutTag "${version}"
     installDependencies "${sourceDirectory}"
     createTarball "${sourceDirectory}" "${tarball}"
-    updateRemoteReleaseBranch
-    createGithubRelease "${version}" "${githubToken}"
+
+    # Deploying the package
     uploadAssetToGithub "${version}" "${githubToken}" "${tarball}"
+
+    # Creating a release in the Nextcloud App store
     createSignature "${tarball}"
     publishToNextcloud "${version}" "${tarball}"
 }
