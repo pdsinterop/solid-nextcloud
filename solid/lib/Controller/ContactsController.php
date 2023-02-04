@@ -236,11 +236,9 @@ EOF;
 		$result = new PlainResponse($body);
 
 		foreach ($headers as $header => $values) {
-			foreach ($values as $value) {
-				$result->addHeader($header, $value);
-			}
+			$result->addHeader($header, implode(", ", $values));
 		}
-		
+
 		$result->setStatus($statusCode);
 		return $result;
 	}
