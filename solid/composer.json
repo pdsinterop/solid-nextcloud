@@ -45,9 +45,9 @@
             "type": "package",
             "package": {
                 "name": "nextcloud/server",
-                "version": "24.0.0",
+                "version": "27.0.0",
                 "dist": {
-                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v24.0.0.zip",
+                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v27.0.0.zip",
                     "type": "zip"
                 },
                 "source": {
