@@ -2,9 +2,11 @@
 
 set -e
 
+# Note that .github/workflows/ci.yml does not use this, this function is just for manual runs of this script.
+# You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
 function setup {
   docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
-  docker build -t solid-nextcloud .
+  docker build -t solid-nextcloud --build-arg NEXTCLOUD_VERSION=25 .
 
   docker network create testnet
 
