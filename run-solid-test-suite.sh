@@ -21,8 +21,8 @@ function setup {
 }
 
 function teardown {
-  docker stop "$(docker ps --filter network=testnet -q)"
-  docker rm "$(docker ps --filter network=testnet -qa)"
+  docker stop `docker ps --filter network=testnet -q`
+  docker rm `docker ps --filter network=testnet -qa`
   docker network remove testnet
 }
 
