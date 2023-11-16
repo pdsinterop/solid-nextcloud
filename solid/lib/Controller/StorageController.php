@@ -2,6 +2,7 @@
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
+use OCA\Solid\BearerFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
 
@@ -304,13 +305,28 @@ EOF;
 
 		$dpop = $this->getDpop();
 
+		$error = false;
 		try {
 			$webId = $dpop->getWebId($request);
 		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+			$error = $e;
+		}
+
+		if (!isset($webId)) {
+			$bearer = $this->getBearer();
+			try {
+				$webId = $bearer->getWebId($request);
+			} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+				$error = $e;
+			}
+		}
+
+		if (!isset($webId)) {
 			$response = $this->resourceServer->getResponse()
-				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
+				->withStatus(Http::STATUS_CONFLICT, "Invalid token");
 			return $this->respond($response);
 		}
+
 		$origin = $request->getHeaderLine("Origin");
 		$allowedClients = $this->config->getAllowedClients($userId);
 		$allowedOrigins = array();
