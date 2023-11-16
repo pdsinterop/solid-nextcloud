@@ -271,7 +271,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
                 var typeIndexUrl = api.url + typeIndex;
                 const parser = new TypeIndexParser({ typeIndexUrl });
-                const solidType = new SolidType(resourceClass, filename)
+                const solidType = new SolidType(resourceClass, storageUrl + filename)
                 parser.turtleToTypeIndexDoc(turtle)
                 .then(function(doc) {
                     doc.addType(solidType);
@@ -306,7 +306,7 @@ window.addEventListener("simply-content-loaded", function() {
                 const { TypeIndexParser, SolidType } = SolidTypeIndexParser;
                 var typeIndexUrl = api.url + typeIndex;
                 const parser = new TypeIndexParser({ typeIndexUrl });
-                const solidType = new SolidType(resourceClass, undefined, container)
+                const solidType = new SolidType(resourceClass, undefined, storageUrl + container)
                 parser.turtleToTypeIndexDoc(turtle)
                 .then(function(doc) {
                     doc.addType(solidType);
