@@ -38,10 +38,5 @@ trait BearerFactoryTrait
         return $validFor;
     }
 
-    final public function setJtiStorage(IDBConnection $connection): void
-    {
-        $this->connection = $connection;
-    }
-
     ////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 }

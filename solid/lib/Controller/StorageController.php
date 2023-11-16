@@ -22,6 +22,7 @@ use Pdsinterop\Solid\Resources\Server as ResourceServer;
 class StorageController extends Controller
 {
 	use DpopFactoryTrait;
+	use BearerFactoryTrait;
 
 	/* @var IURLGenerator */
 	private $urlGenerator;
