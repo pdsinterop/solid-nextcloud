@@ -36,8 +36,8 @@ window.addEventListener("simply-content-loaded", function() {
                         return session;
                     } else {
                         return fetcher.login({
-                            webId: webId,
-                            // oidcIssuer: 'https://nextcloud.local',
+                            // webId: webId,
+                            oidcIssuer: document.location.href.replace(document.location.pathname, ''),
                             redirect: document.location.href
                         });
                     }
