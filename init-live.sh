@@ -3,8 +3,8 @@ export PHP_MEMORY_LIMIT="512M"
 php console.php maintenance:install --admin-user admin --admin-pass $MARIADB_ROOT_PASSWORD --database "mysql" --database-name "nextcloud" --database-user "root" --database-pass "$MARIADB_ROOT_PASSWORD" --database-host "127.0.0.1"
 php console.php status
 php console.php app:enable solid
-sed -i "25 i\    1 => 'server'," /var/www/html/config/config.php
-sed -i "26 i\    2 => 'nextcloud.local'," /var/www/html/config/config.php
-sed -i "27 i\    3 => 'thirdparty'," /var/www/html/config/config.php
-sed -i "28 i\    4 => '$HOST'," /var/www/html/config/config.php
+php console.php config:system:set trusted_domains 1 --value=server
+php console.php config:system:set trusted_domains 2 --value=nextcloud.local
+php console.php config:system:set trusted_domains 3 --value=thirdparty
+php console.php config:system:set trusted_domains 3 --value=$HOST
 echo configured
