@@ -11,14 +11,14 @@ It supports the webid-oidc-dpop-pkce login flow to connect to a Solid App with y
 When you do this, the Solid App can store data in your Nextcloud account through the Solid protocol.
 IMPORTANT: See https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md for additional install instructions!
 ]]></description>
-    <version>0.7.2</version>
+    <version>0.7.3</version>
     <licence>agpl</licence>
     <author mail="auke@muze.nl" >Auke van Slooten</author>
     <namespace>Solid</namespace>
     <category>integration</category>
     <bugs>https://github.com/pdsinterop/solid-nextcloud/issues</bugs>
     <dependencies>
-        <nextcloud min-version="25" max-version="25"/>
+        <nextcloud min-version="25" max-version="27"/>
     </dependencies>
     <settings>
         <admin>\OCA\Solid\Settings</admin>
