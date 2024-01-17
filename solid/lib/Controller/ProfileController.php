@@ -256,7 +256,9 @@ EOF;
 		$result = new PlainResponse($body);
 
 		foreach ($headers as $header => $values) {
-			$result->addHeader($header, implode(", ", $values));
+			foreach ($values as $value) {
+				$result->addHeader($header, $value);
+			}
 		}
 //		$origin = $_SERVER['HTTP_ORIGIN'] ?? "*";
 //		$result->addHeader('Access-Control-Allow-Credentials', 'true');
