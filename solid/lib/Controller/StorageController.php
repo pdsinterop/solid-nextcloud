@@ -16,6 +16,8 @@ use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 
+use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
+
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
@@ -333,7 +335,9 @@ EOF;
 		$allowedOrigins = array();
 		foreach ($allowedClients as $clientId) {
 			$clientRegistration = $this->config->getClientRegistration($clientId);
-			$allowedOrigins[] = $clientRegistration['client_name'];
+			if (isset($clientRegistration['client_name'])) {
+				$allowedOrigins[] = $clientRegistration['client_name'];
+			}
 		}
 		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
@@ -424,7 +428,19 @@ EOF;
 //		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //		$result->addHeader('Access-Control-Allow-Origin', $origin);
 		
-		$result->setStatus($statusCode);
+                $policy = new EmptyContentSecurityPolicy();
+                $policy->addAllowedStyleDomain("*");
+                $policy->addAllowedStyleDomain("data:");
+                $policy->addAllowedScriptDomain("*");
+                $policy->addAllowedImageDomain("*");
+                $policy->addAllowedFontDomain("*");
+                $policy->addAllowedConnectDomain("*");
+                $policy->allowInlineStyle(true);
+                $policy->allowInlineScript(true);
+                $policy->allowEvalScript(true);
+                $result->setContentSecurityPolicy($policy);
+                
+                $result->setStatus($statusCode);
 		return $result;
 	}
 }
