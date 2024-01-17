@@ -6,5 +6,5 @@ php console.php app:enable solid
 php console.php config:system:set trusted_domains 1 --value=server
 php console.php config:system:set trusted_domains 2 --value=nextcloud.local
 php console.php config:system:set trusted_domains 3 --value=thirdparty
-php console.php config:system:set trusted_domains 3 --value=$HOST
+php console.php config:system:set trusted_domains 4 --value=$HOST
 echo configured
