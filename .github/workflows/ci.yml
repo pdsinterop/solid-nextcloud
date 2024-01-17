@@ -35,6 +35,9 @@ jobs:
         nextcloud_version:
           - 24
           - 25
+          - 26
+          - 27
+          - 28
 
     steps:
       - name: Create docker tag from git reference
