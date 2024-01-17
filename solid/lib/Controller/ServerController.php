@@ -181,12 +181,32 @@ class ServerController extends Controller
 //				return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 		}
-		$clientId = $getVars['client_id'];
+
+		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
+			$parsedOrigin = parse_url($getVars['redirect_uri']);
+			$origin = 'https://' . $parsedOrigin['host'];
+			
+			$clientData = array(
+				"client_id_issued_at" => time(),
+				"client_name" => $getVars['client_id'],
+				"origin" => $origin,
+				"redirect_uris" => array(
+					$getVars['redirect_uri']
+				)
+			);
+			$clientId = $this->config->saveClientRegistration($origin, $clientData);
+			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData);
+			$returnUrl = $getVars['redirect_uri'];
+		} else {
+			$clientId = $getVars['client_id'];
+			$returnUrl = $_SERVER['REQUEST_URI'];
+		}
+
 		$approval = $this->checkApproval($clientId);
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
-			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $_SERVER['REQUEST_URI'])));
+			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $returnUrl)));
 			$result->addHeader("Location", $approvalUrl);
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
@@ -200,12 +220,12 @@ class ServerController extends Controller
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse(
-            $response,
-            $clientId,
-            $this->getProfilePage(),
-            $this->session->get("nonce"),
-            $this->config->getPrivateKey()
-        );
+			$response,
+			$clientId,
+			$this->getProfilePage(),
+			$this->session->get("nonce"),
+			$this->config->getPrivateKey()
+		);
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
