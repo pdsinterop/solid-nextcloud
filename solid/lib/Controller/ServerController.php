@@ -345,7 +345,6 @@ class ServerController extends Controller
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
-		error_log('allowingin POST:' . $origin);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		return (new JSONResponse($registration));
 //		->addHeader('Access-Control-Allow-Origin', $origin)
