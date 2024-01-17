@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e749ec0024b89d704aff6783082d7420",
+    "content-hash": "aeae368dde0a3e5505b6dc9870dfb279",
     "packages": [
         {
             "name": "arc/base",
@@ -4364,7 +4364,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
