@@ -21,7 +21,7 @@ IMPORTANT: See https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.m
         <nextcloud min-version="24" max-version="25"/>
     </dependencies>
     <settings>
-        <admin>OCASolidSettings</admin>
+        <admin>\OCA\Solid\Settings</admin>
     </settings>
     <navigations>
         <navigation>
