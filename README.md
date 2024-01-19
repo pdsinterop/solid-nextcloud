@@ -21,7 +21,7 @@ docker exec -u root -it server service apache2 reload
 Now visit https://localhost and log in as alice / alice123.
 
 ## Manual install
-Pleas follow the [install instructions](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
+Please follow the [install instructions](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
 
 ## Unattended testing
 There is a [GitHub Action](https://github.com/pdsinterop/solid-nextcloud/actions/workflows/ci.yml) that runs a [Docker-based test script](https://github.com/pdsinterop/solid-nextcloud/blob/585b968/.github/workflows/ci.yml#L29).
