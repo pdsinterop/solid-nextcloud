@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aeae368dde0a3e5505b6dc9870dfb279",
+    "content-hash": "aa2376c8b5177bdb34dc7ad46e32d576",
     "packages": [
         {
             "name": "arc/base",
@@ -435,7 +435,6 @@
         },
         {
             "name": "laminas/laminas-diactoros",
-<<<<<<< HEAD
             "version": "2.26.0",
             "source": {
                 "type": "git",
@@ -446,18 +445,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laminas/laminas-diactoros/zipball/6584d44eb8e477e89d453313b858daac6183cddc",
                 "reference": "6584d44eb8e477e89d453313b858daac6183cddc",
-=======
-            "version": "2.25.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laminas/laminas-diactoros.git",
-                "reference": "9f3f4bf5b99c9538b6f1dbcc20f6fec357914f9e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-diactoros/zipball/9f3f4bf5b99c9538b6f1dbcc20f6fec357914f9e",
-                "reference": "9f3f4bf5b99c9538b6f1dbcc20f6fec357914f9e",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -541,7 +528,6 @@
                     "type": "community_bridge"
                 }
             ],
-<<<<<<< HEAD
             "time": "2023-10-29T16:17:44+00:00"
         },
         {
@@ -560,26 +546,6 @@
             },
             "require": {
                 "php": "~8.1.0 || ~8.2.0",
-=======
-            "time": "2023-04-17T15:44:17+00:00"
-        },
-        {
-            "name": "lcobucci/clock",
-            "version": "3.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/lcobucci/clock.git",
-                "reference": "30a854ceb22bd87d83a7a4563b3f6312453945fc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/clock/zipball/30a854ceb22bd87d83a7a4563b3f6312453945fc",
-                "reference": "30a854ceb22bd87d83a7a4563b3f6312453945fc",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~8.2.0",
->>>>>>> 94d3afd (Fix #129)
                 "psr/clock": "^1.0"
             },
             "provide": {
@@ -587,7 +553,6 @@
             },
             "require-dev": {
                 "infection/infection": "^0.26",
-<<<<<<< HEAD
                 "lcobucci/coding-standard": "^9.0",
                 "phpstan/extension-installer": "^1.2",
                 "phpstan/phpstan": "^1.9.4",
@@ -595,15 +560,6 @@
                 "phpstan/phpstan-phpunit": "^1.3.2",
                 "phpstan/phpstan-strict-rules": "^1.4.4",
                 "phpunit/phpunit": "^9.5.27"
-=======
-                "lcobucci/coding-standard": "^10.0.0",
-                "phpstan/extension-installer": "^1.2",
-                "phpstan/phpstan": "^1.10.7",
-                "phpstan/phpstan-deprecation-rules": "^1.1.3",
-                "phpstan/phpstan-phpunit": "^1.3.10",
-                "phpstan/phpstan-strict-rules": "^1.5.0",
-                "phpunit/phpunit": "^10.0.17"
->>>>>>> 94d3afd (Fix #129)
             },
             "type": "library",
             "autoload": {
@@ -624,11 +580,7 @@
             "description": "Yet another clock abstraction",
             "support": {
                 "issues": "https://github.com/lcobucci/clock/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/lcobucci/clock/tree/3.0.0"
-=======
-                "source": "https://github.com/lcobucci/clock/tree/3.1.0"
->>>>>>> 94d3afd (Fix #129)
             },
             "funding": [
                 {
@@ -640,11 +592,7 @@
                     "type": "patreon"
                 }
             ],
-<<<<<<< HEAD
             "time": "2022-12-19T15:00:24+00:00"
-=======
-            "time": "2023-03-20T19:12:25+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "lcobucci/jwt",
@@ -977,7 +925,6 @@
         },
         {
             "name": "league/oauth2-server",
-<<<<<<< HEAD
             "version": "8.5.4",
             "source": {
                 "type": "git",
@@ -988,18 +935,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/thephpleague/oauth2-server/zipball/ab7714d073844497fd222d5d0a217629089936bc",
                 "reference": "ab7714d073844497fd222d5d0a217629089936bc",
-=======
-            "version": "8.5.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/oauth2-server.git",
-                "reference": "8ab731e84eef904b5913ba31b38116acf8ea50b6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-server/zipball/8ab731e84eef904b5913ba31b38116acf8ea50b6",
-                "reference": "8ab731e84eef904b5913ba31b38116acf8ea50b6",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -1008,11 +943,7 @@
                 "lcobucci/clock": "^2.2 || ^3.0",
                 "lcobucci/jwt": "^4.3 || ^5.0",
                 "league/event": "^2.2",
-<<<<<<< HEAD
                 "league/uri": "^6.7 || ^7.0",
-=======
-                "league/uri": "^6.7",
->>>>>>> 94d3afd (Fix #129)
                 "php": "^8.0",
                 "psr/http-message": "^1.0.1 || ^2.0"
             },
@@ -1070,11 +1001,7 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/oauth2-server/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/thephpleague/oauth2-server/tree/8.5.4"
-=======
-                "source": "https://github.com/thephpleague/oauth2-server/tree/8.5.2"
->>>>>>> 94d3afd (Fix #129)
             },
             "funding": [
                 {
@@ -1082,7 +1009,6 @@
                     "type": "github"
                 }
             ],
-<<<<<<< HEAD
             "time": "2023-08-25T22:35:12+00:00"
         },
         {
@@ -1102,48 +1028,10 @@
             "require": {
                 "league/uri-interfaces": "^7.3",
                 "php": "^8.1"
-=======
-            "time": "2023-06-16T15:32:47+00:00"
-        },
-        {
-            "name": "league/uri",
-            "version": "6.8.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thephpleague/uri.git",
-                "reference": "a700b4656e4c54371b799ac61e300ab25a2d1d39"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/a700b4656e4c54371b799ac61e300ab25a2d1d39",
-                "reference": "a700b4656e4c54371b799ac61e300ab25a2d1d39",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "league/uri-interfaces": "^2.3",
-                "php": "^8.1",
-                "psr/http-message": "^1.0.1"
->>>>>>> 94d3afd (Fix #129)
             },
             "conflict": {
                 "league/uri-schemes": "^1.0"
             },
-<<<<<<< HEAD
-=======
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^v3.9.5",
-                "nyholm/psr7": "^1.5.1",
-                "php-http/psr7-integration-tests": "^1.1.1",
-                "phpbench/phpbench": "^1.2.6",
-                "phpstan/phpstan": "^1.8.5",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.1.1",
-                "phpstan/phpstan-strict-rules": "^1.4.3",
-                "phpunit/phpunit": "^9.5.24",
-                "psr/http-factory": "^1.0.1"
-            },
->>>>>>> 94d3afd (Fix #129)
             "suggest": {
                 "ext-bcmath": "to improve IPV4 host parsing",
                 "ext-fileinfo": "to create Data URI from file contennts",
@@ -1202,13 +1090,8 @@
             "support": {
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
-<<<<<<< HEAD
                 "issues": "https://github.com/thephpleague/uri-src/issues",
                 "source": "https://github.com/thephpleague/uri/tree/7.4.0"
-=======
-                "issues": "https://github.com/thephpleague/uri/issues",
-                "source": "https://github.com/thephpleague/uri/tree/6.8.0"
->>>>>>> 94d3afd (Fix #129)
             },
             "funding": [
                 {
@@ -1216,11 +1099,7 @@
                     "type": "github"
                 }
             ],
-<<<<<<< HEAD
             "time": "2023-12-01T06:24:25+00:00"
-=======
-            "time": "2022-09-13T19:58:47+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "league/uri-interfaces",
@@ -1666,7 +1545,6 @@
         },
         {
             "name": "pdsinterop/solid-crud",
-<<<<<<< HEAD
             "version": "v0.7.3",
             "source": {
                 "type": "git",
@@ -1677,18 +1555,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/c5369ef7b46d3d77a7686c3f4531e818e1797e27",
                 "reference": "c5369ef7b46d3d77a7686c3f4531e818e1797e27",
-=======
-            "version": "v0.7.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "c902ad85cbbe4e14752d2465c2c196611430edb6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/c902ad85cbbe4e14752d2465c2c196611430edb6",
-                "reference": "c902ad85cbbe4e14752d2465c2c196611430edb6",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -1720,15 +1586,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.7.3"
             },
             "time": "2024-01-17T10:48:57+00:00"
-=======
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.7.2"
-            },
-            "time": "2023-02-04T12:51:43+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "phrity/net-uri",
@@ -2492,7 +2352,6 @@
         },
         {
             "name": "doctrine/dbal",
-<<<<<<< HEAD
             "version": "3.7.2",
             "source": {
                 "type": "git",
@@ -2503,18 +2362,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/dbal/zipball/0ac3c270590e54910715e9a1a044cc368df282b2",
                 "reference": "0ac3c270590e54910715e9a1a044cc368df282b2",
-=======
-            "version": "3.6.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/dbal.git",
-                "reference": "19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f",
-                "reference": "19f0dec95edd6a3c3c5ff1d188ea94c6b7fc903f",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -2529,20 +2376,12 @@
             "require-dev": {
                 "doctrine/coding-standard": "12.0.0",
                 "fig/log-test": "^1",
-<<<<<<< HEAD
                 "jetbrains/phpstorm-stubs": "2023.1",
                 "phpstan/phpstan": "1.10.42",
                 "phpstan/phpstan-strict-rules": "^1.5",
                 "phpunit/phpunit": "9.6.13",
                 "psalm/plugin-phpunit": "0.18.4",
                 "slevomat/coding-standard": "8.13.1",
-=======
-                "jetbrains/phpstorm-stubs": "2022.3",
-                "phpstan/phpstan": "1.10.14",
-                "phpstan/phpstan-strict-rules": "^1.5",
-                "phpunit/phpunit": "9.6.7",
-                "psalm/plugin-phpunit": "0.18.4",
->>>>>>> 94d3afd (Fix #129)
                 "squizlabs/php_codesniffer": "3.7.2",
                 "symfony/cache": "^5.4|^6.0",
                 "symfony/console": "^4.4|^5.4|^6.0",
@@ -2606,11 +2445,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/doctrine/dbal/tree/3.7.2"
-=======
-                "source": "https://github.com/doctrine/dbal/tree/3.6.4"
->>>>>>> 94d3afd (Fix #129)
             },
             "funding": [
                 {
@@ -2626,7 +2461,6 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
             "time": "2023-11-19T08:06:58+00:00"
         },
         {
@@ -2641,22 +2475,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/deprecations/zipball/4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
                 "reference": "4f2d4f2836e7ec4e7a8625e75c6aa916004db931",
-=======
-            "time": "2023-06-15T07:40:12+00:00"
-        },
-        {
-            "name": "doctrine/deprecations",
-            "version": "v1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/deprecations.git",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/deprecations/zipball/612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
-                "reference": "612a3ee5ab0d5dd97b7cf3874a6efe24325efac3",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -2688,15 +2506,9 @@
             "homepage": "https://www.doctrine-project.org/",
             "support": {
                 "issues": "https://github.com/doctrine/deprecations/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/doctrine/deprecations/tree/1.1.2"
             },
             "time": "2023-09-27T20:04:15+00:00"
-=======
-                "source": "https://github.com/doctrine/deprecations/tree/v1.1.1"
-            },
-            "time": "2023-06-03T09:27:29+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "doctrine/event-manager",
@@ -2942,7 +2754,6 @@
         },
         {
             "name": "nikic/php-parser",
-<<<<<<< HEAD
             "version": "v5.0.0",
             "source": {
                 "type": "git",
@@ -2953,18 +2764,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/4a21235f7e56e713259a6f76bf4b5ea08502b9dc",
                 "reference": "4a21235f7e56e713259a6f76bf4b5ea08502b9dc",
-=======
-            "version": "v4.16.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "19526a33fb561ef417e822e85f08a00db4059c17"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/19526a33fb561ef417e822e85f08a00db4059c17",
-                "reference": "19526a33fb561ef417e822e85f08a00db4059c17",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
@@ -3007,15 +2806,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.0.0"
             },
             "time": "2024-01-07T17:17:35+00:00"
-=======
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.16.0"
-            },
-            "time": "2023-06-25T14:52:30+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "phar-io/manifest",
@@ -3130,7 +2923,6 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-<<<<<<< HEAD
             "version": "9.2.30",
             "source": {
                 "type": "git",
@@ -3141,29 +2933,13 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/ca2bd87d2f9215904682a9cb9bb37dda98e76089",
                 "reference": "ca2bd87d2f9215904682a9cb9bb37dda98e76089",
-=======
-            "version": "9.2.26",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
-                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
->>>>>>> 94d3afd (Fix #129)
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-<<<<<<< HEAD
                 "nikic/php-parser": "^4.18 || ^5.0",
-=======
-                "nikic/php-parser": "^4.15",
->>>>>>> 94d3afd (Fix #129)
                 "php": ">=7.3",
                 "phpunit/php-file-iterator": "^3.0.3",
                 "phpunit/php-text-template": "^2.0.2",
@@ -3212,12 +2988,8 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-<<<<<<< HEAD
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
                 "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.30"
-=======
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.26"
->>>>>>> 94d3afd (Fix #129)
             },
             "funding": [
                 {
@@ -3225,11 +2997,7 @@
                     "type": "github"
                 }
             ],
-<<<<<<< HEAD
             "time": "2023-12-22T06:47:57+00:00"
-=======
-            "time": "2023-03-06T12:58:08+00:00"
->>>>>>> 94d3afd (Fix #129)
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -3474,29 +3242,16 @@
         },
         {
             "name": "phpunit/phpunit",
-<<<<<<< HEAD
-            "version": "9.6.15",
+            "version": "9.6.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "05017b80304e0eb3f31d90194a563fd53a6021f1"
+                "reference": "3767b2c56ce02d01e3491046f33466a1ae60a37f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/05017b80304e0eb3f31d90194a563fd53a6021f1",
-                "reference": "05017b80304e0eb3f31d90194a563fd53a6021f1",
-=======
-            "version": "9.6.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "a9aceaf20a682aeacf28d582654a1670d8826778"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a9aceaf20a682aeacf28d582654a1670d8826778",
-                "reference": "a9aceaf20a682aeacf28d582654a1670d8826778",
->>>>>>> 94d3afd (Fix #129)
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3767b2c56ce02d01e3491046f33466a1ae60a37f",
+                "reference": "3767b2c56ce02d01e3491046f33466a1ae60a37f",
                 "shasum": ""
             },
             "require": {
@@ -3570,11 +3325,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-<<<<<<< HEAD
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.15"
-=======
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.9"
->>>>>>> 94d3afd (Fix #129)
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.16"
             },
             "funding": [
                 {
@@ -3590,11 +3341,7 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
-            "time": "2023-12-01T16:55:19+00:00"
-=======
-            "time": "2023-06-11T06:13:56+00:00"
->>>>>>> 94d3afd (Fix #129)
+            "time": "2024-01-19T07:03:14+00:00"
         },
         {
             "name": "sebastian/cli-parser",
