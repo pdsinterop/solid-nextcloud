@@ -338,6 +338,9 @@ EOF;
 			if (isset($clientRegistration['client_name'])) {
 				$allowedOrigins[] = $clientRegistration['client_name'];
 			}
+			if (isset($clientRegistration['origin'])) {
+				$allowedOrigins[] = $clientRegistration['origin'];
+			}
 		}
 		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
@@ -428,19 +431,19 @@ EOF;
 //		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //		$result->addHeader('Access-Control-Allow-Origin', $origin);
 		
-                $policy = new EmptyContentSecurityPolicy();
-                $policy->addAllowedStyleDomain("*");
-                $policy->addAllowedStyleDomain("data:");
-                $policy->addAllowedScriptDomain("*");
-                $policy->addAllowedImageDomain("*");
-                $policy->addAllowedFontDomain("*");
-                $policy->addAllowedConnectDomain("*");
-                $policy->allowInlineStyle(true);
-                $policy->allowInlineScript(true);
-                $policy->allowEvalScript(true);
-                $result->setContentSecurityPolicy($policy);
-                
-                $result->setStatus($statusCode);
+		$policy = new EmptyContentSecurityPolicy();
+		$policy->addAllowedStyleDomain("*");
+		$policy->addAllowedStyleDomain("data:");
+		$policy->addAllowedScriptDomain("*");
+		$policy->addAllowedImageDomain("*");
+		$policy->addAllowedFontDomain("*");
+		$policy->addAllowedConnectDomain("*");
+		$policy->allowInlineStyle(true);
+		$policy->allowInlineScript(true);
+		$policy->allowEvalScript(true);
+		$result->setContentSecurityPolicy($policy);
+		
+		$result->setStatus($statusCode);
 		return $result;
 	}
 }
