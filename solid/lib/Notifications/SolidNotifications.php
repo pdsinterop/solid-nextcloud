@@ -1,31 +1,29 @@
 <?php
-    namespace OCA\Solid\Notifications;
 
-    use OCA\Solid\Notifications\SolidPubSub;
-    use OCA\Solid\Notifications\SolidWebhook;
-    use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
+namespace OCA\Solid\Notifications;
 
-    class SolidNotifications implements SolidNotificationsInterface
-    {
-        private $notifications;
-        public function __construct() {
+use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
 
-            $notifications = [
-                new SolidWebhook(),
-            ];
+class SolidNotifications implements SolidNotificationsInterface {
+	private $notifications;
+	public function __construct() {
 
-            $pubsub = getenv('PUBSUB_URL');
+		$notifications = [
+			new SolidWebhook(),
+		];
 
-            if ($pubsub) {
-                $notifications[] = new SolidPubSub($pubsub);
-            }
+		$pubsub = getenv('PUBSUB_URL');
 
-            $this->notifications = $notifications;
-        }
+		if ($pubsub) {
+			$notifications[] = new SolidPubSub($pubsub);
+		}
 
-        public function send($path, $type) {
-            foreach ($this->notifications as $notification) {
-                $notification->send($path, $type);
-	        }
-	    }
-    }
+		$this->notifications = $notifications;
+	}
+
+	public function send($path, $type) {
+		foreach ($this->notifications as $notification) {
+			$notification->send($path, $type);
+		}
+	}
+}

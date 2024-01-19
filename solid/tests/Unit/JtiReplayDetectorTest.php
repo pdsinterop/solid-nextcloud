@@ -3,26 +3,23 @@
 namespace OCA\Solid;
 
 use DateInterval;
-use OCP\IDBConnection;
+use OCP\DB\IResult;
 use OCP\DB\QueryBuilder\IExpressionBuilder;
 use OCP\DB\QueryBuilder\IQueryBuilder;
-use OCP\DB\IResult;
+use OCP\IDBConnection;
 use PHPUnit\Framework\TestCase;
 
-class JtiReplayDetectorTest extends TestCase
-{
-	public static function setUpBeforeClass(): void
-	{
-		require_once __DIR__.'/../../lib/JtiReplayDetector.php';
+class JtiReplayDetectorTest extends TestCase {
+	public static function setUpBeforeClass(): void {
+		require_once __DIR__ . '/../../lib/JtiReplayDetector.php';
 	}
 
-	private function createMocks($result)
-	{
+	private function createMocks($result) {
 		$mockIDBConnection = $this->createMock(IDBConnection::class);
 		$mockQueryBuilder = $this->createMock(IQueryBuilder::class);
 		$mockExpr = $this->createMock(IExpressionBuilder::class);
 		$mockResult = $this->createMock(IResult::class);
-		
+
 		$mockIDBConnection->expects($this->any())
 			->method('getQueryBuilder')
 			->willReturn($mockQueryBuilder);
@@ -67,13 +64,12 @@ class JtiReplayDetectorTest extends TestCase
 		return $mockIDBConnection;
 	}
 
-	public function testJtiDetected(): void
-    {
+	public function testJtiDetected(): void {
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(true);
-					
+
 		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
-		
+
 		$mockUUID = 'mockUUID-with-some-more-text';
 		$mockURI = 'mockURI';
 		$result = $detector->detect($mockUUID, $mockURI);
@@ -81,18 +77,16 @@ class JtiReplayDetectorTest extends TestCase
 		$this->assertTrue($result);
 	}
 
-	public function testJtiNotDetected(): void
-	{
+	public function testJtiNotDetected(): void {
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(false);
-					
+
 		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
-		
+
 		$mockUUID = 'mockUUID-with-some-more-text';
 		$mockURI = 'mockURI';
 		$result = $detector->detect($mockUUID, $mockURI);
 
 		$this->assertFalse($result);
 	}
-
 }

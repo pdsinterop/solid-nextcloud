@@ -25,25 +25,10 @@
         <!-- Until things have been cleaned up a bit, these violations are allowed -->
         <exclude name="Generic.Files.LineLength.TooLong"/>
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
-        <exclude name="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"/>
         <exclude name="Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed"/>
         <exclude name="Generic.WhiteSpace.DisallowTabIndent.TabsUsed"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
-        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
-        <exclude name="PSR12.Files.FileHeader.SpacingInsideBlock"/>
-        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
-        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
-        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
         <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
-        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword"/>
-        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceAfterEquals"/>
-        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceBeforeEquals"/>
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
-        <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.Indent"/>
-        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
     </rule>
 
     <!-- Have 12 chars padding maximum and always show as errors -->

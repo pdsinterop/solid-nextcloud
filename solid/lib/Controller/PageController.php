@@ -1,17 +1,16 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\ServerConfig;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\IURLGenerator;
-use OCP\IConfig;
-
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\IConfig;
+use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 class PageController extends Controller {
 	private $userId;
@@ -19,12 +18,12 @@ class PageController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId) {
 		parent::__construct($AppName, $request);
-		require_once(__DIR__.'/../../vendor/autoload.php');
+		require_once(__DIR__ . '/../../vendor/autoload.php');
 		$this->userId = $userId;
 		$this->userManager = $userManager;
-		$this->request     = $request;
+		$this->request = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 	}
@@ -50,8 +49,8 @@ class PageController extends Controller {
 				$profile = array(
 					'id' => $userId,
 					'displayName' => $user->getDisplayName(),
-					'profileUri'  => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
-					'solidNavigation'  => array(
+					'profileUri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me",
+					'solidNavigation' => array(
 						"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $userId))),
 						"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 					)
@@ -72,7 +71,7 @@ class PageController extends Controller {
 		// header("Access-Control-Allow-Credentials: true");
 		$profile = $this->getUserProfile($userId);
 		if (!$profile) {
-		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+			return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
 		}
 		$templateResponse = new TemplateResponse('solid', 'profile', $profile);
 		$policy = new ContentSecurityPolicy();

@@ -2,7 +2,6 @@
 
 namespace OCA\Solid;
 
-use OCA\Solid\ServerConfig;
 use OcP\AppFramework\Http\TemplateResponse;
 use OCP\Settings\ISettings;
 

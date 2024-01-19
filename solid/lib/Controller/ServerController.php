@@ -1,11 +1,13 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\ServerConfig;
-
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
@@ -15,12 +17,7 @@ use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
-use Lcobucci\JWT\Signer\Rsa\Sha256;
-
-class ServerController extends Controller
-{
+class ServerController extends Controller {
 	use DpopFactoryTrait;
 
 	private $userId;
@@ -58,11 +55,11 @@ class ServerController extends Controller
 		IDBConnection $connection,
 	) {
 		parent::__construct($AppName, $request);
-		require_once(__DIR__.'/../../vendor/autoload.php');
+		require_once(__DIR__ . '/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
-		$this->request     = $request;
+		$this->request = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
@@ -93,13 +90,13 @@ class ServerController extends Controller
 
 	private function getKeys() {
 		$encryptionKey = $this->config->getEncryptionKey();
-		$privateKey    = $this->config->getPrivateKey();
-		$key           = openssl_pkey_get_private($privateKey);
-		$publicKey     = openssl_pkey_get_details($key)['key'];
+		$privateKey = $this->config->getPrivateKey();
+		$key = openssl_pkey_get_private($privateKey);
+		$publicKey = openssl_pkey_get_details($key)['key'];
 		return [
 			"encryptionKey" => $encryptionKey,
-			"privateKey"    => $privateKey,
-			"publicKey"     => $publicKey
+			"privateKey" => $privateKey,
+			"publicKey" => $publicKey
 		];
 	}
 
@@ -115,7 +112,7 @@ class ServerController extends Controller
 				$keys['publicKey'],
 				$this->getOpenIdEndpoints()
 			))->create();
-		} catch(\Throwable $e) {
+		} catch (\Throwable $e) {
 			// var_dump($e);
 			return null;
 		}
@@ -129,10 +126,10 @@ class ServerController extends Controller
 	public function cors($path) {
 		$origin = $_SERVER['HTTP_ORIGIN'];
 		return (new DataResponse('OK'));
-//		->addHeader('Access-Control-Allow-Origin', $origin)
-//		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-//		->addHeader('Access-Control-Allow-Methods', 'POST')
-//		->addHeader('Access-Control-Allow-Credentials', 'true');
+		//      ->addHeader('Access-Control-Allow-Origin', $origin)
+		//      ->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+		//      ->addHeader('Access-Control-Allow-Methods', 'POST')
+		//      ->addHeader('Access-Control-Allow-Credentials', 'true');
 	}
 
 	/**
@@ -145,7 +142,7 @@ class ServerController extends Controller
 			$result = new JSONResponse('Authorization required');
 			$result->setStatus(401);
 			return $result;
-//			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			//          return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
 		if (isset($_GET['request'])) {
@@ -153,7 +150,7 @@ class ServerController extends Controller
 			try {
 				$token = $jwtConfig->parser()->parse($_GET['request']);
 				$this->session->set("nonce", $token->claims()->get('nonce'));
-			} catch(\Exception $e) {
+			} catch (\Exception $e) {
 				$this->session->set("nonce", $_GET['nonce']);
 			}
 		}
@@ -170,22 +167,22 @@ class ServerController extends Controller
 				$result = new JSONResponse('Bad request, does not contain valid token');
 				$result->setStatus(400);
 				return $result;
-//				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				//              return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 			try {
 				$getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
-			} catch(\Exception $e) {
+			} catch (\Exception $e) {
 				$result = new JSONResponse('Bad request, missing redirect uri');
 				$result->setStatus(400);
 				return $result;
-//				return $result->addHeader('Access-Control-Allow-Origin', '*');
+				//              return $result->addHeader('Access-Control-Allow-Origin', '*');
 			}
 		}
 
 		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
 			$parsedOrigin = parse_url($getVars['redirect_uri']);
 			$origin = 'https://' . $parsedOrigin['host'];
-			
+
 			$clientData = array(
 				"client_id_issued_at" => time(),
 				"client_name" => $getVars['client_id'],
@@ -216,7 +213,7 @@ class ServerController extends Controller
 
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
 		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+		$server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse(
@@ -255,10 +252,10 @@ class ServerController extends Controller
 			switch ($responseType) {
 				case "token":
 					return "token";
-				break;
+					break;
 				case "code":
 					return "code";
-				break;
+					break;
 			}
 		}
 		return "token"; // default to token response type;
@@ -286,14 +283,14 @@ class ServerController extends Controller
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
 
 		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+		$server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToAccessTokenRequest($request);
 
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 		$response = $this->tokenGenerator->addIdTokenToResponse(
-            $response,
+			$response,
 			$clientId,
 			$codeInfo['user_id'],
 			($_SESSION['nonce'] ?? ''),
@@ -347,8 +344,8 @@ class ServerController extends Controller
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		return (new JSONResponse($registration));
-//		->addHeader('Access-Control-Allow-Origin', $origin)
-//		->addHeader('Access-Control-Allow-Methods', 'POST');
+		//      ->addHeader('Access-Control-Allow-Origin', $origin)
+		//      ->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
 
 	/**
@@ -369,7 +366,7 @@ class ServerController extends Controller
 	 */
 	public function jwks() {
 		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+		$server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToJwksMetadataRequest();
 		return $this->respond($response);
 	}
@@ -398,7 +395,7 @@ class ServerController extends Controller
 			}
 		}
 		$result->setStatus($statusCode);
-//		$result->addHeader('Access-Control-Allow-Origin', '*');
+		//      $result->addHeader('Access-Control-Allow-Origin', '*');
 		return $result;
 	}
 
@@ -413,7 +410,7 @@ class ServerController extends Controller
 				$clientRegistration['client_name']
 			);
 		} else {
-			return new \Pdsinterop\Solid\Auth\Config\Client('','',array(),'');
+			return new \Pdsinterop\Solid\Auth\Config\Client('', '', array(), '');
 		}
 	}
 }
