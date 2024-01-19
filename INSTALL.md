@@ -1,11 +1,10 @@
 # Installing this app to your Nextcloud
 
 If you have installed Nextcloud [using snap](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-nextcloud-on-ubuntu-22-04)
-you should be able to run the latest version of this app.
+you should be able to run the latest version of this app. You can find it in the Nextcloud app store as `Solid`, or by running `sudo nextcloud.occ app:install solid`.
 
 ## Building from source
-In the future you will be able to install the app just from the app store, or by running `sudo nextcloud.occ app:install solid`.
-But currently (September 2022) that still installs version 0.0.3, which means you need to install from source. To switch the version of your Solid app from the "store-bought" version to the latest unreleased version, you will need to build from source:
+To switch the version of your Solid app from the "store-bought" version to the latest unreleased version, you will need to build from source:
 ```
 sudo /bin/bash
 cd /var/snap/nextcloud/current/nextcloud/extra-apps/
