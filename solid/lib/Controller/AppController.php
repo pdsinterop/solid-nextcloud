@@ -1,18 +1,17 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\ServerConfig;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Contacts\IManager;
-use OCP\IURLGenerator;
-use OCP\IConfig;
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\Contacts\IManager;
+use OCP\IConfig;
+use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 class AppController extends Controller {
 	private $userId;
@@ -20,17 +19,17 @@ class AppController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId) {
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->contactsManager = $contactsManager;
-		$this->request     = $request;
+		$this->request = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 	}
 
-	private function getUserApps($userId) {   
+	private function getUserApps($userId) {
 		$userApps = [];
 		if ($this->userManager->userExists($userId)) {
 			$allowedClients = $this->config->getAllowedClients($userId);
@@ -46,7 +45,7 @@ class AppController extends Controller {
 		$path = __DIR__ . "/../solid-app-list.json";
 		$appsListJson = file_get_contents($path);
 		$appsList = json_decode($appsListJson, true);
-		
+
 		$userApps = $this->getUserApps($this->userId);
 
 		foreach ($appsList as $key => $app) {
@@ -76,13 +75,13 @@ class AppController extends Controller {
 	public function appLauncher() {
 		$appsList = $this->getAppsList();
 		if (!$appsList) {
-		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+			return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
 		}
 		$appLauncherData = array(
 			"appsListJson" => json_encode($appsList),
 			"webId" => json_encode($this->getProfilePage()),
 			"storageUrl" => json_encode($this->getStorageUrl($this->userId)),
-			'solidNavigation'  => array(
+			'solidNavigation' => array(
 				"profile" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.profile", array("userId" => $this->userId))),
 				"launcher" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher", array())),
 			)

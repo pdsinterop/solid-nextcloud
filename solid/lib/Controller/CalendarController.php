@@ -1,10 +1,10 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
-use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
-
+use OCA\Solid\PlainResponse;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -14,7 +14,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
@@ -26,7 +25,7 @@ class CalendarController extends Controller {
 
 	/* @var ISession */
 	private $session;
-	
+
 	public function __construct(
 		$AppName,
 		IRequest $request,
@@ -39,9 +38,9 @@ class CalendarController extends Controller {
 		IDBConnection $connection,
 	) {
 		parent::__construct($AppName, $request);
-		require_once(__DIR__.'/../../vendor/autoload.php');
+		require_once(__DIR__ . '/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
-		$this->request     = $request;
+		$this->request = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 
@@ -50,7 +49,7 @@ class CalendarController extends Controller {
 
 	private function getFileSystem($userId) {
 		// Make sure the root folder has an acl file, as is required by the spec;
-        // Generate a default file granting the owner full access.
+		// Generate a default file granting the owner full access.
 		$defaultAcl = $this->generateDefaultAcl($userId);
 
 		// Create the Nextcloud Calendar Adapter
@@ -74,7 +73,7 @@ class CalendarController extends Controller {
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-		
+
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
 		$filesystem->addPlugin($plugin);
 
@@ -122,18 +121,18 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-        $this->calendarUserId = $userId;
-        
+		$this->calendarUserId = $userId;
+
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
 		$this->WAC = new WAC($this->filesystem);
 
 		$request = $this->rawRequest;
-		$baseUrl = $this->getCalendarUrl($userId);		
+		$baseUrl = $this->getCalendarUrl($userId);
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$notifications = new SolidNotifications();
@@ -143,31 +142,31 @@ EOF;
 
 		try {
 			$webId = $dpop->getWebId($request);
-		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+		} catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
 			$response = $this->resourceServer->getResponse()
 				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 			return $this->respond($response);
 		}
-		
+
 		if (!$this->WAC->isAllowed($request, $webId)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
 
-		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->resourceServer->respondToRequest($request);
 		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handleGet($userId, $path) {	
+	public function handleGet($userId, $path) {
 		return $this->handleRequest($userId, $path);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -181,10 +180,11 @@ EOF;
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handlePut() { // $userId, $path) {
+	public function handlePut() {
+		// $userId, $path) {
 		// FIXME: Adding the correct variables in the function name will make nextcloud
 		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
-		
+
 		// because we got here, the request uri should look like:
 		// /index.php/apps/solid/@{userId}/storage{path}
 		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
@@ -192,7 +192,7 @@ EOF;
 		$userId = $pathInfo[0];
 		$path = $pathInfo[1];
 		$path = preg_replace("/^calendar/", "", $path);
-		
+
 		return $this->handleRequest($userId, $path);
 	}
 	/**
@@ -239,7 +239,7 @@ EOF;
 				$result->addHeader($header, $value);
 			}
 		}
-		
+
 		$result->setStatus($statusCode);
 		return $result;
 	}

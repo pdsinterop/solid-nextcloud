@@ -2,12 +2,9 @@
 
 namespace OCA\Solid\Tests\Unit\Controller;
 
-use PHPUnit_Framework_TestCase;
-
-use OCP\AppFramework\Http\TemplateResponse;
-
 use OCA\Solid\Controller\PageController;
-
+use OCP\AppFramework\Http\TemplateResponse;
+use PHPUnit_Framework_TestCase;
 
 class PageControllerTest extends PHPUnit_Framework_TestCase {
 	private $controller;
@@ -25,5 +22,4 @@ class PageControllerTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('index', $result->getTemplateName());
 		$this->assertTrue($result instanceof TemplateResponse);
 	}
-
 }

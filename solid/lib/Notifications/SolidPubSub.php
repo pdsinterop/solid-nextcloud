@@ -1,29 +1,29 @@
 <?php
-    namespace OCA\Solid\Notifications;
 
-    use WebSocket\Client;
-    use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
+namespace OCA\Solid\Notifications;
 
-    class SolidPubSub implements SolidNotificationsInterface
-    {
-        private $pubsub;
-        public function __construct($pubsubUrl) {
-            $this->pubsub = $pubsubUrl;
-        }
+use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
+use WebSocket\Client;
 
-        public function send($path, $type) {
-            $pubsub = str_replace(["https://", "http://"], "ws://", $this->pubsub);
+class SolidPubSub implements SolidNotificationsInterface {
+	private $pubsub;
+	public function __construct($pubsubUrl) {
+		$this->pubsub = $pubsubUrl;
+	}
 
-            $client = new Client($pubsub, array(
-                'headers' => array(
-                    'Sec-WebSocket-Protocol' => 'solid-0.1'
-                )
-            ));
+	public function send($path, $type) {
+		$pubsub = str_replace(["https://", "http://"], "ws://", $this->pubsub);
 
-            try {
-                $client->send("pub $path\n");
-            } catch (\WebSocket\Exception $exception) {
-                throw new Exception('Could not write to pubsub server', 502, $exception);
-            }
-        }
-    }
+		$client = new Client($pubsub, array(
+			'headers' => array(
+				'Sec-WebSocket-Protocol' => 'solid-0.1'
+			)
+		));
+
+		try {
+			$client->send("pub $path\n");
+		} catch (\WebSocket\Exception $exception) {
+			throw new Exception('Could not write to pubsub server', 502, $exception);
+		}
+	}
+}

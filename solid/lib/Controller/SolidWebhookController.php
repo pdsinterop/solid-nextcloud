@@ -3,31 +3,19 @@
 namespace OCA\Solid\Controller;
 
 use Closure;
-use OCA\Solid\AppInfo\Application;
-use OCA\Solid\Service\SolidWebhookService;
-use OCA\Solid\ServerConfig;
-use OCA\Solid\PlainResponse;
-use OCA\Solid\Notifications\SolidNotifications;
 use OCA\Solid\DpopFactoryTrait;
-
+use OCA\Solid\PlainResponse;
+use OCA\Solid\Service\SolidWebhookService;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IDBConnection;
-use OCP\IConfig;
-use OCP\Files\IRootFolder;
-use OCP\Files\IHomeStorage;
-use OCP\Files\SimpleFS\ISimpleRoot;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
-
-use Pdsinterop\Solid\Resources\Server as ResourceServer;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\Files\IRootFolder;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {
@@ -38,7 +26,7 @@ class SolidWebhookController extends Controller {
 
 	/* @var ISession */
 	private $session;
-	
+
 	/** @var SolidWebhookService */
 	private $webhookService;
 
@@ -55,10 +43,10 @@ class SolidWebhookController extends Controller {
 		IDBConnection $connection,
 	) {
 		parent::__construct($AppName, $request);
-		require_once(__DIR__.'/../../vendor/autoload.php');
+		require_once(__DIR__ . '/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->rootFolder = $rootFolder;
-		$this->request     = $request;
+		$this->request = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
 		$this->webhookService = $webhookService;
@@ -69,7 +57,7 @@ class SolidWebhookController extends Controller {
 			$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 			$this->webId = $this->DPop->getWebId($this->rawRequest);
 			// FIXME: Should we handle webhooks for 'public'?
-		} catch(\Exception $e) {
+		} catch (\Exception $e) {
 			return new PlainResponse("Invalid token", 409);
 		}
 	}
@@ -139,7 +127,7 @@ class SolidWebhookController extends Controller {
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-		
+
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
 		$filesystem->addPlugin($plugin);
 
@@ -168,14 +156,14 @@ class SolidWebhookController extends Controller {
 		$pathicles = explode("/", $internalUrl);
 		$userId = $pathicles[0]; // @alice
 		$userId = preg_replace("/^@/", "", $userId); // alice
-                $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
+		$storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
 		$storagePath = str_replace($storageUrl, '/', $topic); // /foo/bar
 		return array(
 			"userId" => $userId,
 			"path" => $storagePath
 		);
 	}
-	
+
 	private function createGetRequest($topic) {
 		$serverParams = [];
 		$fileParams = [];
@@ -192,7 +180,7 @@ class SolidWebhookController extends Controller {
 			$headers
 		);
 	}
-	
+
 	private function checkReadAccess($topic) {
 		// split out $topic into $userId and $path https://nextcloud.server/solid/@alice/storage/foo/bar
 		// - userId in this case is the pod owner (not the one doing the request). (alice)
@@ -200,7 +188,7 @@ class SolidWebhookController extends Controller {
 		$target = $this->parseTopic($topic);
 		$userId = $target["userId"];
 		$path = $target["path"];
-		
+
 		$this->initializeStorage($userId);
 		$this->WAC = new WAC($this->filesystem);
 

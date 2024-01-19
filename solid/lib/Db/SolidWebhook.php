@@ -3,7 +3,6 @@
 namespace OCA\Solid\Db;
 
 use JsonSerializable;
-
 use OCP\AppFramework\Db\Entity;
 
 class SolidWebhook extends Entity implements JsonSerializable {
