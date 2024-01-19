@@ -29,32 +29,6 @@ There is a [GitHub Action](https://github.com/pdsinterop/solid-nextcloud/actions
 ## Manual testing
 You can try out the various Solid apps that show up in the Solid App GUI inside the Nextcloud GUI on first use.
 
-# Publishing to the Nextcloud app store
+### Build / Deploy
 
-* `git checkout main`
-* `git pull`
-* Tag v0.0.X in solid/appinfo/info.xml
-* `git tag`
-* `git tag v0.0.X`
-* `git push --follow-tags`
-* `git checkout publish`
-* `git pull`
-* `git merge main`
-* `cd solid`
-* `php ../composer.phar update`
-* `php ../composer.phar install --no-dev --prefer-dist`
-* `git commit -am"built"` (at least `vendor/composer/installed.php` will have changed)
-* `git push`
-* `cd ..`
-* create a release on github from the tag you just pushed
-* `tar -cf solid.tar solid/`
-* `gzip solid.tar`
-* `git checkout main`
-* edit the release and upload `solid.tar.gz` as a binary attachment
-* make sure transfer/solid.key and transfer/solid.crt exist
-* `openssl dgst -sha512 -sign ./transfer/solid.key ./solid.tar.gz | openssl base64`
-* visit https://apps.nextcloud.com/developer/apps/releases/new
-* go into the developer tools browser console to change the `<a>` element around the form to a `<p>` element. This makes it possible to fill in values in this form without being redirected.
-* fill in for instance `https://github.com/pdsinterop/solid-nextcloud/releases/download/v0.0.2/solid.tar.gz` and the base64 signature from the openssl command
-* click 'uploaden'
-* good luck!
+For publishing to the Nextcloud app store see [the deploy instructions](docs/deploy.md).
