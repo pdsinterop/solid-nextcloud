@@ -37,6 +37,7 @@
     },
     "require-dev": {
         "doctrine/dbal": "*",
+        "nextcloud/coding-standard": "^1.1",
         "nextcloud/server": "*",
         "phpunit/phpunit": "^8 || ^9"
     },
