@@ -338,6 +338,9 @@ EOF;
 			if (isset($clientRegistration['client_name'])) {
 				$allowedOrigins[] = $clientRegistration['client_name'];
 			}
+			if (isset($clientRegistration['origin'])) {
+				$allowedOrigins[] = $clientRegistration['origin'];
+			}
 		}
 		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
