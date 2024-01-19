@@ -94,7 +94,7 @@ Once the dependencies are installed, an archive can be created using TAR:
 
 ```sh
 # This command should be run from the project root
-tar --directory="${PWD}" --create --file 'solid.tar.gz' --gzip ./solid
+tar --directory="${PWD}" --create --file 'solid.tar.gz' --gzip solid
 ```
 
 ## Deploying the package
