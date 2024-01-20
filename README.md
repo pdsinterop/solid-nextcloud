@@ -2,7 +2,6 @@
 A plugin to make Nextcloud compatible with Solid.
 
 You can download it via the Nextcloud app store: https://apps.nextcloud.com/apps/solid
-IMPORTANT: Follow the [install instructions!](https://github.com/pdsinterop/solid-nextcloud/blob/main/INSTALL.md).
 
 ## Development install
 Clone https://github.com/pdsinterop/test-suites, cd into it, and run:
