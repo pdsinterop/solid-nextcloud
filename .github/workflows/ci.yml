@@ -25,7 +25,7 @@ jobs:
   # @TODO: Instead of building the docker image here, take a pre-build image and mount the code?
   #        (only build when the Dockerfile changes) Or only push when tagged/main?
   build-docker-nextcloud:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         # For the latest version information see: https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
@@ -76,7 +76,7 @@ jobs:
     needs:
       - build-docker-nextcloud
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
