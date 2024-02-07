@@ -10,6 +10,8 @@ use OC\Authentication\Token\IProvider;
 use OC\Server;
 
 use OCA\Solid\Service\UserService;
+use OCA\Solid\Service\SolidWebhookService;
+use OCA\Solid\Db\SolidWebhookMapper;
 use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
 use OCA\Solid\WellKnown\SolidHandler;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
@@ -33,33 +35,12 @@ class Application extends App implements IBootstrap {
     public function __construct(array $urlParams = []) {
         parent::__construct(self::APP_ID, $urlParams);
 
-        $container = $this->getContainer();
-
-        $container->registerService(SolidCorsMiddleware::class, function($c): SolidCorsMiddleware {
-            return new SolidCorsMiddleware(
-                $c->get(IRequest::class)
-            );
-        });
-
-        // executed in the order that it is registered
-        $container->registerMiddleware(SolidCorsMiddleware::class);
-
-        $container->registerService(SolidWebhookService::class, function($c): SolidWebhookService {
-            return new SolidWebhookService(
-                $c->query(SolidWebhookMapper::class)
-            );
-        });
-
-        $container->registerService(SolidWebhookMapper::class, function($c): SolidWebhookMapper {
-            return new SolidWebhookMapper(
-                $c->get(IDBConnection::class)
-            );
-        });
     }
 
     public function register(IRegistrationContext $context): void {
         $context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
         $context->registerWellKnownHandler(\OCA\Solid\WellKnown\SolidHandler::class);
+        $context->registerMiddleware(SolidCorsMiddleware::class);
 
         /**
          * Core class wrappers
@@ -78,6 +59,19 @@ class Application extends App implements IBootstrap {
         // getUID() method on it
         $context->registerService('User', function($c) {
             return $c->query('UserSession')->getUser();
+        });
+
+        /* webhook DB services */
+        $context->registerService(SolidWebhookService::class, function($c): SolidWebhookService {
+            return new SolidWebhookService(
+                $c->query(SolidWebhookMapper::class)
+            );
+        });
+
+        $context->registerService(SolidWebhookMapper::class, function($c): SolidWebhookMapper {
+            return new SolidWebhookMapper(
+                $c->get(IDBConnection::class)
+            );
         });
     }
 
