@@ -439,7 +439,7 @@ EOF;
                 $policy->addAllowedFontDomain("*");
                 $policy->addAllowedConnectDomain("*");
                 $policy->allowInlineStyle(true);
-                $policy->allowInlineScript(true);
+                // $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
                 $policy->allowEvalScript(true);
                 $result->setContentSecurityPolicy($policy);
                 
