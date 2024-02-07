@@ -25,6 +25,7 @@ use OCP\Defaults;
 use OCP\IServerContainer;
 use OCP\Settings\IManager;
 use OCP\Util;
+use OCP\IDBConnection;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'solid';
@@ -69,7 +70,7 @@ class Application extends App implements IBootstrap {
 
         $context->registerService(SolidWebhookMapper::class, function($c): SolidWebhookMapper {
             return new SolidWebhookMapper(
-                $c->get(IDBConnection::class)
+                $c->get(\OCP\IDBConnection::class)
             );
         });
     }
