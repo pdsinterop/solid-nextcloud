@@ -185,7 +185,9 @@ class ServerController extends Controller
 		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
 			$parsedOrigin = parse_url($getVars['redirect_uri']);
 			$origin = 'https://' . $parsedOrigin['host'];
-			
+			if (isset($parsedOrigin['port'])) {
+				$origin .= ":" . $parsedOrigin['port'];
+			}
 			$clientData = array(
 				"client_id_issued_at" => time(),
 				"client_name" => $getVars['client_id'],
@@ -337,6 +339,9 @@ class ServerController extends Controller
 		$clientData['client_id_issued_at'] = time();
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
 		$origin = 'https://' . $parsedOrigin['host'];
+		if (isset($parsedOrigin['port'])) {
+			$origin .= ":" . $parsedOrigin['port'];
+		}
 
 		$clientId = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
