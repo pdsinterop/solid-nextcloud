@@ -184,7 +184,7 @@ class ServerController extends Controller
 
 		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
 			$parsedOrigin = parse_url($getVars['redirect_uri']);
-			$origin = 'https://' . $parsedOrigin['host'];
+			$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
 			if (isset($parsedOrigin['port'])) {
 				$origin .= ":" . $parsedOrigin['port'];
 			}
@@ -338,7 +338,7 @@ class ServerController extends Controller
 		}
 		$clientData['client_id_issued_at'] = time();
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
-		$origin = 'https://' . $parsedOrigin['host'];
+		$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
 		if (isset($parsedOrigin['port'])) {
 			$origin .= ":" . $parsedOrigin['port'];
 		}
