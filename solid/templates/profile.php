@@ -3,7 +3,7 @@ script('solid', 'script');
 style('solid', 'style');
 ?>
 
-<div id="app-navigation">
+<div id="app-navigation" class="app-navigation-personal">
 	<?php print_unescaped($this->inc('navigation/index')); ?>
 </div>
 
