@@ -13,11 +13,11 @@ function setup {
   docker pull michielbdejong/nextcloud-cookie
   docker pull solidtestsuite/solid-crud-tests:v7.0.5
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
-  docker pull solidtestsuite/webid-provider-tests:v2.1.1
+  docker pull solidtestsuite/webid-provider-tests:v2.1.0
 
   docker tag solidtestsuite/solid-crud-tests:v7.0.5 solid-crud-tests
   docker tag solidtestsuite/web-access-control-tests:v7.1.0 web-access-control-tests
-  docker tag solidtestsuite/webid-provider-tests:v2.1.1 webid-provider-tests
+  docker tag solidtestsuite/webid-provider-tests:v2.1.0 webid-provider-tests
 }
 
 function teardown {
