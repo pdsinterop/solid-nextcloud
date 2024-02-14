@@ -69,6 +69,14 @@
 		}
 
 		/**
+		 * @return array|null
+		 */
+		public function getClients() {
+			$clients = (array)$this->config->getAppKeys('solid');
+			return $clients;
+		}
+
+		/**
 		 * @param array $clientConfig
 		 * @return string
 		 */
@@ -151,7 +159,13 @@
 			$clientData['client_name'] = $origin;
 			$clientData['client_secret'] = md5(random_bytes(32));
 			$this->config->setAppValue('solid', "client-" . $originHash, json_encode($clientData));
+
+			$this->config->setAppValue('solid', "client-" . $origin, json_encode($clientData));
 			return $originHash;
+		}
+
+		public function removeClientRegistration($clientId) {
+			$this->config->deleteAppValue('solid', "client-" . $clientId);
 		}
 
 		public function getClientRegistration($clientId) {

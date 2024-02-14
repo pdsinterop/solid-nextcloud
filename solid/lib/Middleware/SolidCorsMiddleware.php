@@ -15,7 +15,7 @@
 
         public function afterController($controller, $methodName, Response $response) {
             $corsMethods="GET, PUT, POST, OPTIONS, DELETE, PATCH";
-            $corsAllowedHeaders="*, allow, accept, authorization, content-type, dpop, slug";
+            $corsAllowedHeaders="*, allow, accept, authorization, content-type, dpop, slug, link";
             $corsMaxAge="1728000";
             $corsExposeHeaders="Authorization, User, Location, Link, Vary, Last-Modified, ETag, Accept-Patch, Accept-Post, Updates-Via, Allow, WAC-Allow, Content-Length, WWW-Authenticate, MS-Author-Via";
             $corsAllowCredentials="true";
