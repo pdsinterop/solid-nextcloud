@@ -34,10 +34,9 @@ jobs:
         # Version 24 comes with PHP 8.0, which is no longer supported;
         # Latest is not tested here, as that could cause failures unrelated to project changes
         nextcloud_version:
-          - 25
-          - 26
-          - 27
           - 28
+          - 29
+          - 30
 
     steps:
       - name: Create docker tag from git reference
