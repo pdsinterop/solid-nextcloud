@@ -10,12 +10,10 @@ use OCA\Solid\ServerConfig;
 class SolidAdmin implements ISettings {
     private IL10N $l;
     private IConfig $config;
-    private ServerConfig $serverConfig;
 
-    public function __construct(IConfig $config, IL10N $l, ServerConfig $serverConfig) {
+    public function __construct(IConfig $config, IL10N $l) {
         $this->config = $config;
         $this->l = $l;
-        $this->serverConfig = $serverConfig;
     }
 
     /**
@@ -23,8 +21,8 @@ class SolidAdmin implements ISettings {
      */
     public function getForm() {
         $parameters = [
-            'privateKey' => $this->serverConfig->getPrivateKey(),
-	    'encryptionKey' => $this->serverConfig->getEncryptionKey()
+            'privateKey' => $this->config->getAppValue('solid','privateKey'),
+	    'encryptionKey' => this->config->getAppValue('solid','encryptionKey'),
         ];
 
         return new TemplateResponse('solid', 'admin', $parameters, '');
