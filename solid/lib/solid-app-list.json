@@ -38,28 +38,15 @@
         ]
     },
     {
-        "name": "Generator demo",
-        "tagline": "Output of Inrupt's generator for Solid React Applications",
-        "launchUrl": "https://generator.inrupt.com/",
-        "appOrigin" : "https://generator.inrupt.com",
+        "name": "Media Kraken",
+        "tagline": "Media Kraken",
+        "launchUrl": "https://noeldemartin.github.io/media-kraken/",
+        "appOrigin" : "https://noeldemartin.github.io",
         "requirements": [
             {
                 "type": "podWide",
                 "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
-            },
-            {
-                "type": "container",
-                "container": "tictactoe",
-                "permissions": ["acl.Read", "acl.Append", "acl.Write", "acl.Control"]
             }
-        ]
-    },
-    {
-        "name": "App demo",
-        "tagline": "App demo",
-        "launchUrl": "https://empty-solid-app.5apps.com/",
-        "appOrigin" : "https://empty-solid-app.5apps.com",
-        "requirements": [
         ]
     },
     {

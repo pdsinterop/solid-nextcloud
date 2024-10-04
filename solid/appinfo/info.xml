@@ -18,7 +18,7 @@ When you do this, the Solid App can store data in your Nextcloud account through
     <category>integration</category>
     <bugs>https://github.com/pdsinterop/solid-nextcloud/issues</bugs>
     <dependencies>
-        <nextcloud min-version="25" max-version="28"/>
+        <nextcloud min-version="28" max-version="30"/>
     </dependencies>
     <settings>
         <admin>\OCA\Solid\Settings</admin>
