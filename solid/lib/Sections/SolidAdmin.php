@@ -15,7 +15,7 @@ class SolidAdmin implements IIconSection {
     }
 
     public function getIcon(): string {
-        return $this->urlGenerator->imagePath('core', 'actions/settings-dark.svg');
+        return $this->urlGenerator->imagePath('solid', 'app.svg');
     }
 
     public function getID(): string {
