@@ -5,15 +5,17 @@ use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IConfig;
 use OCP\IL10N;
 use OCP\Settings\ISettings;
-use OCA\Solid\ServerConfig;
+use OCA\Solid\BaseServerConfig;
 
 class SolidAdmin implements ISettings {
     private IL10N $l;
     private IConfig $config;
+    private BaseServerConfig $serverConfig;
 
     public function __construct(IConfig $config, IL10N $l) {
         $this->config = $config;
         $this->l = $l;
+        $this->serverConfig = new BaseServerConfig($config);
     }
 
     /**
@@ -21,8 +23,8 @@ class SolidAdmin implements ISettings {
      */
     public function getForm() {
         $parameters = [
-            'privateKey'    => $this->config->getAppValue('solid','privateKey'),
-	    'encryptionKey' => $this->config->getAppValue('solid','encryptionKey')
+            'privateKey'    => $this->serverConfig->getPrivateKey(),
+	    'encryptionKey' => $this->serverConfig->getEncryptionKey()
         ];
 
         return new TemplateResponse('solid', 'admin', $parameters, '');
