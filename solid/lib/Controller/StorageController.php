@@ -380,8 +380,8 @@ EOF;
 		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
 
 		// because we got here, the request uri should look like:
-		// /index.php/apps/solid/@{userId}/storage{path}
-		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
+		// /index.php/apps/solid/~{userId}/storage{path}
+		$pathInfo = explode("~", $_SERVER['REQUEST_URI']);
 		$pathInfo = explode("/", $pathInfo[1], 2);
 		$userId = $pathInfo[0];
 		$path = $pathInfo[1];
