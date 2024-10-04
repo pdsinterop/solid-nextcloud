@@ -150,13 +150,13 @@ class SolidWebhookController extends Controller {
 	}
 
 	private function parseTopic($topic) {
-		// topic = https://nextcloud.server/solid/@alice/storage/foo/bar
+		// topic = https://nextcloud.server/solid/~alice/storage/foo/bar
 		$appBaseUrl = $this->getAppBaseUrl(); //  https://nextcloud.server/solid/
-		$internalUrl = str_replace($appBaseUrl, '', $topic); // @alice/storage/foo/bar
+		$internalUrl = str_replace($appBaseUrl, '', $topic); // ~alice/storage/foo/bar
 		$pathicles = explode("/", $internalUrl);
-		$userId = $pathicles[0]; // @alice
-		$userId = preg_replace("/^@/", "", $userId); // alice
-                $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
+		$userId = $pathicles[0]; // ~alice
+		$userId = preg_replace("/^~/", "", $userId); // alice
+                $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/~alice/storage/
 		$storagePath = str_replace($storageUrl, '/', $topic); // /foo/bar
 		return array(
 			"userId" => $userId,
@@ -182,7 +182,7 @@ class SolidWebhookController extends Controller {
 	}
 
 	private function checkReadAccess($topic) {
-		// split out $topic into $userId and $path https://nextcloud.server/solid/@alice/storage/foo/bar
+		// split out $topic into $userId and $path https://nextcloud.server/solid/~alice/storage/foo/bar
 		// - userId in this case is the pod owner (not the one doing the request). (alice)
 		// - path is the path within the storage pod (/foo/bar)
 		$target = $this->parseTopic($topic);
