@@ -9,11 +9,14 @@
 	 * @package OCA\Solid
 	 */
 	class ServerConfig {
-		/** @var IConfig */
-		private $config;
+		private IConfig $config;
+		private IUrlGenerator $urlGenerator;
+		private IUserManager $userManager;
 
 		/**
 		 * @param IConfig $config
+		 * @param IUrlGenerator $urlGenerator
+		 * @param IUserManager $userManager
 		 */
 		public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager) {
 			$this->config = $config;
