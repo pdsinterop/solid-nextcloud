@@ -21,8 +21,8 @@ class SolidAdmin implements ISettings {
      */
     public function getForm() {
         $parameters = [
-            'privateKey' => $this->config->getAppValue('solid','privateKey'),
-	    'encryptionKey' => this->config->getAppValue('solid','encryptionKey'),
+            'privateKey'    => $this->config->getAppValue('solid','privateKey'),
+	    'encryptionKey' => $this->config->getAppValue('solid','encryptionKey')
         ];
 
         return new TemplateResponse('solid', 'admin', $parameters, '');
