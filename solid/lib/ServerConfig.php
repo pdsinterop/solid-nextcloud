@@ -23,6 +23,7 @@
 			$this->config = $config;
 			$this->userManager = $userManager;
 			$this->urlGenerator = $urlGenerator;
+			parent::__construct($config);
 		}
 
 		/**
