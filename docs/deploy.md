@@ -61,6 +61,7 @@ Once the merge request has been merged, a tag can be created, as well as a relea
 - Create a `release/v0.X.X` branch
 - Change anything that needs to be updated for a new release (at the least the version in `solid/appinfo/info.xml`)
 - Open an MR
+
 When the MR is merged a release version can be tagged by creating a GitHub Release
 
 ### Tagging a release
@@ -86,7 +87,23 @@ They can be installed using:
 composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist
 ```
 
-to make sure the provided dependencies are usable in the supported PHP versions, a docker image can be used.
+to make sure the provided dependencies are usable in the supported PHP versions, the preferred method is to call composer using a docker image. The verbose, but complete command for this is:
+
+```sh
+docker run \
+    -it \
+    --rm \
+    --volume ~/.cache/composer/:/root/composer/ \
+    --volume "${sourceDirectory}/solid:/app" \
+    --workdir /app \
+    php:8.0 \
+    bash -c 'curl -s https://getcomposer.org/installer | php \
+        && mv composer.phar /usr/local/bin/composer \
+        && apt update \
+        && apt install -y git zip \
+        && COMPOSER_CACHE_DIR=/root/composer/ composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist \
+        && rm  /usr/local/bin/composer
+```
 
 ### Creating a tarball
 
