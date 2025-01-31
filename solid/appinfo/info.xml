@@ -21,7 +21,8 @@ When you do this, the Solid App can store data in your Nextcloud account through
         <nextcloud min-version="28" max-version="30"/>
     </dependencies>
     <settings>
-        <admin>\OCA\Solid\Settings</admin>
+        <admin>OCA\Solid\Settings\SolidAdmin</admin>
+        <admin-section>OCA\Solid\Sections\SolidAdmin</admin-section>
     </settings>
     <navigations>
         <navigation>
