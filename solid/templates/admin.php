@@ -16,4 +16,21 @@
 			<textarea id="solid-encryption-key" type="text"><?php p($_['encryptionKey']); ?></textarea>
 		</label>
 	</p>
+	<h2 class="inlineblock"><?php p($l->t('Solid Client Registrations')); ?></h2>
+	<table class="grid">
+		<thead>
+			<tr>
+				<th>Client ID</th>
+				<th>Client name</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ($_['clients'] as $client => $registration) { ?>
+				<tr>
+					<td><?php p($registration['clientId']); ?></td>
+					<td><?php p($registration['clientName']); ?></td>
+				</tr>
+			<?php } ?>
+		</tbody>
+	</table>
 </div>
