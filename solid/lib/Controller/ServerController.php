@@ -196,8 +196,8 @@ class ServerController extends Controller
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData);
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData);
+			$clientId = $this->config->saveClientRegistration($origin, $clientData)['clientId'];
+			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['clientId'];
 			$returnUrl = $getVars['redirect_uri'];
 		} else {
 			$clientId = $getVars['client_id'];
@@ -284,8 +284,11 @@ class ServerController extends Controller
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$code = $request->getParsedBody()['code'];
 		$clientId = $request->getParsedBody()['client_id'];
+// error_log("CODE " . $code);
+// error_log("CLIENTID " . $clientId);
 
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
+// error_log("DPOP " . $httpDpop);
 
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
@@ -294,6 +297,8 @@ class ServerController extends Controller
 		// FIXME: not sure if decoding this here is the way to go.
 		// FIXME: because this is a public page, the nonce from the session is not available here.
 		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
+// error_log("CODEINFO " . json_encode($codeInfo));
+		
 		$response = $this->tokenGenerator->addIdTokenToResponse(
             $response,
 			$clientId,
@@ -343,10 +348,11 @@ class ServerController extends Controller
 			$origin .= ":" . $parsedOrigin['port'];
 		}
 
-		$clientId = $this->config->saveClientRegistration($origin, $clientData);
+		$clientReg = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
-			'client_id' => $clientId,
-			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
+			'client_id' => $clientReg['clientId'],
+			'client_secret' => $clientReg['clientData']['client_secret'],
+			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientReg['clientId']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
@@ -385,6 +391,8 @@ class ServerController extends Controller
 		$headers = $response->getHeaders();
 
 		$body = json_decode($response->getBody()->getContents());
+// error_log("HEADERS " . json_encode($headers));
+// error_log("BODY " . json_encode($body));
 		if ($statusCode > 399) {
 			// var_dump($body);
 			$reason = $response->getReasonPhrase();
@@ -413,7 +421,7 @@ class ServerController extends Controller
 		if ($clientId && count($clientRegistration)) {
 			return new \Pdsinterop\Solid\Auth\Config\Client(
 				$clientId,
-				$clientRegistration['client_secret'],
+				$clientRegistration['client_secret'] ?? '',
 				$clientRegistration['redirect_uris'],
 				$clientRegistration['client_name']
 			);
