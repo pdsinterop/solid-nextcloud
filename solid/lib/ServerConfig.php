@@ -4,56 +4,26 @@
 	use OCP\IConfig;
 	use OCP\IUserManager;
 	use OCP\IUrlGenerator;
-
+	use OCA\Solid\BaseServerConfig;
+	
 	/**
 	 * @package OCA\Solid
 	 */
-	class ServerConfig {
-		/** @var IConfig */
-		private $config;
+	class ServerConfig extends BaseServerConfig {
+		private IConfig $config;
+		private IUrlGenerator $urlGenerator;
+		private IUserManager $userManager;
 
 		/**
 		 * @param IConfig $config
+		 * @param IUrlGenerator $urlGenerator
+		 * @param IUserManager $userManager
 		 */
 		public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager) {
 			$this->config = $config;
 			$this->userManager = $userManager;
 			$this->urlGenerator = $urlGenerator;
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getPrivateKey() {
-			$result = $this->config->getAppValue('solid','privateKey');
-			if (!$result) {
-				// generate and save a new set if we don't have a private key;
-				$keys = $this->generateKeySet();
-				$this->config->setAppValue('solid','privateKey',$keys['privateKey']);
-				$this->config->setAppValue('solid','encryptionKey',$keys['encryptionKey']);
-			}
-			return $this->config->getAppValue('solid','privateKey');
-		}
-
-		/**
-		 * @param string $privateKey
-		 */
-		public function setPrivateKey($privateKey) {
-			$this->config->setAppValue('solid','privateKey',$privateKey);
-		}
-
-		/**
-		 * @return string
-		 */
-		public function getEncryptionKey() {
-			return $this->config->getAppValue('solid','encryptionKey');
-		}
-
-		/**
-		 * @param string $publicKey
-		 */
-		public function setEncryptionKey($publicKey) {
-			$this->config->setAppValue('solid','encryptionKey',$publicKey);
+			parent::__construct($config);
 		}
 
 		/**
@@ -66,6 +36,14 @@
 				return $clients[$clientId];
 			}
 			return null;
+		}
+
+		/**
+		 * @return array|null
+		 */
+		public function getClients() {
+			$clients = (array)$this->config->getAppKeys('solid');
+			return $clients;
 		}
 
 		/**
@@ -151,7 +129,13 @@
 			$clientData['client_name'] = $origin;
 			$clientData['client_secret'] = md5(random_bytes(32));
 			$this->config->setAppValue('solid', "client-" . $originHash, json_encode($clientData));
+
+			$this->config->setAppValue('solid', "client-" . $origin, json_encode($clientData));
 			return $originHash;
+		}
+
+		public function removeClientRegistration($clientId) {
+			$this->config->deleteAppValue('solid', "client-" . $clientId);
 		}
 
 		public function getClientRegistration($clientId) {
@@ -179,23 +163,5 @@
 				$user = $this->userManager->get($userId);
 				$user->setDisplayName($fields['name']);
 			}
-		}
-		private function generateKeySet() {
-			$config = array(
-				"digest_alg" => "sha256",
-				"private_key_bits" => 2048,
-				"private_key_type" => OPENSSL_KEYTYPE_RSA,
-			);
-			// Create the private and public key
-			$key = openssl_pkey_new($config);
-
-			// Extract the private key from $key to $privateKey
-			openssl_pkey_export($key, $privateKey);
-			$encryptionKey = base64_encode(random_bytes(32));
-			$result = array(
-				"privateKey" => $privateKey,
-				"encryptionKey" => $encryptionKey
-			);
-			return $result;
 		}
 	}

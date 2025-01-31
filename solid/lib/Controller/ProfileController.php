@@ -274,11 +274,13 @@ EOF;
 			$addressBooks = $this->contactsManager->getUserAddressBooks();
 			$friends = [];
 			foreach($addressBooks as $k => $v) {
-			  $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
-			  foreach($results as $found) {
-				  foreach($found['URL'] as $i => $obj) {
-					array_push($friends, $obj['value']);
-				  }
+				$results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
+				foreach($results as $found) {
+					if (isset($found['URL']) && is_array($found['URL'])) {
+						foreach($found['URL'] as $i => $obj) {
+							array_push($friends, $obj['value']);
+						}
+					}
 				}
 			}
 			if ($user !== null) {

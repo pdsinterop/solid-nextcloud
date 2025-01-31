@@ -240,7 +240,7 @@ EOF;
 				$result->addHeader($header, $value);
 			}
 		}
-		
+
 		$result->setStatus($statusCode);
 		return $result;
 	}

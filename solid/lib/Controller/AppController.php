@@ -30,21 +30,21 @@ class AppController extends Controller {
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 	}
 
-    private function getUserApps($userId) {   
+	private function getUserApps($userId) {   
 		$userApps = [];
 		if ($this->userManager->userExists($userId)) {
-            $allowedClients = $this->config->getAllowedClients($userId);
+			$allowedClients = $this->config->getAllowedClients($userId);
 			foreach ($allowedClients as $clientId) {
 				$registration = $this->config->getClientRegistration($clientId);
 				$userApps[] = $registration['client_name'];
 			}
 		}
 		return $userApps;
-    }
+	}
 
 	private function getAppsList() {
-        $path = __DIR__ . "/../solid-app-list.json";
-        $appsListJson = file_get_contents($path);
+		$path = __DIR__ . "/../solid-app-list.json";
+		$appsListJson = file_get_contents($path);
 		$appsList = json_decode($appsListJson, true);
 		
 		$userApps = $this->getUserApps($this->userId);
@@ -58,7 +58,7 @@ class AppController extends Controller {
 				$appsList[$key]['registered'] = 0;
 			}
 		}
-        return $appsList;
+		return $appsList;
 	}
 
 	private function getProfilePage() {
@@ -74,11 +74,11 @@ class AppController extends Controller {
 	 * @NoCSRFRequired
 	 */
 	public function appLauncher() {
-        $appsList = $this->getAppsList();
+		$appsList = $this->getAppsList();
 		if (!$appsList) {
 		   return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
 		}
-        $appLauncherData = array(
+		$appLauncherData = array(
 			"appsListJson" => json_encode($appsList),
 			"webId" => json_encode($this->getProfilePage()),
 			"storageUrl" => json_encode($this->getStorageUrl($this->userId)),
@@ -88,11 +88,11 @@ class AppController extends Controller {
 			)
 		);
 		$templateResponse = new TemplateResponse('solid', 'applauncher', $appLauncherData);
-        $policy = new ContentSecurityPolicy();
-        $policy->addAllowedStyleDomain("data:");
-        $policy->addAllowedScriptDomain("'self'");
-        $policy->addAllowedScriptDomain("'unsafe-inline'");
-        $policy->addAllowedScriptDomain("'unsafe-eval'");
+		$policy = new ContentSecurityPolicy();
+		$policy->addAllowedStyleDomain("data:");
+		$policy->addAllowedScriptDomain("'self'");
+		$policy->addAllowedScriptDomain("'unsafe-inline'");
+		$policy->addAllowedScriptDomain("'unsafe-eval'");
 		$templateResponse->setContentSecurityPolicy($policy);
 		return $templateResponse;
 	}

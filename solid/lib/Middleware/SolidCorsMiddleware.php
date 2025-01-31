@@ -15,7 +15,7 @@
 
         public function afterController($controller, $methodName, Response $response) {
             $corsMethods="GET, PUT, POST, OPTIONS, DELETE, PATCH";
-            $corsAllowedHeaders="*, allow, accept, authorization, content-type, dpop, slug";
+            $corsAllowedHeaders="*, allow, accept, authorization, content-type, dpop, slug, link";
             $corsMaxAge="1728000";
             $corsExposeHeaders="Authorization, User, Location, Link, Vary, Last-Modified, ETag, Accept-Patch, Accept-Post, Updates-Via, Allow, WAC-Allow, Content-Length, WWW-Authenticate, MS-Author-Via";
             $corsAllowCredentials="true";
@@ -34,8 +34,10 @@
             $response->addHeader('Access-Control-Expose-Headers', $corsExposeHeaders);
             $response->addHeader('Accept-Patch', 'text/n3');
 
-            $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
-            $response->addHeader('updates-via', $pubsub);
+            $pubsub = getenv("PUBSUB_URL");
+            if ($pubsub) {
+                $response->addHeader('updates-via', $pubsub);
+            }
             $linkHeaders = '</.well-known/solid>; rel="http://www.w3.org/ns/solid#storageDescription"';
             $existingHeaders = $response->getHeaders();
             if (isset($existingHeaders['Link'])) { // careful - this dictionary key is case sensitive here
@@ -43,9 +45,14 @@
             }
             $response->addHeader('Link', $linkHeaders);
 
-            // Note that apart from these, the Link header with rel="acl" and the WAC-Allow header
-            // are already added by these lines in vendor/pdsinterop/solid-auth:
-            // https://github.com/pdsinterop/php-solid-auth/blob/e07c22d/src/WAC.php#L39-L40
+            /**
+             * Please note that the Link header with rel='acl' and the WAC-Allow
+             * header have already been added by pdsinterop/solid-auth, and Link
+             * headers with rel='type' by pdsinterop/php-solid-crud.
+             *
+             * @see https://github.com/pdsinterop/php-solid-auth/blob/v0.10.1/src/WAC.php#L39-L40
+             * @see https://github.com/pdsinterop/php-solid-crud/blob/v0.7.1/src/Server.php#L679-L683
+             */
             return $response;
         }
     }

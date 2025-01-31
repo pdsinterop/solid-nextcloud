@@ -2,6 +2,7 @@
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
+use OCA\Solid\BearerFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
 
@@ -15,12 +16,15 @@ use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 
+use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
+
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class StorageController extends Controller
 {
 	use DpopFactoryTrait;
+	use BearerFactoryTrait;
 
 	/* @var IURLGenerator */
 	private $urlGenerator;
@@ -304,19 +308,39 @@ EOF;
 
 		$dpop = $this->getDpop();
 
+		$error = false;
 		try {
 			$webId = $dpop->getWebId($request);
 		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+			$error = $e;
+		}
+
+		if (!isset($webId)) {
+			$bearer = $this->getBearer();
+			try {
+				$webId = $bearer->getWebId($request);
+			} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+				$error = $e;
+			}
+		}
+
+		if (!isset($webId)) {
 			$response = $this->resourceServer->getResponse()
-				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
+				->withStatus(Http::STATUS_CONFLICT, "Invalid token");
 			return $this->respond($response);
 		}
+
 		$origin = $request->getHeaderLine("Origin");
 		$allowedClients = $this->config->getAllowedClients($userId);
 		$allowedOrigins = array();
 		foreach ($allowedClients as $clientId) {
 			$clientRegistration = $this->config->getClientRegistration($clientId);
-			$allowedOrigins[] = $clientRegistration['client_name'];
+			if (isset($clientRegistration['client_name'])) {
+				$allowedOrigins[] = $clientRegistration['client_name'];
+			}
+			if (isset($clientRegistration['origin'])) {
+				$allowedOrigins[] = $clientRegistration['origin'];
+			}
 		}
 		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
 			$response = $this->resourceServer->getResponse()
@@ -399,16 +423,27 @@ EOF;
 		$result = new PlainResponse($body);
 
 		foreach ($headers as $header => $values) {
-			foreach ($values as $value) {
-				$result->addHeader($header, $value);
-			}
+			$result->addHeader($header, implode(", ", $values));
 		}
+
 //		$origin = $_SERVER['HTTP_ORIGIN'];
 //		$result->addHeader('Access-Control-Allow-Credentials', 'true');
 //		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //		$result->addHeader('Access-Control-Allow-Origin', $origin);
 		
-		$result->setStatus($statusCode);
+                $policy = new EmptyContentSecurityPolicy();
+                $policy->addAllowedStyleDomain("*");
+                $policy->addAllowedStyleDomain("data:");
+                $policy->addAllowedScriptDomain("*");
+                $policy->addAllowedImageDomain("*");
+                $policy->addAllowedFontDomain("*");
+                $policy->addAllowedConnectDomain("*");
+                $policy->allowInlineStyle(true);
+                // $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
+                $policy->allowEvalScript(true);
+                $result->setContentSecurityPolicy($policy);
+                
+                $result->setStatus($statusCode);
 		return $result;
 	}
 }

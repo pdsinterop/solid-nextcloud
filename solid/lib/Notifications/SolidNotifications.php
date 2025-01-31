@@ -9,11 +9,18 @@
     {
         private $notifications;
         public function __construct() {
-            $pubsub = getenv("PUBSUB_URL") ?: "http://pubsub:8080";
-            $this->notifications = [
-            	new SolidWebhook(),
-            	new SolidPubSub($pubsub)
-	        ];
+
+            $notifications = [
+                new SolidWebhook(),
+            ];
+
+            $pubsub = getenv('PUBSUB_URL');
+
+            if ($pubsub) {
+                $notifications[] = new SolidPubSub($pubsub);
+            }
+
+            $this->notifications = $notifications;
         }
 
         public function send($path, $type) {
