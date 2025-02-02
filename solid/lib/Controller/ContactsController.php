@@ -27,7 +27,7 @@ class ContactsController extends Controller
 
 	/* @var ISession */
 	private $session;
-	
+
 	public function __construct(
 		$AppName,
 		IRequest $request,
@@ -51,7 +51,7 @@ class ContactsController extends Controller
 
 	private function getFileSystem($userId) {
 		// Make sure the root folder has an acl file, as is required by the spec;
-        // Generate a default file granting the owner full access.
+		// Generate a default file granting the owner full access.
 		$defaultAcl = $this->generateDefaultAcl($userId);
 
 		// Create the Nextcloud Contacts Adapter
@@ -62,7 +62,11 @@ class ContactsController extends Controller
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverUri = "https://" . $this->rawRequest->getServerParams()["SERVER_NAME"] . $this->rawRequest->getServerParams()["REQUEST_URI"]; // FIXME: doublecheck that this is the correct url;
+		$serverParams = $this->rawRequest->getServerParams();
+		$scheme = $serverParams['REQUEST_SCHEME'];
+		$domain = $serverParams['SERVER_NAME'];
+		$path = $serverParams['REQUEST_URI'];
+		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
@@ -75,7 +79,7 @@ class ContactsController extends Controller
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-		
+
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
 		$filesystem->addPlugin($plugin);
 
@@ -123,18 +127,18 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-        $this->contactsUserId = $userId;
-        
+		$this->contactsUserId = $userId;
+
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
 
 		$this->filesystem = $this->getFileSystem($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);		
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
 		$this->WAC = new WAC($this->filesystem);
 
 		$request = $this->rawRequest;
-		$baseUrl = $this->getContactsUrl($userId);		
+		$baseUrl = $this->getContactsUrl($userId);
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$notifications = new SolidNotifications();
@@ -149,26 +153,26 @@ EOF;
 				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 			return $this->respond($response);
 		}
-		
+
 		if (!$this->WAC->isAllowed($request, $webId)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
 
-		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->resourceServer->respondToRequest($request);
 		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handleGet($userId, $path) {	
+	public function handleGet($userId, $path) {
 		return $this->handleRequest($userId, $path);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -185,7 +189,7 @@ EOF;
 	public function handlePut() { // $userId, $path) {
 		// FIXME: Adding the correct variables in the function name will make nextcloud
 		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
-		
+
 		// because we got here, the request uri should look like:
 		// /index.php/apps/solid/@{userId}/storage{path}
 		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
@@ -193,7 +197,7 @@ EOF;
 		$userId = $pathInfo[0];
 		$path = $pathInfo[1];
 		$path = preg_replace("/^contacts/", "", $path);
-		
+
 		return $this->handleRequest($userId, $path);
 	}
 	/**
