@@ -343,10 +343,11 @@ class ServerController extends Controller
 			$origin .= ":" . $parsedOrigin['port'];
 		}
 
-		$clientId = $this->config->saveClientRegistration($origin, $clientData);
+		$clientData = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
-			'client_id' => $clientId,
-			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
+			'client_id' => $clientData['client_id'],
+			'client_secret' => $clientData['client_secret'],
+			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
@@ -413,7 +414,7 @@ class ServerController extends Controller
 		if ($clientId && count($clientRegistration)) {
 			return new \Pdsinterop\Solid\Auth\Config\Client(
 				$clientId,
-				$clientRegistration['client_secret'],
+				$clientRegistration['client_secret'] ?? '',
 				$clientRegistration['redirect_uris'],
 				$clientRegistration['client_name']
 			);
