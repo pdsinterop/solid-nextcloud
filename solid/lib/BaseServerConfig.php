@@ -151,7 +151,6 @@
 			unset($scopes[$clientId]);
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
-
 		public function saveClientRegistration($origin, $clientData) {
 			$originHash = md5($origin);
 			$existingRegistration = $this->getClientRegistration($originHash);
@@ -161,14 +160,14 @@
 				}
 				$clientData['redirect_uris'] = array_unique($clientData['redirect_uris']);
 			}
-			if (!$existingRegistration) {
-				$clientData['client_secret'] = md5(random_bytes(32));
-			}
+
+			$clientData['client_id'] = $originHash;
 			$clientData['client_name'] = $origin;
+			$clientData['client_secret'] = md5(random_bytes(32));
 			$this->config->setAppValue('solid', "client-" . $originHash, json_encode($clientData));
+
 			$this->config->setAppValue('solid', "client-" . $origin, json_encode($clientData));
-			$this->saveClientConfig($originHash, $clientData);
-			return $originHash;
+			return $clientData;
 		}
 
 		public function removeClientRegistration($clientId) {
