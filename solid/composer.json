@@ -31,7 +31,7 @@
         "lcobucci/jwt": "^4.1",
         "pdsinterop/flysystem-nextcloud": "^0.2",
         "pdsinterop/flysystem-rdf": "^0.5",
-        "pdsinterop/solid-auth": "v0.10.3",
+        "pdsinterop/solid-auth": "v0.11.0",
         "pdsinterop/solid-crud": "^0.7.3",
         "psr/log": "^1.1"
     },
