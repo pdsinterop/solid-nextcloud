@@ -21,8 +21,8 @@
     {
         "name": "Poddit",
         "tagline": "Private bookmarking",
-        "launchUrl": "https://poddit.app",
-        "appOrigin": "https://poddit.app",
+        "launchUrl": "https://vincenttunru.gitlab.io/poddit/",
+        "appOrigin": "https://vincenttunru.gitlab.io",
         "requirements": [
             {
                 "type": "class",
