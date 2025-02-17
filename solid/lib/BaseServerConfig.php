@@ -90,7 +90,8 @@
 					$clientRegistration = json_decode($this->config->getAppValue('solid', $key, '{}'), true);
 					$clients[] = [
 						"clientId" => $matches[1],
-						"clientName" => $clientRegistration['client_name']
+						"clientName" => $clientRegistration['client_name'],
+						"clientBlocked" => $clientRegistration['blocked']
 					];
 				}
 			}

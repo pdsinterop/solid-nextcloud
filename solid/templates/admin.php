@@ -22,6 +22,7 @@
 			<tr>
 				<th>Client ID</th>
 				<th>Client name</th>
+				<th>Block</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -29,6 +30,7 @@
 				<tr>
 					<td><?php p($registration['clientId']); ?></td>
 					<td><?php p($registration['clientName']); ?></td>
+					<td><input type="checkbox" class="solid-client-block" data-client="<?php p($registration['clientId']); ?>"<?php if ($registration['clientBlocked']) { echo " checked";} ?> value=1></td>
 				</tr>
 			<?php } ?>
 		</tbody>
