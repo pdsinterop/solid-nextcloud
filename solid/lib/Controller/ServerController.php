@@ -205,7 +205,7 @@ class ServerController extends Controller
 		}
 
 		$clientRegistration = $this->config->getClientRegistration($clientId);
-		if ($clientRegistration['blocked'] === true) {
+		if (isset($clientRegistration['blocked']) && ($clientRegistration['blocked'] === true)) {
 			$result = new JSONResponse('Unauthorized client');
 			$result->setStatus(403);
 			return $result;
