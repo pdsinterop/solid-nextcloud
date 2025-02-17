@@ -196,12 +196,19 @@ class ServerController extends Controller
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData);
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData);
+			$clientId = $this->config->saveClientRegistration($origin, $clientData)['client_id'];
+			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['client_id'];
 			$returnUrl = $getVars['redirect_uri'];
 		} else {
 			$clientId = $getVars['client_id'];
 			$returnUrl = $_SERVER['REQUEST_URI'];
+		}
+
+		$clientRegistration = $this->config->getClientRegistration($clientId);
+		if (isset($clientRegistration['blocked']) && ($clientRegistration['blocked'] === true)) {
+			$result = new JSONResponse('Unauthorized client');
+			$result->setStatus(403);
+			return $result;
 		}
 
 		$approval = $this->checkApproval($clientId);

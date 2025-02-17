@@ -90,7 +90,8 @@
 					$clientRegistration = json_decode($this->config->getAppValue('solid', $key, '{}'), true);
 					$clients[] = [
 						"clientId" => $matches[1],
-						"clientName" => $clientRegistration['client_name']
+						"clientName" => $clientRegistration['client_name'],
+						"clientBlocked" => $clientRegistration['blocked']
 					];
 				}
 			}
@@ -159,6 +160,9 @@
 					$clientData['redirect_uris'][] = $uri;
 				}
 				$clientData['redirect_uris'] = array_unique($clientData['redirect_uris']);
+				if (isset($existingRegistration['blocked'])) {
+					$clientData['blocked'] = $existingRegistration['blocked'];
+				}
 			}
 
 			$clientData['client_id'] = $originHash;
