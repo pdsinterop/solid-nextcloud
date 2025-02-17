@@ -160,6 +160,9 @@
 					$clientData['redirect_uris'][] = $uri;
 				}
 				$clientData['redirect_uris'] = array_unique($clientData['redirect_uris']);
+				if (isset($existingRegistration['blocked'])) {
+					$clientData['blocked'] = $existingRegistration['blocked'];
+				}
 			}
 
 			$clientData['client_id'] = $originHash;
