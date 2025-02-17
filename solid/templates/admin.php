@@ -1,4 +1,6 @@
 <?php
+	// phpcs:ignoreFile
+	// Let codesniffer ignore this file, as we are heavily mixing php and HTML together.
 	script('solid', 'settings-admin');
 	style('solid', 'settings-admin');
 ?>
