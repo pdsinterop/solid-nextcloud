@@ -54,20 +54,6 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # @FIXME: Add functions to validate required tools are installed
 
 publish_to_nextcloud_store() {
-    local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
-
-    readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sGithubToken="${3?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sNextcloudToken="${4?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-
-    # @FIXME: This just hard-codes the path, either the path or the contents of
-    #         the file should be passed in as parameter
-    sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
-    readonly sKeyFile
-    readonly sSignatureFile="signature.base64"
-    readonly sTarball='solid.tar.gz'
-
     checkoutTag() {
         local sVersion
 
@@ -172,6 +158,20 @@ publish_to_nextcloud_store() {
             "${sUrl}?name=${sTarball}" \
             | "${JQ}" --raw-output '.browser_download_url'
     }
+
+    local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
+
+    readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sGithubToken="${3?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sNextcloudToken="${4?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+
+    # @FIXME: This just hard-codes the path, either the path or the contents of
+    #         the file should be passed in as parameter
+    sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
+    readonly sKeyFile
+    readonly sSignatureFile="signature.base64"
+    readonly sTarball='solid.tar.gz'
 
     checkoutTag "${sVersion}"
     # @TODO: The PHP version should either be a param, parsed from composer.json or both!
