@@ -53,6 +53,18 @@ set -o errexit -o errtrace -o nounset -o pipefail
 
 # @FIXME: Add functions to validate required tools are installed
 
+print_usage() {
+    local sScript sUsage
+
+    sScript="$(basename "$0")"
+    readonly sScript
+
+    sUsage="$(grep '^#/' <"$0" | cut -c4-)"
+    readonly sUsage
+
+    echo -e "${sUsage//\$0/${sScript}}"
+}
+
 publish_to_nextcloud_store() {
     checkoutTag() {
         local sVersion
