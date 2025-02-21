@@ -26,6 +26,11 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # - The `transfer/solid.key` and `transfer/solid.crt` files exist (both are needed to create a signature)
 #
 # ------------------------------------------------------------------------------
+# Usage:
+#     $0 <version>
+#
+# Where:
+#     <version>   The version for which a release should be published
 #
 # Usage example:
 #
@@ -33,8 +38,24 @@ set -o errexit -o errtrace -o nounset -o pipefail
 #
 # ==============================================================================
 
-publish_to_nextcloud_store() {
+# Allow overriding the executables used in this script
+: "${GIT:=git}"
 
+# @FIXME: Add functions to validate required tools are installed
+
+publish_to_nextcloud_store() {
+    local sVersion
+    readonly sVersion="${1?One parameters required: <version>}"
+
+    checkoutTag() {
+        local sVersion
+
+        readonly sVersion="${1?One parameter required: <version>}"
+
+        "${GIT}" checkout "${sVersion}"
+    }
+
+    checkoutTag "${sVersion}"
 }
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
