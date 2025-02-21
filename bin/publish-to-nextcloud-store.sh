@@ -32,6 +32,7 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # Where:
 #     <subject-path>    The path to where the project repository is located
 #     <version>         The version for which a release should be published
+#     <github-token>    A token used to make GET and POST calls to the GitHub API
 #
 # Usage example:
 #
@@ -40,17 +41,20 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # ==============================================================================
 
 # Allow overriding the executables used in this script
+: "${CURL:=curl}"
 : "${DOCKER:=docker}"
 : "${GIT:=git}"
+: "${JQ:=jq}"
 : "${TAR:=tar}"
 
 # @FIXME: Add functions to validate required tools are installed
 
 publish_to_nextcloud_store() {
-    local sSourceDirectory sTarball sVersion
+    local sDownloadUrl sGithubToken sSourceDirectory sTarball sUploadUrl sVersion
 
-    readonly sSourceDirectory="${1?Two parameters required: <subject-path> <version>}"
-    readonly sVersion="${2?Two parameters required: <subject-path> <version>}"
+    readonly sSourceDirectory="${1?Three parameters required: <subject-path> <version> <github-token>}"
+    readonly sVersion="${2?Three parameters required: <subject-path> <version> <github-token>}"
+    readonly sGithubToken="${3?Three parameters required: <subject-path> <version> <github-token>}"
 
     readonly sTarball='solid.tar.gz'
 
@@ -69,6 +73,21 @@ publish_to_nextcloud_store() {
         readonly sTarball="${2?Two parameters required: <source-path> <tarball-name>}"
 
         "${TAR}" --directory="${sSourceDirectory}" --create --file "${sTarball}" --gzip "solid"
+    }
+
+    fetchGitHubUploadUrl() {
+        local sGithubToken sVersion
+
+        readonly sVersion="${1?Two parameters required: <version> <github-token>}"
+        readonly sGithubToken="${2?Two parameters required: <version> <github-token>}"
+
+        "${CURL}" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${sGithubToken}" \
+            --silent \
+            "https://api.github.com/repos/pdsinterop/solid-nextcloud/releases/tags/${sVersion}" \
+            | "${JQ}" --raw-output '.upload_url' \
+            | cut -d '{' -f 1
     }
 
     installDependencies() {
@@ -90,11 +109,35 @@ publish_to_nextcloud_store() {
             '
     }
 
+    uploadAssetToGitHub() {
+        local sGithubToken sTarball sUrl
+
+        readonly sUrl="${1?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+        readonly sGithubToken="${2?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+        readonly sTarball="${3?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+
+        "${CURL}" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${sGithubToken}" \
+            --header "Content-Length: $(stat --printf="%s" "${sTarball}")" \
+            --header "Content-Type: $(file -b --mime-type "${sTarball}")" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --request POST \
+            --silent \
+            --upload-file "${sTarball}" \
+            "${sUrl}?name=${sTarball}" \
+            | "${JQ}" --raw-output '.browser_download_url'
+    }
+
     checkoutTag "${sVersion}"
     # @TODO: The PHP version should either be a param, parsed from composer.json or both!
     #        (Allow to be set but used parsed value as default...)
     installDependencies 'composer:2.2.17' "${sSourceDirectory}"
     createTarball "${sSourceDirectory}" "${sTarball}"
+
+    sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${sGithubToken}")"
+    readonly sUploadUrl
+    sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
 }
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
