@@ -35,6 +35,7 @@ set -o errexit -o errtrace -o nounset -o pipefail
 #     <subject-path>    The path to where the project repository is located
 #     <version>         The version for which a release should be published
 #     <github-token>    A token used to make GET and POST calls to the GitHub API
+#     <nextcloud-token> The access token used to POST to the Nextcloud Apps Store API
 #
 # Usage example:
 #
@@ -53,12 +54,12 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # @FIXME: Add functions to validate required tools are installed
 
 publish_to_nextcloud_store() {
-    local sDownloadUrl sGithubToken sKeyFile sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
+    local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
 
-    readonly sSourceDirectory="${1?Three parameters required: <subject-path> <version> <github-token>}"
-    readonly sVersion="${2?Three parameters required: <subject-path> <version> <github-token>}"
-    readonly sGithubToken="${3?Three parameters required: <subject-path> <version> <github-token>}"
-
+    readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sGithubToken="${3?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    readonly sNextcloudToken="${4?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
 
     # @FIXME: This just hard-codes the path, either the path or the contents of
     #         the file should be passed in as parameter
@@ -129,6 +130,29 @@ publish_to_nextcloud_store() {
             '
     }
 
+    publishToNextcloud() {
+        local sDownloadUrl sJson sNextcloudToken sSignatureFile
+
+        readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
+        readonly sSignatureFile="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
+        readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
+
+        sJson="$(
+            printf '{"download":"%s", "signature": "%s"}' \
+                "${sDownloadUrl}" \
+                "$(cat "${sSignatureFile}")"
+        )"
+        readonly sJson
+
+        "${CURL}" \
+            --data "${sJson}" \
+            --header "Authorization: Token ${sNextcloudToken}" \
+            --header "Content-Type: application/json" \
+            --request POST \
+            --silent \
+            'https://apps.nextcloud.com/api/v1/apps/releases'
+    }
+
     uploadAssetToGitHub() {
         local sGithubToken sTarball sUrl
 
@@ -160,6 +184,7 @@ publish_to_nextcloud_store() {
     sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
 
     createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
+    publishToNextcloud "${sDownloadUrl}" "${sSignatureFile}" "${sNextcloudToken}"
 
     # @FIXME: Add an exit trap to remove "${sSignatureFile}"
 }
