@@ -5,42 +5,46 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # ==============================================================================
 #                           PUBLISH TO NEXTCLOUD STORE
 # ------------------------------------------------------------------------------
-# This script takes all steps needed to publish a release of solid-nextcloud to
-# the Nextcloud App store. This consists of:
-#
-# 1. Building a package
-#    - checking out the created tag
-#    - installing the project dependencies
-#    - creating a tarball from the project and its dependencies
-# 2. Deploying the package'
-#    - getting the URL from GitHub to where the tarball should be uploaded
-#    - uploading the tarball to GitHub
-# 3. Creating a release in the Nextcloud App store'
-#    - creating a signature file for the tarball
-#    - publishing the tarball to the Nextcloud store
-#
-# There are various assumption made by this script:
-#
-# - A git tag has been created
-# - A GitHub Release has been created (so a Release Page exists where a package can be uploaded to)
-# - The `transfer/solid.key` and `transfer/solid.crt` files exist (both are needed to create a signature)
+#/ This script takes all steps needed to publish a release of solid-nextcloud to the Nextcloud App store.
+#/
+#/ This consists of:
+#/
+#/ 1. Building a package
+#/    - checking out the created tag
+#/    - installing the project dependencies
+#/    - creating a tarball from the project and its dependencies
+#/ 2. Deploying the package'
+#/    - getting the URL from GitHub to where the tarball should be uploaded
+#/    - uploading the tarball to GitHub
+#/ 3. Creating a release in the Nextcloud App store
+#/    - creating a signature file for the tarball
+#/    - publishing the tarball to the Nextcloud store
+#/
+#/ There are various assumption made by this script:
+#/
+#/ - A git tag has been created
+#/ - A GitHub Release has been created (so a Release Page exists where a package can be uploaded to)
+#/ - The `transfer/solid.key` and `transfer/solid.crt` files exist (both are needed to create a signature)
+#/
 #
 # @CHECKME: The need for the `transfer/solid.crt` file is taken from the original deploy instructions,
 #           But it is not _explicitly_ used in this script. Is the need implicit? Or incorrect?
 # ------------------------------------------------------------------------------
-# Usage:
-#     $0 <subject-path> <version>
-#
-# Where:
-#     <subject-path>    The path to where the project repository is located
-#     <version>         The version for which a release should be published
-#     <github-token>    A token used to make GET and POST calls to the GitHub API
-#     <nextcloud-token> The access token used to POST to the Nextcloud Apps Store API
-#
-# Usage example:
-#
-#     bash bin/publish_to_nextcloud_store.sh "${PWD}" 'v0.9.0'
-#
+#/ Usage:
+#/
+#/     $0 <subject-path> <version>
+#/
+#/ Where:
+#/
+#/     <subject-path>    The path to where the project repository is located
+#/     <version>         The version for which a release should be published
+#/     <github-token>    A token used to make GET and POST calls to the GitHub API
+#/     <nextcloud-token> The access token used to POST to the Nextcloud Apps Store API
+#/
+#/ Usage example:
+#/
+#/     $0 "${PWD}" 'v0.9.0' "$(cat /path/to/github.token)" "${NEXTCLOUD_TOKEN}"
+#/
 # ==============================================================================
 
 # Allow overriding the executables used in this script
@@ -52,6 +56,8 @@ set -o errexit -o errtrace -o nounset -o pipefail
 : "${TAR:=tar}"
 
 # @FIXME: Add functions to validate required tools are installed
+
+: readonly -i "${EXIT_NOT_ENOUGH_PARAMETERS:=65}"
 
 print_usage() {
     local sScript sUsage
@@ -171,34 +177,52 @@ publish_to_nextcloud_store() {
             | "${JQ}" --raw-output '.browser_download_url'
     }
 
-    local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
+    local sOption bShowUsage
+    bShowUsage=false
 
-    readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sGithubToken="${3?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
-    readonly sNextcloudToken="${4?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+    for sOption in "${@}"; do
+        case "${sOption}" in
+            -h | --help)
+                bShowUsage=true
+                ;;
+        esac
+    done
 
-    # @FIXME: This just hard-codes the path, either the path or the contents of
-    #         the file should be passed in as parameter
-    sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
-    readonly sKeyFile
-    readonly sSignatureFile="signature.base64"
-    readonly sTarball='solid.tar.gz'
+    if [ "${bShowUsage}" = true ];then
+        print_usage
+    elif [[ "$#" -lt 4 ]];then
+        printf " [ERROR]: %s\n\n%s\n" 'This script expects four command-line arguments' 'Call --help for more details' >&2
+        exit ${EXIT_NOT_ENOUGH_PARAMETERS}
+    else
+        local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
 
-    checkoutTag "${sVersion}"
-    # @TODO: The PHP version should either be a param, parsed from composer.json or both!
-    #        (Allow to be set but used parsed value as default...)
-    installDependencies 'composer:2.2.17' "${sSourceDirectory}"
-    createTarball "${sSourceDirectory}" "${sTarball}"
+        readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+        readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+        readonly sGithubToken="${3?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
+        readonly sNextcloudToken="${4?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
 
-    sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${sGithubToken}")"
-    readonly sUploadUrl
-    sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
+        # @FIXME: This just hard-codes the path, either the path or the contents of
+        #         the file should be passed in as parameter
+        sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
+        readonly sKeyFile
+        readonly sSignatureFile="signature.base64"
+        readonly sTarball='solid.tar.gz'
 
-    createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
-    publishToNextcloud "${sDownloadUrl}" "${sSignatureFile}" "${sNextcloudToken}"
+        checkoutTag "${sVersion}"
+        # @TODO: The PHP version should either be a param, parsed from composer.json or both!
+        #        (Allow to be set but used parsed value as default...)
+        installDependencies 'composer:2.2.17' "${sSourceDirectory}"
+        createTarball "${sSourceDirectory}" "${sTarball}"
 
-    # @FIXME: Add an exit trap to remove "${sSignatureFile}"
+        sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${sGithubToken}")"
+        readonly sUploadUrl
+        sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
+
+        createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
+        publishToNextcloud "${sDownloadUrl}" "${sSignatureFile}" "${sNextcloudToken}"
+
+        # @FIXME: Add an exit trap to remove "${sSignatureFile}"
+    fi
 }
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
