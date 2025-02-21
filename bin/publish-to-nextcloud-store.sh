@@ -25,6 +25,8 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # - A GitHub Release has been created (so a Release Page exists where a package can be uploaded to)
 # - The `transfer/solid.key` and `transfer/solid.crt` files exist (both are needed to create a signature)
 #
+# @CHECKME: The need for the `transfer/solid.crt` file is taken from the original deploy instructions,
+#           But it is not _explicitly_ used in this script. Is the need implicit? Or incorrect?
 # ------------------------------------------------------------------------------
 # Usage:
 #     $0 <subject-path> <version>
@@ -45,17 +47,24 @@ set -o errexit -o errtrace -o nounset -o pipefail
 : "${DOCKER:=docker}"
 : "${GIT:=git}"
 : "${JQ:=jq}"
+: "${OPENSSL:=openssl}"
 : "${TAR:=tar}"
 
 # @FIXME: Add functions to validate required tools are installed
 
 publish_to_nextcloud_store() {
-    local sDownloadUrl sGithubToken sSourceDirectory sTarball sUploadUrl sVersion
+    local sDownloadUrl sGithubToken sKeyFile sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
 
     readonly sSourceDirectory="${1?Three parameters required: <subject-path> <version> <github-token>}"
     readonly sVersion="${2?Three parameters required: <subject-path> <version> <github-token>}"
     readonly sGithubToken="${3?Three parameters required: <subject-path> <version> <github-token>}"
 
+
+    # @FIXME: This just hard-codes the path, either the path or the contents of
+    #         the file should be passed in as parameter
+    sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
+    readonly sKeyFile
+    readonly sSignatureFile="signature.base64"
     readonly sTarball='solid.tar.gz'
 
     checkoutTag() {
@@ -64,6 +73,17 @@ publish_to_nextcloud_store() {
         readonly sVersion="${1?One parameter required: <version>}"
 
         "${GIT}" checkout "${sVersion}"
+    }
+
+    createSignature() {
+        local sKeyFile sTarball
+
+        readonly sTarball="${1?Two parameter required: <tarball-name> <key-file>}"
+        readonly sKeyFile="${2?Two parameter required: <tarball-name> <key-file>}"
+
+        "${OPENSSL}" dgst -sha512 -sign "${sKeyFile}" "${sTarball}" \
+            | "${OPENSSL}" base64 \
+            | tr -d "\n"
     }
 
     createTarball() {
@@ -138,6 +158,10 @@ publish_to_nextcloud_store() {
     sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${sGithubToken}")"
     readonly sUploadUrl
     sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
+
+    createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
+
+    # @FIXME: Add an exit trap to remove "${sSignatureFile}"
 }
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
