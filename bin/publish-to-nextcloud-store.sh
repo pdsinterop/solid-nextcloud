@@ -42,14 +42,17 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # Allow overriding the executables used in this script
 : "${DOCKER:=docker}"
 : "${GIT:=git}"
+: "${TAR:=tar}"
 
 # @FIXME: Add functions to validate required tools are installed
 
 publish_to_nextcloud_store() {
-    local sSourceDirectory sVersion
+    local sSourceDirectory sTarball sVersion
 
     readonly sSourceDirectory="${1?Two parameters required: <subject-path> <version>}"
     readonly sVersion="${2?Two parameters required: <subject-path> <version>}"
+
+    readonly sTarball='solid.tar.gz'
 
     checkoutTag() {
         local sVersion
@@ -57,6 +60,15 @@ publish_to_nextcloud_store() {
         readonly sVersion="${1?One parameter required: <version>}"
 
         "${GIT}" checkout "${sVersion}"
+    }
+
+    createTarball() {
+        local sSourceDirectory sTarball
+
+        readonly sSourceDirectory="${1?Two parameters required: <source-path> <tarball-name>}"
+        readonly sTarball="${2?Two parameters required: <source-path> <tarball-name>}"
+
+        "${TAR}" --directory="${sSourceDirectory}" --create --file "${sTarball}" --gzip "solid"
     }
 
     installDependencies() {
@@ -82,6 +94,7 @@ publish_to_nextcloud_store() {
     # @TODO: The PHP version should either be a param, parsed from composer.json or both!
     #        (Allow to be set but used parsed value as default...)
     installDependencies 'composer:2.2.17' "${sSourceDirectory}"
+    createTarball "${sSourceDirectory}" "${sTarball}"
 }
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
