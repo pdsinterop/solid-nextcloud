@@ -218,10 +218,12 @@ publish_to_nextcloud_store() {
         readonly sUploadUrl
         sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
 
+        finish() {
+            rm -f "${sSignatureFile}" || true
+        }
+        trap finish EXIT
         createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
         publishToNextcloud "${sDownloadUrl}" "${sSignatureFile}" "${sNextcloudToken}"
-
-        # @FIXME: Add an exit trap to remove "${sSignatureFile}"
     fi
 }
 
