@@ -99,7 +99,7 @@ class PageController extends Controller {
 		$policy->addAllowedStyleDomain("data:");
 
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
-		$origin = $parsedOrigin['host'];
+		$origin = $parsedOrigin['scheme'] . "://" . $parsedOrigin['host'];
 		if ($origin) {
 			$policy->addAllowedFormActionDomain($origin);
 			$templateResponse->setContentSecurityPolicy($policy);
