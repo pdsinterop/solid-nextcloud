@@ -1,0 +1,57 @@
+---
+name: Publish a (pre)release to the Nextcloud App Store
+
+on:
+  release:
+    types:
+      - prereleased
+      - released
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Validate Tag Format
+        run: |
+          sVersion="${{ github.event.release.tag_name }}"
+          sPattern='^v?([0-9]+\.[0-9]+\.[0-9]+)(-RC\.[0-9]+)?$'
+
+          if ! echo "${sVersion}" | grep --ignore-case --perl-regexp --silent "${sPattern}"; then
+            sTitle='Invalid Version format'
+            sMessage="Provided tag '${sVersion}' does not match expected pattern '${sPattern}'"
+            echo "::error file=tag,line=0,endLine=0,title=${sTitle}::${sMessage}"
+            exit 1
+          fi
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check versions in `appinfo/info.xml`
+        run: |
+          source ./bin/publish-to-nextcloud-store.sh
+
+          sVersion="${{ github.event.release.tag_name }}"
+          checkAppInfoVersion "${sVersion}" "${PWD}"
+      - name: Install Dependencies
+        uses: "docker://composer"
+        with:
+          args: composer --working-dir=solid/ install --no-dev
+      - name: Publish to Nextcloud App Store
+        run: |
+          source ./bin/publish-to-nextcloud-store.sh
+
+          sNextcloudToken="${{ secrets.NEXTCLOUD_TOKEN }}"
+          sVersion="${{ github.event.release.tag_name }}"
+          sTarball="$(printf 'solid-%s.tar.gz' ${sVersion})"
+
+          checkAppInfoVersion "${sVersion}" "${PWD}"
+          createTarball "${PWD}" "${sTarball}"
+          sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${{ secrets.GITHUB_TOKEN }}")"
+          sTarballUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${{ secrets.GITHUB_TOKEN }}" "${sTarball}")"
+          sSignature="$(createSignature "${sTarball}" <(echo "${{ secrets.NEXTCLOUD_PRIVATE_KEY }}"))"
+          publishToNextcloud "${sTarballUrl}" "${sSignature}" "${sNextcloudToken}"
