@@ -135,16 +135,16 @@ publish_to_nextcloud_store() {
     }
 
     publishToNextcloud() {
-        local sDownloadUrl sJson sNextcloudToken sSignatureFile
+        local sDownloadUrl sJson sNextcloudToken sSignature
 
-        readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
-        readonly sSignatureFile="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
-        readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature-file> <nextcloud-token>}"
+        readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+        readonly sSignature="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+        readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
 
         sJson="$(
             printf '{"download":"%s", "signature": "%s"}' \
                 "${sDownloadUrl}" \
-                "$(cat "${sSignatureFile}")"
+                "${sSignature}"
         )"
         readonly sJson
 
@@ -194,7 +194,7 @@ publish_to_nextcloud_store() {
         printf " [ERROR]: %s\n\n%s\n" 'This script expects four command-line arguments' 'Call --help for more details' >&2
         exit ${EXIT_NOT_ENOUGH_PARAMETERS}
     else
-        local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignatureFile sSourceDirectory sTarball sUploadUrl sVersion
+        local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignature sSourceDirectory sTarball sUploadUrl sVersion
 
         readonly sSourceDirectory="${1?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
         readonly sVersion="${2?Four parameters required: <subject-path> <version> <github-token> <nextcloud-token>}"
@@ -205,7 +205,6 @@ publish_to_nextcloud_store() {
         #         the file should be passed in as parameter
         sKeyFile="$(dirname "$(dirname "$(realpath "$0")")")/transfer/solid.key"
         readonly sKeyFile
-        readonly sSignatureFile="signature.base64"
         readonly sTarball='solid.tar.gz'
 
         checkoutTag "${sVersion}"
@@ -219,11 +218,14 @@ publish_to_nextcloud_store() {
         sDownloadUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${sGithubToken}" "${sTarball}")"
 
         finish() {
-            rm -f "${sSignatureFile}" || true
+            echo 'Done.'
         }
         trap finish EXIT
-        createSignature "${sTarball}" "${sKeyFile}" > "${sSignatureFile}"
-        publishToNextcloud "${sDownloadUrl}" "${sSignatureFile}" "${sNextcloudToken}"
+
+        sSignature="$(createSignature "${sTarball}" "${sKeyFile}")"
+        readonly sSignature
+
+        publishToNextcloud "${sDownloadUrl}" "${sSignature}" "${sNextcloudToken}"
     fi
 }
 
