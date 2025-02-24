@@ -93,12 +93,12 @@ checkAppInfoVersion() {
 }
 
 createSignature() {
-    local sKeyFile sTarball
+    local sKeyContent sTarball
 
-    readonly sTarball="${1?Two parameter required: <tarball-name> <key-file>}"
-    readonly sKeyFile="${2?Two parameter required: <tarball-name> <key-file>}"
+    readonly sTarball="${1?Two parameter required: <tarball-name> <key>}"
+    readonly sKeyContent="${2?Two parameter required: <tarball-name> <key>}"
 
-    "${OPENSSL}" dgst -sha512 -sign "${sKeyFile}" "${sTarball}" \
+    "${OPENSSL}" dgst -sha512 -sign <(echo "${sKeyContent}") "${sTarball}" \
         | "${OPENSSL}" base64 \
         | tr -d "\n"
 }
@@ -244,7 +244,7 @@ publish_to_nextcloud_store() {
         }
         trap finish EXIT
 
-        sSignature="$(createSignature "${sTarball}" "${sKeyFile}")"
+        sSignature="$(createSignature "${sTarball}" "$(cat "${sKeyFile}")")"
         readonly sSignature
 
         publishToNextcloud "${sDownloadUrl}" "${sSignature}" "${sNextcloudToken}"
