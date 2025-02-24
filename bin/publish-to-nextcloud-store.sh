@@ -71,6 +71,84 @@ print_usage() {
     echo -e "${sUsage//\$0/${sScript}}"
 }
 
+createSignature() {
+    local sKeyFile sTarball
+
+    readonly sTarball="${1?Two parameter required: <tarball-name> <key-file>}"
+    readonly sKeyFile="${2?Two parameter required: <tarball-name> <key-file>}"
+
+    "${OPENSSL}" dgst -sha512 -sign "${sKeyFile}" "${sTarball}" \
+        | "${OPENSSL}" base64 \
+        | tr -d "\n"
+}
+
+createTarball() {
+    local sSourceDirectory sTarball
+
+    readonly sSourceDirectory="${1?Two parameters required: <source-path> <tarball-name>}"
+    readonly sTarball="${2?Two parameters required: <source-path> <tarball-name>}"
+
+    "${TAR}" --directory="${sSourceDirectory}" --create --file "${sTarball}" --gzip "solid"
+}
+
+fetchGitHubUploadUrl() {
+    local sGithubToken sVersion
+
+    readonly sVersion="${1?Two parameters required: <version> <github-token>}"
+    readonly sGithubToken="${2?Two parameters required: <version> <github-token>}"
+
+    "${CURL}" \
+        --header "Accept: application/vnd.github+json" \
+        --header "Authorization: Bearer ${sGithubToken}" \
+        --silent \
+        "https://api.github.com/repos/pdsinterop/solid-nextcloud/releases/tags/${sVersion}" \
+        | "${JQ}" --raw-output '.upload_url' \
+        | cut -d '{' -f 1
+}
+
+publishToNextcloud() {
+    local sDownloadUrl sJson sNextcloudToken sSignature
+
+    readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+    readonly sSignature="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+    readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+
+    sJson="$(
+        printf '{"download":"%s", "signature": "%s"}' \
+            "${sDownloadUrl}" \
+            "${sSignature}"
+    )"
+    readonly sJson
+
+    "${CURL}" \
+        --data "${sJson}" \
+        --header "Authorization: Token ${sNextcloudToken}" \
+        --header "Content-Type: application/json" \
+        --request POST \
+        --silent \
+        'https://apps.nextcloud.com/api/v1/apps/releases'
+}
+
+uploadAssetToGitHub() {
+    local sGithubToken sTarball sUrl
+
+    readonly sUrl="${1?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+    readonly sGithubToken="${2?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+    readonly sTarball="${3?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
+
+    "${CURL}" \
+        --header "Accept: application/vnd.github+json" \
+        --header "Authorization: Bearer ${sGithubToken}" \
+        --header "Content-Length: $(stat --printf="%s" "${sTarball}")" \
+        --header "Content-Type: $(file -b --mime-type "${sTarball}")" \
+        --header "X-GitHub-Api-Version: 2022-11-28" \
+        --request POST \
+        --silent \
+        --upload-file "${sTarball}" \
+        "${sUrl}?name=${sTarball}" \
+        | "${JQ}" --raw-output '.browser_download_url'
+}
+
 publish_to_nextcloud_store() {
     checkoutTag() {
         local sVersion
@@ -78,41 +156,6 @@ publish_to_nextcloud_store() {
         readonly sVersion="${1?One parameter required: <version>}"
 
         "${GIT}" checkout "${sVersion}"
-    }
-
-    createSignature() {
-        local sKeyFile sTarball
-
-        readonly sTarball="${1?Two parameter required: <tarball-name> <key-file>}"
-        readonly sKeyFile="${2?Two parameter required: <tarball-name> <key-file>}"
-
-        "${OPENSSL}" dgst -sha512 -sign "${sKeyFile}" "${sTarball}" \
-            | "${OPENSSL}" base64 \
-            | tr -d "\n"
-    }
-
-    createTarball() {
-        local sSourceDirectory sTarball
-
-        readonly sSourceDirectory="${1?Two parameters required: <source-path> <tarball-name>}"
-        readonly sTarball="${2?Two parameters required: <source-path> <tarball-name>}"
-
-        "${TAR}" --directory="${sSourceDirectory}" --create --file "${sTarball}" --gzip "solid"
-    }
-
-    fetchGitHubUploadUrl() {
-        local sGithubToken sVersion
-
-        readonly sVersion="${1?Two parameters required: <version> <github-token>}"
-        readonly sGithubToken="${2?Two parameters required: <version> <github-token>}"
-
-        "${CURL}" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer ${sGithubToken}" \
-            --silent \
-            "https://api.github.com/repos/pdsinterop/solid-nextcloud/releases/tags/${sVersion}" \
-            | "${JQ}" --raw-output '.upload_url' \
-            | cut -d '{' -f 1
     }
 
     installDependencies() {
@@ -132,49 +175,6 @@ publish_to_nextcloud_store() {
             bash -c 'php --version && composer --version \
                 && COMPOSER_CACHE_DIR=/root/composer/ composer install --no-dev --no-interaction --no-plugins --no-scripts --prefer-dist \
             '
-    }
-
-    publishToNextcloud() {
-        local sDownloadUrl sJson sNextcloudToken sSignature
-
-        readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
-        readonly sSignature="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
-        readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
-
-        sJson="$(
-            printf '{"download":"%s", "signature": "%s"}' \
-                "${sDownloadUrl}" \
-                "${sSignature}"
-        )"
-        readonly sJson
-
-        "${CURL}" \
-            --data "${sJson}" \
-            --header "Authorization: Token ${sNextcloudToken}" \
-            --header "Content-Type: application/json" \
-            --request POST \
-            --silent \
-            'https://apps.nextcloud.com/api/v1/apps/releases'
-    }
-
-    uploadAssetToGitHub() {
-        local sGithubToken sTarball sUrl
-
-        readonly sUrl="${1?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
-        readonly sGithubToken="${2?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
-        readonly sTarball="${3?Three parameters required: <upload-url> <github-token> <tarbal-name>}"
-
-        "${CURL}" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer ${sGithubToken}" \
-            --header "Content-Length: $(stat --printf="%s" "${sTarball}")" \
-            --header "Content-Type: $(file -b --mime-type "${sTarball}")" \
-            --header "X-GitHub-Api-Version: 2022-11-28" \
-            --request POST \
-            --silent \
-            --upload-file "${sTarball}" \
-            "${sUrl}?name=${sTarball}" \
-            | "${JQ}" --raw-output '.browser_download_url'
     }
 
     local sOption bShowUsage
