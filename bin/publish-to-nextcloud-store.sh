@@ -71,6 +71,27 @@ print_usage() {
     echo -e "${sUsage//\$0/${sScript}}"
 }
 
+checkAppInfoVersion() {
+    local sAppInfoVersion sFile sPattern sSourceDirectory sVersion
+
+    readonly sVersion="${1?Two parameters required: <version> <subject-path>}"
+    readonly sSourceDirectory="${2?Two parameters required: <version> <subject-path>}"
+
+    readonly sFile="${sSourceDirectory}/solid/appinfo/info.xml"
+    readonly sPattern='([0-9]+\.[0-9]+\.[0-9]+)(-RC\.[0-9]+)?'
+
+    sAppInfoVersion="$(
+        grep -P "<version>${sPattern}</version>" "${sFile}" | grep -Po "${sPattern}"
+    )"
+    readonly sAppInfoVersion
+
+    if [ "${sAppInfoVersion}" != "$(echo "${sVersion}" | grep -Po '[0-9.]+')" ]; then
+        echo " ERROR: Provided version number does not match solid/appinfo/info.xml version"
+        diff <(echo "v${sAppInfoVersion}") <(echo "${sVersion}") || true
+        return 1
+    fi
+}
+
 createSignature() {
     local sKeyFile sTarball
 
@@ -211,6 +232,7 @@ publish_to_nextcloud_store() {
         # @TODO: The PHP version should either be a param, parsed from composer.json or both!
         #        (Allow to be set but used parsed value as default...)
         installDependencies 'composer:2.2.17' "${sSourceDirectory}"
+        checkAppInfoVersion "${sVersion}" "${sSourceDirectory}"
         createTarball "${sSourceDirectory}" "${sTarball}"
 
         sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${sGithubToken}")"
@@ -232,6 +254,7 @@ publish_to_nextcloud_store() {
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     export publish_to_nextcloud_store
 
+    export checkAppInfoVersion
     export createSignature
     export createTarball
     export fetchGitHubUploadUrl
