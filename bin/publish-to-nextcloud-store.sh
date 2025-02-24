@@ -231,6 +231,12 @@ publish_to_nextcloud_store() {
 
 if [ -n "${BASH_SOURCE:-}" ] && [ "${BASH_SOURCE[0]}" != "${0}" ]; then
     export publish_to_nextcloud_store
+
+    export createSignature
+    export createTarball
+    export fetchGitHubUploadUrl
+    export publishToNextcloud
+    export uploadAssetToGitHub
 else
     publish_to_nextcloud_store "${@}"
 fi
