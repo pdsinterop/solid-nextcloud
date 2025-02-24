@@ -99,11 +99,11 @@ checkAppInfoVersion() {
 
     sAppInfoVersion="$(
         grep --ignore-case --perl-regexp "<version>${sPattern}</version>" "${sFile}" \
-            | grep --only-matching --perl-regexp "${sPattern}"
+            | grep --ignore-case --only-matching --perl-regexp "${sPattern}"
     )"
     readonly sAppInfoVersion
 
-    if [ "${sAppInfoVersion}" != "$(echo "${sVersion}" | grep  --only-matching --perl-regexp "${sPattern}")" ]; then
+    if [ "${sAppInfoVersion}" != "$(echo "${sVersion}" | grep --ignore-case --only-matching --perl-regexp "${sPattern}")" ]; then
         echo " ERROR: Provided version number does not match solid/appinfo/info.xml version"
         diff <(echo "v${sAppInfoVersion}") <(echo "${sVersion}") || true
         return 1
