@@ -32,7 +32,7 @@ set -o errexit -o errtrace -o nounset -o pipefail
 # ------------------------------------------------------------------------------
 #/ Usage:
 #/
-#/     $0 <subject-path> <version>
+#/     $0 [options] <subject-path> <version> <github-token> <nextcloud-token>
 #/
 #/ Where:
 #/
@@ -41,10 +41,27 @@ set -o errexit -o errtrace -o nounset -o pipefail
 #/     <github-token>    A token used to make GET and POST calls to the GitHub API
 #/     <nextcloud-token> The access token used to POST to the Nextcloud Apps Store API
 #/
+#/ Options:
+#/
+#/  -h, --help
+#/          Display this help message.
+#/
 #/ Usage example:
 #/
 #/     $0 "${PWD}" 'v0.9.0' "$(cat /path/to/github.token)" "${NEXTCLOUD_TOKEN}"
 #/
+#/ Various executable used by this script (curl, docker, git, jq, openssl, tar)
+#/ can be overridden by setting their respective environmental variable before
+#/ calling this script. For instance, to override curl and git:
+#/
+#/        CURL=/usr/local/curl GIT=/usr/local/git-plus $0 <subject-path> <version> <github-token> <nextcloud-token>
+#/
+# ------------------------------------------------------------------------------
+# Besides external tools (curl, docker, git, jq, openssl, tar) which can be overridden,
+# this script also uses various shell utilities (basename, cat, cut, grep, file, printf, stat, tr) which cannot.
+# ------------------------------------------------------------------------------
+# DEVELOPER NOTE: The variable naming scheme used in this code is an adaption of
+# Systems Hungarian which is explained at http://blog.pother.ca/VariableNamingConvention/
 # ==============================================================================
 
 # Allow overriding the executables used in this script
@@ -65,7 +82,7 @@ print_usage() {
     sScript="$(basename "$0")"
     readonly sScript
 
-    sUsage="$(grep '^#/' <"$0" | cut -c4-)"
+    sUsage="$(grep '^#/' <"$0" | cut --characters 4-)"
     readonly sUsage
 
     echo -e "${sUsage//\$0/${sScript}}"
@@ -81,11 +98,12 @@ checkAppInfoVersion() {
     readonly sPattern='([0-9]+\.[0-9]+\.[0-9]+)(-RC\.[0-9]+)?'
 
     sAppInfoVersion="$(
-        grep -P "<version>${sPattern}</version>" "${sFile}" | grep -Po "${sPattern}"
+        grep --ignore-case --perl-regexp "<version>${sPattern}</version>" "${sFile}" \
+            | grep --only-matching --perl-regexp "${sPattern}"
     )"
     readonly sAppInfoVersion
 
-    if [ "${sAppInfoVersion}" != "$(echo "${sVersion}" | grep -Po '[0-9.]+')" ]; then
+    if [ "${sAppInfoVersion}" != "$(echo "${sVersion}" | grep  --only-matching --perl-regexp "${sPattern}")" ]; then
         echo " ERROR: Provided version number does not match solid/appinfo/info.xml version"
         diff <(echo "v${sAppInfoVersion}") <(echo "${sVersion}") || true
         return 1
@@ -100,7 +118,7 @@ createSignature() {
 
     "${OPENSSL}" dgst -sha512 -sign <(echo "${sKeyContent}") "${sTarball}" \
         | "${OPENSSL}" base64 \
-        | tr -d "\n"
+        | tr --delete "\n"
 }
 
 createTarball() {
@@ -124,7 +142,7 @@ fetchGitHubUploadUrl() {
         --silent \
         "https://api.github.com/repos/pdsinterop/solid-nextcloud/releases/tags/${sVersion}" \
         | "${JQ}" --raw-output '.upload_url' \
-        | cut -d '{' -f 1
+        | cut --delimiter '{' --fields 1
 }
 
 publishToNextcloud() {
@@ -161,7 +179,7 @@ uploadAssetToGitHub() {
         --header "Accept: application/vnd.github+json" \
         --header "Authorization: Bearer ${sGithubToken}" \
         --header "Content-Length: $(stat --printf="%s" "${sTarball}")" \
-        --header "Content-Type: $(file -b --mime-type "${sTarball}")" \
+        --header "Content-Type: $(file --brief --mime-type "${sTarball}")" \
         --header "X-GitHub-Api-Version: 2022-11-28" \
         --request POST \
         --silent \
@@ -213,7 +231,7 @@ publish_to_nextcloud_store() {
         print_usage
     elif [[ "$#" -lt 4 ]];then
         printf " [ERROR]: %s\n\n%s\n" 'This script expects four command-line arguments' 'Call --help for more details' >&2
-        exit ${EXIT_NOT_ENOUGH_PARAMETERS}
+        exit "${EXIT_NOT_ENOUGH_PARAMETERS}"
     else
         local sDownloadUrl sGithubToken sKeyFile sNextcloudToken sSignature sSourceDirectory sTarball sUploadUrl sVersion
 
