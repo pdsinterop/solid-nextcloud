@@ -37,10 +37,12 @@ jobs:
 
           sVersion="${{ github.event.release.tag_name }}"
           checkAppInfoVersion "${sVersion}" "${PWD}"
-      - name: Install Dependencies
-        uses: "docker://composer"
+      - uses: shivammathur/setup-php@v2
         with:
-          args: composer --working-dir=solid/ install --no-dev
+          php-version: 8.2
+      - uses: "ramsey/composer-install@v2"
+        with:
+          composer-options: --working-dir=solid/ install --no-dev
       - name: Publish to Nextcloud App Store
         run: |
           source ./bin/publish-to-nextcloud-store.sh
