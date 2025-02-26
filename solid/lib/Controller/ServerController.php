@@ -225,7 +225,6 @@ class ServerController extends Controller
 			$result = new JSONResponse('Custom schema');
 			$result->setStatus(302);
 			$originalRequest = parse_url($_SERVER['REQUEST_URI']);
-			error_log("CUSTOM SCHEME");
 			$customSchemeUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.customscheme")) . ($originalRequest['query'] ? "?" . $originalRequest['query'] . "&customscheme=" . $parsedOrigin['scheme'] : '');
 			$result->addHeader("Location", $customSchemeUrl);
 			return $result;
