@@ -46,7 +46,7 @@ jobs:
           composer-options: --no-dev
           working-directory: "solid/"
       - name: Publish to Nextcloud App Store
-        shell: bash -e -x
+        shell: bash
         run: |
           source ./bin/publish-to-nextcloud-store.sh
 

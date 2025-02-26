@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -o errexit -o errtrace -o nounset -o pipefail
+set -x
 
 # ==============================================================================
 #                           PUBLISH TO NEXTCLOUD STORE
