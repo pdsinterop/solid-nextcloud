@@ -51,10 +51,13 @@ jobs:
           sNextcloudToken="${{ secrets.NEXTCLOUD_TOKEN }}"
           sVersion="${{ github.event.release.tag_name }}"
           sTarball="$(printf 'solid-%s.tar.gz' ${sVersion})"
+          sKeyFile='nextcloud-app-store.key'
 
           checkAppInfoVersion "${sVersion}" "${PWD}"
           createTarball "${PWD}" "${sTarball}"
           sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${{ secrets.GITHUB_TOKEN }}")"
           sTarballUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${{ secrets.GITHUB_TOKEN }}" "${sTarball}")"
-          sSignature="$(createSignature "${sTarball}" <(echo "${{ secrets.NEXTCLOUD_PRIVATE_KEY }}"))"
+          echo "${{ secrets.NEXTCLOUD_PRIVATE_KEY }}" > "${sKeyFile}"
+          sSignature="$(createSignature "${sTarball}" "${sKeyFile}")"
+          rm -f "${sKeyFile}"
           publishToNextcloud "${sTarballUrl}" "${sSignature}" "${sNextcloudToken}"
