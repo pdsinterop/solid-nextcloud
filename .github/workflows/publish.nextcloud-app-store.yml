@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   actions: write
+  contents: write
 
 jobs:
   publish:
