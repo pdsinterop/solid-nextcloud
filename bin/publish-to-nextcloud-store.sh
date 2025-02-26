@@ -150,8 +150,8 @@ publishToNextcloud() {
     local sDownloadUrl sJson sNextcloudToken sSignature
 
     readonly sDownloadUrl="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
-    readonly sSignature="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
-    readonly sNextcloudToken="${1?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+    readonly sSignature="${2?Three parameters required: <download-url> <signature> <nextcloud-token>}"
+    readonly sNextcloudToken="${3?Three parameters required: <download-url> <signature> <nextcloud-token>}"
 
     sJson="$(
         printf '{"download":"%s", "signature": "%s"}' \
