@@ -47,7 +47,6 @@ jobs:
           working-directory: "solid/"
       - name: Publish to Nextcloud App Store
         shell: bash -e -x
-        fail-fast: true
         run: |
           source ./bin/publish-to-nextcloud-store.sh
 
