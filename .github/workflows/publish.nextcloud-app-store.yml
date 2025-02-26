@@ -13,6 +13,7 @@ concurrency:
 
 permissions:
   actions: write
+  contents: write
 
 jobs:
   publish:
@@ -45,6 +46,8 @@ jobs:
           composer-options: --no-dev
           working-directory: "solid/"
       - name: Publish to Nextcloud App Store
+        shell: bash -e -x
+        fail-fast: true
         run: |
           source ./bin/publish-to-nextcloud-store.sh
 
@@ -55,8 +58,11 @@ jobs:
 
           checkAppInfoVersion "${sVersion}" "${PWD}"
           createTarball "${PWD}" "${sTarball}"
+          echo "::debug::Tarball created: $(ls -lA "${sTarball}")"
           sUploadUrl="$(fetchGitHubUploadUrl "${sVersion}" "${{ secrets.GITHUB_TOKEN }}")"
+          echo "::debug::Upload URL: ${sUploadUrl}"
           sTarballUrl="$(uploadAssetToGitHub "${sUploadUrl}" "${{ secrets.GITHUB_TOKEN }}" "${sTarball}")"
+          echo "::debug::Tarball URL: ${sTarballUrl}"
           echo "${{ secrets.NEXTCLOUD_PRIVATE_KEY }}" > "${sKeyFile}"
           sSignature="$(createSignature "${sTarball}" "${sKeyFile}")"
           rm -f "${sKeyFile}"
