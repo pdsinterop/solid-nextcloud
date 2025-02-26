@@ -42,7 +42,7 @@ jobs:
           php-version: 8.2
       - uses: "ramsey/composer-install@v3"
         with:
-          composer-options: install --no-dev
+          composer-options: --no-dev
           working-directory: "solid/"
       - name: Publish to Nextcloud App Store
         run: |
