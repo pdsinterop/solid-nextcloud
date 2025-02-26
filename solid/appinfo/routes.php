@@ -14,6 +14,7 @@ return [
         ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
         ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
         ['name' => 'page#dataJson', 'url' => '/@{userId}/data.json', 'verb' => 'GET' ],
+        ['name' => 'page#customscheme', 'url' => '/customscheme', 'verb' => 'GET'],
 		
         ['name' => 'server#cors', 'url' => '/{path}', 'verb' => 'OPTIONS', 'requirements' => array('path' => '.+') ],
         ['name' => 'server#authorize', 'url' => '/authorize', 'verb' => 'GET'],

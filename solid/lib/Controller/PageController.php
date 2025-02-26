@@ -95,15 +95,26 @@ class PageController extends Controller {
 			"returnUrl" => $_GET['returnUrl'],
 		);
 		$templateResponse = new TemplateResponse('solid', 'sharing', $params);
+
 		$policy = new ContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("data:");
 
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
-		$origin = $parsedOrigin['scheme'] . "://" . $parsedOrigin['host'];
+		$origin = $parsedOrigin['host'];
 		if ($origin) {
-			$policy->addAllowedFormActionDomain($origin);
+			$policy->addAllowedFormActionDomain($parsedOrigin['scheme'] . "://" . $origin);
 			$templateResponse->setContentSecurityPolicy($policy);
 		}
+		return $templateResponse;
+	}
+
+	/**
+	 * @PublicPage
+	 * @NoAdminRequired
+	 * @NoCSRFRequired
+	 */
+	public function customscheme() {
+		$templateResponse = new TemplateResponse('solid', 'customscheme');
 		return $templateResponse;
 	}
 
