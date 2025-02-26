@@ -40,9 +40,10 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.2
-      - uses: "ramsey/composer-install@v2"
+      - uses: "ramsey/composer-install@v3"
         with:
-          composer-options: --working-dir=solid/ install --no-dev
+          composer-options: install --no-dev
+          working-directory: "solid/"
       - name: Publish to Nextcloud App Store
         run: |
           source ./bin/publish-to-nextcloud-store.sh
