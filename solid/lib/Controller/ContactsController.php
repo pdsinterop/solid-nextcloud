@@ -51,7 +51,7 @@ class ContactsController extends Controller
 
 	private function getFileSystem($userId) {
 		// Make sure the root folder has an acl file, as is required by the spec;
-        // Generate a default file granting the owner full access.
+		// Generate a default file granting the owner full access.
 		$defaultAcl = $this->generateDefaultAcl($userId);
 
 		// Create the Nextcloud Contacts Adapter
@@ -62,7 +62,11 @@ class ContactsController extends Controller
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverUri = "https://" . $this->rawRequest->getServerParams()["SERVER_NAME"] . $this->rawRequest->getServerParams()["REQUEST_URI"]; // FIXME: doublecheck that this is the correct url;
+		$serverParams = $this->rawRequest->getServerParams();
+		$scheme = $serverParams['REQUEST_SCHEME'];
+		$domain = $serverParams['SERVER_NAME'];
+		$path = $serverParams['REQUEST_URI'];
+		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
@@ -123,8 +127,8 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-        $this->contactsUserId = $userId;
-        
+		$this->contactsUserId = $userId;
+
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
 
