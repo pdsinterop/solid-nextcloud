@@ -221,7 +221,11 @@ class ServerController extends Controller
 		}
 
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
-		if ($parsedOrigin['scheme'] != "https" && !isset($_GET['customscheme'])) {
+		if (
+			$parsedOrigin['scheme'] != "https" &&
+			$parsedOrigin['scheme'] != "http" &&
+			!isset($_GET['customscheme'])
+		) {
 			$result = new JSONResponse('Custom schema');
 			$result->setStatus(302);
 			$originalRequest = parse_url($_SERVER['REQUEST_URI']);
