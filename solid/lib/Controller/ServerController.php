@@ -220,6 +220,20 @@ class ServerController extends Controller
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
+		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		if (
+			$parsedOrigin['scheme'] != "https" &&
+			$parsedOrigin['scheme'] != "http" &&
+			!isset($_GET['customscheme'])
+		) {
+			$result = new JSONResponse('Custom schema');
+			$result->setStatus(302);
+			$originalRequest = parse_url($_SERVER['REQUEST_URI']);
+			$customSchemeUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.customscheme")) . ($originalRequest['query'] ? "?" . $originalRequest['query'] . "&customscheme=" . $parsedOrigin['scheme'] : '');
+			$result->addHeader("Location", $customSchemeUrl);
+			return $result;
+		}
+
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
 		$user->setIdentifier($this->getProfilePage());
 

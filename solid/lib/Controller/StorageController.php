@@ -63,7 +63,11 @@ class StorageController extends Controller
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverUri = "https://" . $this->rawRequest->getServerParams()["SERVER_NAME"] . $this->rawRequest->getServerParams()["REQUEST_URI"]; // FIXME: doublecheck that this is the correct url;
+		$serverParams = $this->rawRequest->getServerParams();
+		$scheme = $serverParams['REQUEST_SCHEME'];
+		$domain = $serverParams['SERVER_NAME'];
+		$path = $serverParams['REQUEST_URI'];
+		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
@@ -431,19 +435,19 @@ EOF;
 //		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //		$result->addHeader('Access-Control-Allow-Origin', $origin);
 		
-                $policy = new EmptyContentSecurityPolicy();
-                $policy->addAllowedStyleDomain("*");
-                $policy->addAllowedStyleDomain("data:");
-                $policy->addAllowedScriptDomain("*");
-                $policy->addAllowedImageDomain("*");
-                $policy->addAllowedFontDomain("*");
-                $policy->addAllowedConnectDomain("*");
-                $policy->allowInlineStyle(true);
-                // $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
-                $policy->allowEvalScript(true);
-                $result->setContentSecurityPolicy($policy);
-                
-                $result->setStatus($statusCode);
+		$policy = new EmptyContentSecurityPolicy();
+		$policy->addAllowedStyleDomain("*");
+		$policy->addAllowedStyleDomain("data:");
+		$policy->addAllowedScriptDomain("*");
+		$policy->addAllowedImageDomain("*");
+		$policy->addAllowedFontDomain("*");
+		$policy->addAllowedConnectDomain("*");
+		$policy->allowInlineStyle(true);
+		// $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
+		$policy->allowEvalScript(true);
+		$result->setContentSecurityPolicy($policy);
+
+		$result->setStatus($statusCode);
 		return $result;
 	}
 }
