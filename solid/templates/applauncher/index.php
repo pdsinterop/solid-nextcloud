@@ -44,6 +44,14 @@
 										</template>
 									</ul>
 								</template>
+								<template data-simply-template="file">
+									Permissions to the file <code data-simply-field="filename"></code> in your Pod:
+									<ul data-simply-list="permissions" data-simply-entry="entry">
+										<template>
+											<li class="solid-acl"><span data-simply-field="entry" data-simply-transformer="grants"></li>
+										</template>
+									</ul>
+								</template>
 								<template data-simply-template="class">
 									Permissions on <span x-data-simply-field="class" data-simply-transformer="schemaClass"></span> in your Pod:
 									<ul data-simply-list="permissions" data-simply-entry="entry">

@@ -17,9 +17,6 @@
 		if (!scriptEl) {
 			scriptEl = document.querySelector("[data-api-key]");
 		}
-		if (!scriptEl) {
-			scriptEl = document.querySelector("[src*='simply-edit.js']");
-		}
 		return scriptEl;
 	};
 
@@ -37,7 +34,7 @@
 		var scriptURL = document.createElement('a');
 		scriptURL.href = url;
 		scriptURL.pathname = scriptURL.pathname.replace('simply-edit.js', '').replace(/\/js\/$/, '/');
-		if (apiKey !== "" && apiKey !== "muze" && apiKey !== "github") {
+		if (apiKey !== "") {
 			scriptURL.pathname = scriptURL.pathname + apiKey + "/";
 		}
 		return scriptURL.href;
@@ -103,7 +100,10 @@
 				var dataFields;
 				if (target.nodeType == document.ELEMENT_NODE && target.getAttribute("data-simply-field")) {
 					dataFields = [target];
-					if (target.getAttribute("data-simply-content") === 'fixed') { // special case - if the target field has content fixed, we need to handle its children as well.
+					if (
+						(target.getAttribute("data-simply-content") === 'fixed') ||
+						(target.getAttribute("data-simply-content") === 'attributes')
+					) { // special case - if the target field has content fixed or attributes, we need to handle its children as well.
 						var extraFields = target.querySelectorAll("[data-simply-field]");
 						for (var x=0; x<extraFields.length; x++) {
 							dataFields.push(extraFields[x]);
@@ -330,6 +330,7 @@
 						dataParent[dataName] = [];
 					}
 
+					var listEntryMapping = list.getAttribute('data-simply-entry');
 					listItems = list.querySelectorAll("[data-simply-list-item]");
 					var counter = 0;
 					for (j=0; j<listItems.length; j++) {
@@ -344,6 +345,9 @@
 						for (var subPath in subData) {
 							if (subPath != dataPath) {
 								console.log("Notice: use of data-simply-path in subitems is not permitted, translated " + subPath + " to " + dataPath);
+							}
+							if (listEntryMapping) {
+								subData[subPath] = subData[subPath][listEntryMapping];
 							}
 							dataParent[dataName][counter] = subData[subPath];
 						}
@@ -441,6 +445,23 @@
 						stashedFields[i].removeAttribute("data-simply-stashed");
 					}
 				});
+
+				if ((target.nodeType == document.ELEMENT_NODE) && target.getAttribute("data-simply-list") && target.getAttribute("data-simply-transformer")) {
+					var transformer = target.getAttribute('data-simply-transformer');
+					if (transformer) {
+						if (editor.transformers[transformer] && (typeof editor.transformers[transformer].extract === "function")) {
+							try {
+								data = editor.transformers[transformer].extract.call(target, data);
+							} catch(e) {
+								console.log("Error thrown in transformer " + transformer);
+								console.log(e);
+							}
+						} else {
+							console.log("Warning: transformer " + transformer + " is not defined");
+						}
+					}
+				}
+
 				return data;
 			},
 			keyDownHandler : function(evt) {
@@ -811,9 +832,23 @@
 				}
 
 				var dataLists = clone.querySelectorAll("[data-simply-list]");
-				for (k=0; k<dataLists.length; k++) {
-					editor.list.init(dataLists[k], listDataItem, useDataBinding);
+
+				// FIXME: We need to skip sublists to prevent initing them twice!
+				var subLists;
+				subLists = clone.querySelectorAll("[data-simply-list] [data-simply-list], [data-simply-field]:not([data-simply-content='attributes']):not([data-simply-content='fixed']) [data-simply-list]");
+				var subListsArr = [];
+				for (var a=0; a<subLists.length; a++) {
+					subListsArr.unshift(subLists[a]);
 				}
+
+				for (var i=0; i<dataLists.length; i++) {
+					var isSub = (subListsArr.indexOf(dataLists[i]) > -1);
+					if (isSub) {
+						continue;
+					}
+					editor.list.init(dataLists[i], listDataItem, useDataBinding);
+				}
+
 				if (clone.nodeType == document.ELEMENT_NODE && clone.getAttribute("data-simply-list")) {
 					editor.list.init(clone, listDataItem, useDataBinding);
 				}
@@ -825,11 +860,37 @@
 					list.dataBinding.pauseListeners(list);
 				}
 
+				var transformer = list.getAttribute('data-simply-transformer');
+				if (transformer) {
+					if (editor.transformers[transformer] && (typeof editor.transformers[transformer].render === "function")) {
+						try {
+							listData = editor.transformers[transformer].render.call(list, listData);
+						} catch(e) {
+							console.log("Error thrown in transformer " + transformer);
+							console.log(e);
+						}
+					} else {
+						console.log("Warning: transformer " + transformer + " is not defined");
+					}
+				}
+
+				if (list.previousValue == JSON.stringify(listData)) {
+					if (list.dataBinding) {
+						list.dataBinding.resumeListeners(list);
+					}
+					return; // value is the same as the previous time we set it, just keep it;
+				}
+
+				list.previousValue = JSON.stringify(listData);
 				var previousStyle = list.getAttribute("style");
 				list.style.height = list.offsetHeight + "px"; // this will prevent the screen from bouncing and messing up the scroll offset.
 				editor.list.clear(list);
 				editor.list.append(list, listData);
-				list.setAttribute("style", previousStyle);
+				if (previousStyle) {
+					list.setAttribute("style", previousStyle);
+				} else {
+					list.removeAttribute("style");
+				}
 				editor.list.emptyClass(list);
 				if (list.dataBinding) {
 					list.dataBinding.resumeListeners(list);
@@ -857,7 +918,7 @@
 
 					// Grr... android browser imports the nodes, except the contents of subtemplates. Find them and put them back where they belong.
 					var originalTemplates = template.content.querySelectorAll("template");
-					var importedTemplates = clone.querySelectorAll("template");
+					var importedTemplates = clone.querySelectorAll("template:not([simply-component])");
 
 					for (i=0; i<importedTemplates.length; i++) {
 						importedTemplates[i].innerHTML = originalTemplates[i].innerHTML;
@@ -881,9 +942,9 @@
 				if (!listData) {
 					listData = [];
 				}
-				if (list.dataBinding) {
+				if (list.elementBinding) {
 				//	list.dataBinding.pauseListeners(list);
-					list.dataBinding.removeListeners(list);
+					list.elementBinding.removeListeners(list);
 					listenersRemoved = true;
 				}
 
@@ -913,18 +974,23 @@
 				var listDataGetter = function() {
 					return listData;
 				};
+				var listEntryMappingGetter = function() {
+					return listEntryMapping;
+				};
 
 				for (j=0; j<listData.length; j++) {
 					if (!listData[j]) {
 						continue;
 					}
 					if (listEntryMapping) {
-						if (!listData[j]._simplyConverted) {
+						if (!listData[j]._simplyListEntryMapping) {
 							var entry = new Object(JSON.parse(JSON.stringify(listData[j])));
 							entry[listEntryMapping] = listData[j];
-							entry._simplyConverted = true;
 							Object.defineProperty(entry, "_simplyConvertedParent", {
 								get : listDataGetter
+							});
+							Object.defineProperty(entry, "_simplyListEntryMapping", {
+								get : listEntryMappingGetter
 							});
 							listData[j] = entry;
 						}
@@ -935,7 +1001,9 @@
 					if (typeof currentBinding !== "undefined") {
 						if (currentBinding.mode == "list") {
 							if (currentBinding.get() != listData) {
-								currentBinding.get().push(listData[j]);
+								if (currentBinding.get().push) {
+									currentBinding.get().push(listData[j]);
+								}
 							//	console.log("Appending items to existing data");
 							}
 						} else {
@@ -962,7 +1030,7 @@
 							clone = document.importNode(list.templates[requestedTemplate].content, true);
 							// Grr... android browser imports the nodes, except the contents of subtemplates. Find them and put them back where they belong.
 							var originalTemplates = list.templates[requestedTemplate].content.querySelectorAll("template");
-							var importedTemplates = clone.querySelectorAll("template");
+							var importedTemplates = clone.querySelectorAll("template:not([simply-component])");
 
 							for (i=0; i<importedTemplates.length; i++) {
 								importedTemplates[i].innerHTML = originalTemplates[i].innerHTML;
@@ -987,7 +1055,7 @@
 
 						clone.firstElementChild.setAttribute("data-simply-list-item", true);
 						clone.firstElementChild.setAttribute("data-simply-selectable", true);
-
+						clone.firstElementChild.simplyListIndex = j;
 						if (list.templateIcons[requestedTemplate]) {
 							clone.firstElementChild.setAttribute("data-simply-list-icon", list.templateIcons[requestedTemplate]);
 						}
@@ -997,7 +1065,7 @@
 							stashedFields[i].removeAttribute("data-simply-stashed");
 						}
 
-						if (!listData[j]._bindings_) {
+						if (!listDataSource && !listData[j]._bindings_) {
 							newData = editor.list.get(clone.firstElementChild);
 							dataPath = editor.data.getDataPath(clone.firstElementChild);
 							editor.data.apply(newData, clone.firstElementChild);
@@ -1029,7 +1097,8 @@
 							}
 							clone.setAttribute("data-simply-list-item", true);
 							clone.setAttribute("data-simply-selectable", true);
-							
+							clone.simplyListIndex = j;
+
 							if (list.templateIcons[requestedTemplate]) {
 								clone.firstElementChild.setAttribute("data-simply-list-icon", list.templateIcons[requestedTemplate]);
 							}
@@ -1039,7 +1108,7 @@
 								stashedFields[i].removeAttribute("data-simply-stashed");
 							}
 
-							if (!listData[j]._bindings_) {
+							if (!listDataSource && !listData[j]._bindings_) {
 								newData = editor.list.get(clone);
 								dataPath = editor.data.getDataPath(clone);
 								editor.data.apply(newData, clone);
@@ -1093,10 +1162,10 @@
 					list.dataBinding.resolve(true);
 				}
 				list.reattach();
-				if (list.dataBinding) {
+				if (list.elementBinding) {
 					if (listenersRemoved) {
 						var pauseCount = list.dataBindingPaused;
-						list.dataBinding.addListeners(list);
+						list.elementBinding.addListeners();
 						list.dataBindingPaused = pauseCount;
 					}
 					// list.dataBinding.resumeListeners(list);
@@ -1394,45 +1463,10 @@
 							field.appendChild(clone);
 							for (var i=0; i<field.childNodes.length; i++) {
 								if (field.childNodes[i].nodeType == document.ELEMENT_NODE) {
-									if (field.dataBinding) {
-										// Bind the subfields of the template to the same data-level as this field;
-
-										var fieldData = {};
-										fieldData[fieldPath] = field.fieldDataParent;
-/*
-										var fieldData = {};
-										fieldData[fieldPath] = editor.currentData[fieldPath];
-										// split the binding parents into seperate entries and remove the first empty entry;
-										var subkeys = field.dataBinding.parentKey.replace(/\/$/,'').split("/");
-
-//										var subkeys = savedBindingParents.join("/").replace(/\/$/,'').split("/");
-										if (subkeys[0] === "") {
-											subkeys.shift();
-										}
-
-										if (savedParentKey != field.dataBinding.parentKey) {
-											editor.bindingParents = ["/" + subkeys.join("/")];
-											editor.settings.databind.parentKey = field.dataBinding.parentKey;
-										}
-
-//										var fieldKeys = field.getAttribute('data-simply-field').split(".");
-//										fieldKeys.pop();
-
-//										if (fieldKeys.length && (subkeys.join(".") == fieldKeys.join("."))) {
-//										} else {
-											var subkey = subkeys.shift();
-											if (fieldData[fieldPath] && fieldData[fieldPath][subkey]) {
-												fieldData[fieldPath] = fieldData[fieldPath][subkey];
-											} else {
-												fieldData[fieldPath] = {};
-											}
-//										}
-
-*/
-										editor.data.apply(fieldData, field.childNodes[i]);
-									} else {
-										editor.data.apply(editor.currentData, field.childNodes[i]);
-									}
+									// Bind the subfields of the template to the same data-level as this field;
+									var fieldData = {};
+									fieldData[fieldPath] = field.fieldDataParent;
+									editor.data.apply(fieldData, field.childNodes[i]);
 								}
 							}
 						}
@@ -1519,13 +1553,16 @@
 					field.innerHTML = "";
 				}
 
-				field.hopeContent = document.createElement("textarea");
-				field.hopeMarkup = document.createElement("textarea");
+				field.hopeContent = {"value" : ""}; // this was a textarea, but having a textarea makes \r characters disappear which causes off-by-one errors in hope
+				field.hopeMarkup = {"value" : ""}; // this was a textarea, but having a textarea makes \r characters disappear which causes off-by-one errors in hope
 				field.hopeRenderedSource = document.createElement("DIV");
 				field.hopeEditor = hope.editor.create( field.hopeContent, field.hopeMarkup, field, field.hopeRenderedSource );
 				field.hopeEditor.field = field;
-				field.hopeEditor.field.addEventListener("DOMCharacterDataModified", function() {
+				field.hopeEditor.field.characterObserver = new MutationObserver(function() {
 					field.hopeEditor.needsUpdate = true;
+				});
+				field.hopeEditor.field.characterObserver.observe(field.hopeEditor.field, {
+					"characterData" : true
 				});
 				field.addEventListener("slip:beforereorder", function(evt) {
 					var rect = this.getBoundingClientRect();
@@ -1691,7 +1728,14 @@
 				var transformer = field.getAttribute('data-simply-transformer');
 				if (transformer) {
 					if (editor.transformers[transformer] && (typeof editor.transformers[transformer].render === "function")) {
-						data = editor.transformers[transformer].render.call(field, data);
+						try {
+							data = editor.transformers[transformer].render.call(field, data);
+						} catch(e) {
+							console.log("Error thrown in transformer " + transformer);
+							console.log(e);
+						}
+					} else {
+						console.log("Warning: transformer " + transformer + " is not defined");
 					}
 				}
 
@@ -1756,7 +1800,14 @@
 				var transformer = field.getAttribute('data-simply-transformer');
 				if (transformer) {
 					if (editor.transformers[transformer] && (typeof editor.transformers[transformer].extract === "function")) {
-						result = editor.transformers[transformer].extract.call(field, result);
+						try {
+							result = editor.transformers[transformer].extract.call(field, result);
+						} catch(e) {
+							console.log("Error thrown in transformer " + transformer);
+							console.log(e);
+						}
+					} else {
+						console.log("Warning: transformer " + transformer + " is not defined");
 					}
 				}
 				return result;
@@ -1829,7 +1880,6 @@
 								field.dataBinding = false;
 							}
 						}
-
 						if (field.dataBinding) {
 							field.dataBinding.setData(dataParent);
 							field.dataBinding.set(dataParent[dataName]);
@@ -1946,9 +1996,8 @@
 			});
 
 			// Add databinding and load data afterwards
-			// editor.loadScript(editor.baseURLClean + "simply/databind.js" + (editor.profile == "dev" ? "?t=" + (new Date().getTime()) : ""), editor.data.load);
-			//editor.loadScript(editor.baseURLClean + "simply/databind.js", editor.data.load);
-			editor.data.load();
+			// editor.loadScript(editor.baseURLClean + "simply/databind.js" + (editor.profile == "dev" ? "?t=" + (new Date().getTime()) : "?v=" + editor.version), editor.data.load);
+			// editor.loadScript(editor.baseURLClean + "simply/databind.js" + "?v=" + editor.version, editor.data.load);
 		},
 		loadScript : function(src, callback) {
 			if (!document.head.querySelector('script[src="'+src+'"]')) {
@@ -2703,180 +2752,6 @@
 				init : function(endpoint) {
 					this.endpoint = endpoint;
 					this.dataEndpoint = endpoint + "data.json";
-					if (this.endpoint.indexOf("dat://") === 0 && window.DatArchive) {
-						this.archive = new DatArchive(this.endpoint);
-						this.archive.readFile("dat.json").then(function(data) {
-							try {
-								editor.storage.meta = JSON.parse(data);
-								if (!editor.storage.meta.web_root) {
-									editor.storage.meta.web_root = "/";
-								}
-								if (!editor.storage.meta.web_root.match(/\/$/)) {
-									editor.storage.meta.web_root += "/";
-								}
-							} catch (e) {
-								console.log("Warning: could not parse archive metadata (dat.json)");
-							}
-						});
-					}
-					this.load = storage.default.load;
-					this.list = storage.default.list;
-					this.sitemap = storage.default.sitemap;
-					this.page = storage.default.page;
-					this.listSitemap = storage.default.listSitemap;
-
-					if (editor.responsiveImages) {
-						if (
-							editor.settings['simply-image'] &&
-							editor.settings['simply-image'].responsive
-						) {
-							if (typeof editor.settings['simply-image'].responsive.sizes === "function") {
-								editor.responsiveImages.sizes = editor.settings['simply-image'].responsive.sizes;
-							} else if (typeof editor.settings['simply-image'].responsive.sizes === "object") {
-								editor.responsiveImages.sizes = (function(sizes) {
-									return function(src) {
-										var result = {};
-										var info = src.split(".");
-										var extension = info.pop().toLowerCase();
-										if (extension === "jpg" || extension === "jpeg" || extension === "png") {
-											for (var i=0; i<sizes.length; i++) {
-												result[sizes[i] + "w"] = info.join(".") + "-simply-scaled-" + sizes[i] + "." + extension;
-											}
-										}
-										return result;
-									};
-								}(editor.settings['simply-image'].responsive.sizes));
-							}
-						}
-						window.addEventListener("resize", editor.responsiveImages.resizeHandler);
-					}
-				},
-				connect : function(callback) {
-					callback();
-				},
-				save: function(data,callback) {
-					editor.storage.file.save(this.dataEndpoint, data, callback);
-				},
-				saveTemplate : function(pageTemplate, callback) {
-					var dataPath = location.pathname.split(/\//, 3)[2];
-					if (dataPath.match(/\/$/)) {
-						dataPath += "index.html";
-					}
-
-					editor.storage.archive.readFile(editor.storage.meta.web_root + pageTemplate).then(function(result) {
-						if (result) {
-							editor.storage.file.save(dataPath, result, callback);
-						}
-					});
-				},
-				file : {
-					save : function(path, data, callback) {
-						if (path.indexOf("dat://") === 0 ) {
-							path = path.replace("dat://" + document.location.host + "/", '');
-						}
-						if (!editor.storage.archive) {
-							callback({
-								error : true,
-								message : "No connection to dat archive (are you on https?)"
-							});
-							console.log("Warning: no connection to dat archive (are you on https?)");
-							return;
-						}
-						editor.storage.archive.getInfo().then(function(info) {
-							if (!info.isOwner) {
-								callback({
-									error : true,
-									message : "Not the owner."
-								});
-								console.log("Warning: Save failed because we are not owner for this archive.");
-								return;
-							}
-
-							var executeSave = function(path, data) {
-								createDirectories(path)
-								.then(function() {
-									if (path.match(/\/$/)) {
-										// path points to a directory;
-										callback({});
-									} else {
-										editor.storage.archive.writeFile(editor.storage.meta.web_root + path, data).then(function() {
-											editor.storage.archive.commit().then(function() {
-												var saveResult = {path : path, response: "Saved."};
-												callback(saveResult);
-											});
-										});
-									}
-								});
-							};
-							var createDirectory = function(path, callback) {
-								return new Promise(function(resolve, reject) {
-									path = path.replace(/^\/\//, "/");
-									path = path.replace(/\/$/, "");
-									editor.storage.archive.readdir(path).then(null, function () {
-										editor.storage.archive.mkdir(path).then(function() {
-											editor.storage.archive.commit().then(function() {
-												resolve('created');
-											});
-										});
-									});
-								});
-							};
-							var createDirectories = function(path, callback) {
-								return new Promise(function(resolve, reject) {
-									var parts = path.split("/");
-									if (!path.match(/\/$/)) {
-										parts.pop(); // last part is the filename
-									}
-									var dirToCreate = '/';
-
-									var promises = [];
-
-									for (var i=0; i<parts.length; i++) {
-										if (parts[i] !== "") {
-											dirToCreate += parts[i] + "/";
-										}
-										if (dirToCreate != "/") {
-											promises.push(createDirectory(editor.storage.meta.web_root + dirToCreate));
-										}
-									}
-									Promise.all(promises).then(function() {
-										resolve('created');
-									});
-								});
-							};
-							if (data instanceof File) {
-								var fileReader = new FileReader();
-								fileReader.onload = function(evt) {
-									executeSave(path, this.result);
-								};
-								fileReader.readAsArrayBuffer(data);
-							} else {
-								executeSave(path, data);
-							}
-						});
-					},
-					delete : function(path, callback) {
-						if (path.match(/\/$/)) {
-							// path points to a directory;
-							editor.storage.archive.rmdir(editor.storage.meta.web_root + path, {recursive: true}).then(function() {
-								editor.storage.archive.commit().then(function() {
-									callback();
-								});
-							});
-						} else {
-							editor.storage.archive.unlink(editor.storage.meta.web_root + path).then(function() {
-								editor.storage.archive.commit().then(function() {
-									callback();
-								});
-							});
-						}
-					}
-				}
-			},
-			beakerBeta : {
-				init : function(endpoint) {
-					this.endpoint = endpoint;
-					this.dataEndpoint = endpoint + "data.json";
 					if (this.endpoint.indexOf("hyper://") === 0 && window.beaker) {
 						this.hyperdrive = beaker.hyperdrive.drive(this.endpoint);
 						this.hyperdrive.getInfo().then(function(meta) {
@@ -2884,11 +2759,10 @@
 							editor.storage.meta.web_root = "/";
 						});
 					}
-					this.load = storage.default.load;
-					this.list = storage.default.list;
-					this.sitemap = storage.default.sitemap;
-					this.page = storage.default.page;
-					this.listSitemap = storage.default.listSitemap;
+					this.load = editor.storageConnectors.default.load;
+					this.sitemap = editor.storageConnectors.default.sitemap;
+					this.page = editor.storageConnectors.default.page;
+					this.listSitemap = editor.storageConnectors.default.listSitemap;
 
 					if (editor.responsiveImages) {
 						if (
@@ -2934,6 +2808,67 @@
 						}
 					});
 				},
+				list : function(url, callback) {
+						if (url.indexOf(editor.storage.dataEndpoint) === 0) {
+							return this.listSitemap(url, callback);
+						}
+						if (url == editor.storage.endpoint) {
+							var result = {
+								images : [],
+								folders : [],
+								files : []
+							};
+							result.folders.push({url : editor.storage.dataEndpoint, name : 'My pages'});
+							var parser = document.createElement("A");
+
+							if (document.querySelector("[data-simply-images]")) {
+								var imagesEndpoint = document.querySelector("[data-simply-images]").getAttribute("data-simply-images");
+								parser.href = imagesEndpoint;
+								imagesEndpoint = parser.href;
+								result.folders.push({url : imagesEndpoint, name : 'My images'});
+							}
+							if (document.querySelector("[data-simply-files]")) {
+								var filesEndpoint = document.querySelector("[data-simply-files]").getAttribute("data-simply-files");
+								parser.href = filesEndpoint;
+								filesEndpoint = parser.href;
+								result.folders.push({url : filesEndpoint, name : 'My files'});
+							}
+							return callback(result);
+						}
+
+						var files = beaker.hyperdrive.readdir(url)
+						.then(function(files) {
+							var result = {
+								images : [],
+								folders : [],
+								files : []
+							};
+							files.forEach(function(file) {
+								var targetUrl = url + file;
+								if (targetUrl.substring(-1) === "/") {
+									result.folders.push({url : targetUrl, name : file});
+								} else {
+									if (targetUrl === editor.storage.dataEndpoint) {
+											result.folders.push({url : targetUrl, name: "My pages"});
+									} else {
+										result.files.push({url : targetUrl, name : file});
+										if (targetUrl.match(/(jpg|jpeg|gif|png|bmp|tif|svg)$/i)) {
+											result.images.push({url : targetUrl, name : file});
+										}
+									}
+								}
+							});
+
+							return result;
+						})
+						.then(function(files) {
+							callback(files);
+						})
+						.catch(function(error) {
+							console.log("The target endpoint could not be accessed.");
+							console.log(error);
+						});
+					},
 				file : {
 					save : function(path, data, callback) {
 						if (path.indexOf("hyper://") === 0 ) {
@@ -2975,13 +2910,18 @@
 								return new Promise(function(resolve, reject) {
 									path = path.replace(/^\/\//, "/");
 									path = path.replace(/\/$/, "");
-									editor.storage.hyperdrive.readdir(path).then(null, function () {
-										editor.storage.hyperdrive.mkdir(path).then(function() {
-											editor.storage.hyperdrive.commit().then(function() {
-												resolve('created');
+									editor.storage.hyperdrive.readdir(path).then(
+										function() {
+											resolve('already exists');
+										},
+										function () {
+											editor.storage.hyperdrive.mkdir(path).then(function() {
+												editor.storage.hyperdrive.commit().then(function() {
+													resolve('created');
+												});
 											});
-										});
-									});
+										}
+									);
 								});
 							};
 							var createDirectories = function(path, callback) {
@@ -3819,400 +3759,470 @@
 	editor.data.list = editor.list;
 	editor.data.list.applyTemplates = editor.list.set;
 
-	/*
-		Two way databinding between a data object and DOM element(s).
-		A databinding is attached to one data object. It can be bound to one or more elements.
-		Changes in the element are resolved every x ms;
-		Changes in the data are resolved to the element directly;
-	
-		config options:
-			data: the data object to be used for databinding. Note that this is the 'outer' object, the databinding itself will be set on data[key];
-			key: the key within the data object to be bound
-			setter: a function that sets the data on the element. A simple example would take the provided value and set it as innerHTML.
-			getter: a function that fetches the data from an element. Simple example would be "return target.innerHTML";
-			mode: "list" of "field"; the only difference between the two is the listeners that are applied to the supplied element.
-				"list" listens on attribute changes, node insertions and node removals.
-				"field" listens on attribute changes, subtree modifications.
-			parentKey: an additional pointer to where the data is bound without your datastructure; use this to keep track of nesting within your data.
-			attributeFilter: a blacklist of attributes that should not trigger a change in data;
-			resolve: a function that is called _after_ a change in data has been resolved. The arguments provided to the function are: dataBinding, key, value, oldValue
-	
-		Basic usage usage:
-			var data = {
-				"title" : "foo"
-			};
-	
-			var dataBinding = new databinding({
-				data : data,
-				key : title,
-				setter : function(value) {
-					this.innerHTML = value;
-				},
-				getter: function() {
-					return this.innerHTML;
+
+	class SimplyComponent extends HTMLDivElement {
+		constructor() {
+			console.warn('simply-component is deprecated, use simply-render instead');
+			var self = super();
+			var templateId = self.getAttribute("rel");
+			var template = document.getElementById(templateId);
+			if (template) {
+				var content = editor.list.cloneTemplate(template);
+				for (var i=0; i<content.childNodes.length; i++) {
+					var clone = content.childNodes[i].cloneNode(true);
+					if (clone.nodeType == document.ELEMENT_NODE) {
+						clone.querySelectorAll("template").forEach(function(t) {
+							t.setAttribute("simply-component", "");
+						});
+					}
+					self.parentNode.insertBefore(clone, self);
 				}
-			});
-	
-	
-			dataBinding.bind(document.getElementById('title'));
-	
-			console.log(data.title); // "foo"
-			data.title = "Hello world"; // innerHTML for title is changed to 'Hello world';
-			console.log(data.title); // "Hello world"
-			document.getElementById('title').innerHTML = "Bar";
-			console.log(data.title); // "Bar"
-	*/
-	
-	dataBinding = function(config) {
-		var data = config.data;
-		var key = config.key;
-		this.config = config;
-		this.setter = config.setter;
-		this.getter = config.getter;
-		this.mode = config.mode;
-		this.parentKey = config.parentKey ? config.parentKey : "";
-	
-		this.key = config.key;
-		this.attributeFilter = config.attributeFilter;
-		this.elements = [];
-		var changeStack = [];
-		var binding = this;
-		var shadowValue;
-		binding.resolveCounter = 0;
-	
-		var oldValue;
-	
-		if (!this.mode) {
-			this.mode = "field";
-		}
-	
-		if (Array.isArray(data[key])) {
-			if (this.mode == "field") {
-				console.log("Warning: databinding started in field mode but array-type data given; Switching to list mode.");
-				console.log(key);
+				self.parentNode.removeChild(self);
 			}
-			this.mode = "list";
-			this.config.mode = "list";
 		}
-		if (!this.attributeFilter) {
-			this.attributeFilter = [];
-		}
+	}
+	// Define the new element
+	customElements.define('simply-component', SimplyComponent, { extends: 'div' });
 	
-		// If we already have a databinding on this data[key], re-use that one instead of creating a new one;
-		if (data.hasOwnProperty("_bindings_") && data._bindings_[key]) {
-			return data._bindings_[key];
-		}
-		var dereference = function(value) {
-			if (typeof value==="undefined") {
-				return value;
+	class SimplyRender extends HTMLElement {
+		constructor() {
+			var self = super();
+			var templateId = self.getAttribute("rel");
+			var template = document.getElementById(templateId);
+			if (template) {
+				var content = editor.list.cloneTemplate(template);
+				for (var i=0; i<content.childNodes.length; i++) {
+					var clone = content.childNodes[i].cloneNode(true);
+					if (clone.nodeType == document.ELEMENT_NODE) {
+						clone.querySelectorAll("template").forEach(function(t) {
+							t.setAttribute("simply-component", "");
+						});
+					}
+					self.parentNode.insertBefore(clone, self);
+				}
+				self.parentNode.removeChild(self);
 			}
-			return JSON.parse(JSON.stringify(value));
+		}
+	}
+
+	// Define the new element
+	customElements.define('simply-render', SimplyRender);
+
+	var initSimply = function() {
+		editor.init({
+			endpoint : document.querySelector("[data-simply-endpoint]") ? document.querySelector("[data-simply-endpoint]").getAttribute("data-simply-endpoint") : null,
+			toolbars : defaultToolbars,
+			profile : 'live'
+		});
+	};
+
+	if (scriptEl.hasAttribute("data-simply-initOnEvent")) {
+		document.addEventListener("simply-init", initSimply);
+	} else {
+		initSimply();
+	}
+}());
+
+/*
+	Two way databinding between a data object and DOM element(s).
+	A databinding is attached to one data object. It can be bound to one or more elements.
+	Changes in the element are resolved every x ms;
+	Changes in the data are resolved to the element directly;
+
+	config options:
+		data: the data object to be used for databinding. Note that this is the 'outer' object, the databinding itself will be set on data[key];
+		key: the key within the data object to be bound
+		setter: a function that sets the data on the element. A simple example would take the provided value and set it as innerHTML.
+		getter: a function that fetches the data from an element. Simple example would be "return target.innerHTML";
+		mode: "list" of "field"; the only difference between the two is the listeners that are applied to the supplied element.
+			"list" listens on attribute changes, node insertions and node removals.
+			"field" listens on attribute changes, subtree modifications.
+		parentKey: an additional pointer to where the data is bound without your datastructure; use this to keep track of nesting within your data.
+		attributeFilter: a blacklist of attributes that should not trigger a change in data;
+		resolve: a function that is called _after_ a change in data has been resolved. The arguments provided to the function are: dataBinding, key, value, oldValue
+
+	Basic usage usage:
+		var data = {
+			"title" : "foo"
 		};
-		var isEqual = function(value1, value2) {
-			return JSON.stringify(value1) == JSON.stringify(value2);
-		};
-		this.setData = function(newdata) {
-			data = newdata;
-			initBindings(data, key);
-		};
+
+		var dataBinding = new databinding({
+			data : data,
+			key : title,
+			setter : function(value) {
+				this.innerHTML = value;
+			},
+			getter: function() {
+				return this.innerHTML;
+			}
+		});
+
+
+		dataBinding.bind(document.getElementById('title'));
+
+		console.log(data.title); // "foo"
+		data.title = "Hello world"; // innerHTML for title is changed to 'Hello world';
+		console.log(data.title); // "Hello world"
+		document.getElementById('title').innerHTML = "Bar";
+		console.log(data.title); // "Bar"
+*/
+
+elementBinding = function(element, config, dataBinding) {
+	var self = this;
+	this.element = element;
+	this.dataBinding = dataBinding;
+	this.element.dataBinding = dataBinding;
+	this.element.elementBinding = this;
+
+	this.dataBindingConfig = config;
+	this.unbind = function() {
+		if (this.dataBinding) {
+			this.dataBinding.unbind(this);
+		}
+	};
+	element.dataBindingPaused = 0;
+	this.elementGetter = (config && typeof config.getter === "function") ? config.getter : this.dataBinding.getter;
+	this.elementSetter = (config && typeof config.setter === "function") ? config.setter : this.dataBinding.setter;
+	element.getter = this.elementGetter;
+	element.setter = this.elementSetter;
 	
-		var reconnectParentBindings = function(binding) {
-			var parent;
-	
-			if (binding.config.data._parentBindings_) {
-				parent = binding.config.data._parentBindings_[binding.key];
-				while (parent && parent.get()[binding.key] == binding.get()) {
-					binding = parent;
-					parent = binding.config.data._parentBindings_? binding.config.data._parentBindings_[binding.key] : null;
-					if (!parent) {
-						if (binding.config.data._parentData_ && (binding.config.data._parentData_[binding.key] !== binding.get())) {
-							binding.config.data._parentData_[binding.key] = binding.get();
-						}
-						for (var i in binding.config.data._parentBindings_) {
-							parent = binding.config.data._parentBindings_[i];
-							continue;
-						}
+	this.getter = function() {
+		return this.elementGetter.call(element);
+	};
+	this.setter = function(data) {
+		return this.elementSetter.call(element, data);
+	};
+
+	this.addListeners = function() {
+		this.removeListeners();
+		if (typeof this.element.mutationObserver === "undefined") {
+			this.element.mutationHandler = this.getMutationHandler(this.element);
+			this.element.mutationObserver = new MutationObserver(this.element.mutationHandler);
+		}
+		if (this.dataBinding.mode == "field") {
+			if (this.element.mutationObserver) {
+				this.element.mutationObserverConfig = {
+					attributes: true,
+                                        characterData: true,
+                                        subtree: true,
+                                        childList: true
+				};
+				if (this.element.dataBindingPaused === 0) {
+					this.element.mutationObserver.observe(this.element, this.element.mutationObserverConfig);
+				}
+			}
+			this.element.addEventListener("change", this.handleEvent);
+		}
+		if (this.dataBinding.mode == "list") {
+			if (this.element.mutationObserver) {
+				this.element.mutationObserverConfig = {
+					attributes: true,
+                                        childList: true
+				};
+				if (this.element.dataBindingPaused === 0) {
+					this.element.mutationObserver.observe(this.element, this.element.mutationObserverConfig);
+				}
+			}
+		}
+		this.element.addEventListener("databinding:valuechanged", this.handleEvent);
+		this.element.addEventListener("databinding:pause", function() {
+			this.elementBinding.pauseListeners();
+		});
+		this.element.addEventListener("databinding:resume", function() {
+			this.elementBinding.resumeListeners();
+		});
+		this.element.addEventListener("databind:pause", function() {
+			this.elementBinding.pauseListeners();
+		});
+		this.element.addEventListener("databind:resume", function() {
+			this.elementBinding.resumeListeners();
+		});
+	};
+
+	this.removeListeners = function() {
+		if (this.dataBinding.mode == "field") {
+			if (this.element.mutationObserver) {
+				this.element.mutationObserver.disconnect();
+			}
+			this.element.removeEventListener("change", this.handleEvent);
+		}
+		if (this.dataBinding.mode == "list") {
+			if (this.element.mutationObserver) {
+				this.element.mutationObserver.disconnect();
+			}
+		}
+		this.element.removeEventListener("databinding:valuechanged", this.handleEvent);
+	};
+
+	this.resumeListeners = function() {
+		this.element.dataBindingPaused--;
+		if (this.element.dataBindingPaused < 0) {
+			console.log("Warning: resume called of non-paused databinding");
+			this.element.dataBindingPaused = 0;
+		}
+		if (this.element.dataBindingPaused === 0) {
+			if (this.element.mutationObserver) {
+				this.element.mutationObserver.status = "observing";
+				this.element.mutationObserver.observe(this.element, this.element.mutationObserverConfig);
+			} else {
+				console.log("Warning: no mutation observer found");
+			}
+		}
+	};
+	this.pauseListeners = function() {
+		if (this.element.mutationObserver) {
+			// Disconnecting will flush the queue of records and trash them - if we have things that we need to handle, do so.
+			this.element.mutationHandler(this.element.mutationObserver.takeRecords());
+			this.element.mutationObserver.status = "disconnected";
+			this.element.mutationObserver.disconnect();
+		}
+		this.element.dataBindingPaused++;
+	};
+
+	this.getMutationHandler = function(target) {
+		return function(mutations) {
+			mutations.forEach(function(mutation) {
+				if (!target.dataBinding) {
+					return;
+				}
+				if (target.dataBindingPaused) {
+					return;
+				}
+
+				if (target.dataBinding.paused) {
+					return;
+				}
+				var elementBinding = target.elementBinding;
+				elementBinding.pauseListeners();
+
+				if (target.dataBinding.mode == "field") {
+					switch (mutation.type) {
+						case "attributes":
+							if (target.dataBinding.attributeFilter.indexOf(mutation.attributeName) !== -1) {
+								break; // only handle the attribute mutation if the attribute changed is in our set
+							}
+							elementBinding.dataBinding.set(elementBinding.getter());
+						break;
+						default:
+							// these are needed to keep the focus in an element while typing;
+							elementBinding.dataBinding.set(elementBinding.getter());
+						break;
 					}
 				}
-			}
-		};
-	
-		var setShadowValue = function(value) {
-			var valueBindings;
-			if (shadowValue && shadowValue._bindings_) {
-				valueBindings = shadowValue._bindings_;
-			}
-	
-			shadowValue = value;
-			reconnectParentBindings(binding);
-	
-			if (valueBindings && (typeof shadowValue === "object")) {
-				if (shadowValue && !shadowValue.hasOwnProperty("_bindings_")) {
-					var bindings = {};
-	
-					Object.defineProperty(shadowValue, "_bindings_", {
-						get : function() {
-							return bindings;
-						},
-						set : function(value) {
-							bindings[key] = binding;
-						}
-					});
-				}
-	
-				var setRestoreTrigger = function(data, key, previousBinding) {
-					var prevDescriptor = Object.getOwnPropertyDescriptor(previousBinding.config.data, key);
-					var childTriggers = function(previousData) {
-						return function(value) {
-							if (typeof value === "undefined") {
-								return;
+				if (target.dataBinding.mode == "list") {
+					switch (mutation.type) {
+						case "attributes":
+							if (target.dataBinding.attributeFilter.indexOf(mutation.attributeName) !== -1) {
+								break;  // only handle the attribute mutation if the attribute changed is in our set
 							}
-							if (previousData && previousData._bindings_) {
-								for (var i in previousData._bindings_) {
-									if (typeof value[i] === "undefined") {
-										setRestoreTrigger(value, i, previousData._bindings_[i]);
-										value._bindings_[i] = previousData._bindings_[i];
-									} else {
-										value._bindings_[i] = previousData._bindings_[i];
-										value._bindings_[i].config.data = value;
-										value._bindings_[i].set(value[i]);
-									}
+							elementBinding.dataBinding.set(elementBinding.getter());
+						break;
+						case "childList":
+							mutation.removedNodes.forEach(function(removedNode) {
+								if (removedNode.nodeType != document.ELEMENT_NODE) {
+									return;
 								}
-							}
-						};
-					}(previousBinding.config.data[key]);
-	
-					previousBinding.config.data = data;
-				//	binding.config.data = data;
-	
-					// binding.set(null);
-					// delete data[key];
-					var restoreBinding = function(value) {
-						if (typeof value === "object" && !value.hasOwnProperty("_bindings_")) {
-							var bindings = {};
-	
-							Object.defineProperty(value, "_bindings_", {
-								get : function() {
-									return bindings;
-								},
-								set : function(value) {
-									bindings[key] = previousBinding;
+								if (removedNode.simplyRemoved) {
+									return;
+								}
+								if (typeof removedNode.simplyListIndex === "undefined") {
+									return;
+								}
+								removedNode.simplyRemoved = true;
+								// find the index of the removed target node;
+								data = target.dataBinding.get();
+								items = target.querySelectorAll(":scope > [data-simply-list-item]");
+								//for (i=0; i<items.length; i++) {
+								//	items[i].simplyRemoved = true;
+								//}
+								removedNode.simplyData = data.splice(removedNode.simplyListIndex, 1)[0];
+							});
+							mutation.addedNodes.forEach(function(addedNode) {
+								if (addedNode.nodeType != document.ELEMENT_NODE) {
+									return;
+								}
+								// find the index of the inserted target node;
+								items = target.querySelectorAll(":scope > [data-simply-list-item]");
+								for (i=0; i<items.length; i++) {
+									if (items[i] == addedNode) {
+										if (addedNode.simplyData) {
+											data = target.dataBinding.get();
+											data.splice(i, 0, addedNode.simplyData);
+											delete addedNode.simplyRemoved;
+											return;
+										}
+									}
 								}
 							});
-						}
-						childTriggers(value);
-						data._bindings_[key].setData(data);
-						data._bindings_[key].set(value);
-						if (typeof prevDescriptor.get !== "function" && typeof prevDescriptor.set === "function") {
-							prevDescriptor.set(value);
-						}
-					};
-	
-					Object.defineProperty(data, key, {
-						set : restoreBinding,
-						configurable : true
-					});
-				};
-	
-				for (var i in valueBindings) {
-					if (typeof shadowValue[i] === "undefined") {
-						if (typeof valueBindings[i].get() === "string") {
-							valueBindings[i].set("");
-						} else if (typeof valueBindings[i].get() === "object") {
-							if (valueBindings[i].get() instanceof Array) {
-								valueBindings[i].config.data[i] = [];
-							} else {
-								valueBindings[i].config.data[i] = {};
-							}
-						}
-	
-						setRestoreTrigger(shadowValue, i, valueBindings[i]);
-					} else {
-						valueBindings[i].set(shadowValue[i]);
-						valueBindings[i].resolve(true);
-					}
-					shadowValue._bindings_[i] = valueBindings[i];
-				}
-			}
-	
-			if (typeof oldValue !== "undefined" && !isEqual(oldValue, shadowValue)) {
-				binding.config.resolve.call(binding, key, dereference(shadowValue), dereference(oldValue));
-			}
-			//if (typeof shadowValue === "object") {
-			//	shadowValue = dereference(shadowValue);
-			//}
-			monitorChildData(shadowValue);
-		};
-		var monitorChildData = function(data) {
-			// Watch for changes in our child data, because these also need to register as changes in the databound data/elements;
-			// This allows the use of simple data structures (1 key deep) as databound values and still resolve changes on a specific entry;
-			var parentData = data;
-	
-			if (typeof data === "object") {
-				var monitor = function(data, key) {
-					if (!data.hasOwnProperty("_parentBindings_")) {
-						var bindings = {};
-	
-						Object.defineProperty(data, "_parentBindings_", {
-							get : function() {
-								return bindings;
-							},
-							set : function(value) {
-								bindings[key] = binding;
-							}
-						});
-						Object.defineProperty(data, "_parentData_", {
-							get : function() {
-								return parentData;
-							}
-						});
-					}
-					data._parentBindings_[key] = binding;
-	
-					var myvalue = data[key];
-	
-					var renumber = function(key, value, parentBinding) {
-						var oldparent, newparent;
-						if (value && value._bindings_) {
-							for (var subbinding in value._bindings_) {
-								oldparent = value._bindings_[subbinding].parentKey;
-								newparent = parentBinding.parentKey + parentBinding.key + "/" + key + "/";
-								// console.log(oldparent + " => " + newparent);
-								value._bindings_[subbinding].parentKey = newparent;
-								if (value[subbinding] && value[subbinding].length) {
-									for (var i=0; i<value[subbinding].length; i++) {
-										renumber(i, value[subbinding][i], value._bindings_[subbinding]);
-									}
-								}
-							}
-						}
-					};
-	
-					renumber(key, myvalue, binding);
-	
-					Object.defineProperty(data, key, {
-						set : function(value) {
-							myvalue = value;
-							renumber(key, value, binding);
-	
-							if (parentData._bindings_ && parentData._bindings_[key]) {
-								parentData._bindings_[key].set(value);
-								parentData._bindings_[key].resolve();
-							}
-	
-							// Marker is set by the array function, it will do the resolve after we're done.
-							if (!binding.runningArrayFunction) {
-								newValue = shadowValue;
-								shadowValue = null;
-								binding.set(newValue);
-								binding.resolve();
-							}
-						},
-						get : function() {
-							if (parentData._bindings_ && parentData._bindings_[key]) {
-								return parentData._bindings_[key].get();
-							}
-							return myvalue;
-						}
-					});
-				};
-	
-				for (var key in data) {
-					if (typeof data[key] !== "function") { // IE11 has a function 'includes' for arrays;
-						monitor(data, key);
+						break;
+						default:
+							// these are needed to keep the focus in an element while typing;
+							elementBinding.dataBinding.set(elementBinding.getter());
+						break;
 					}
 				}
-			}
-	
-			// Override basic array functions in the databound data, if it is an array;
-			// Allows the use of basic array functions and still resolve changes.
-			if (data instanceof Array) {
-				overrideArrayFunction = function(name) {
-					if (data.hasOwnProperty(name)) {
-						return; // we already did this;
-					}
-					Object.defineProperty(data, name, {
-						value : function() {
-							binding.resolve(); // make sure the shadowValue is in sync with the latest state;
-	
-							// Add a marker so that array value set does not trigger resolving, we will resolve after we're done.
-							binding.runningArrayFunction = true;
-							var result = Array.prototype[name].apply(shadowValue, arguments);
-							for (var i in shadowValue) {
-								shadowValue[i] = shadowValue[i]; // this will force a renumber/reindex for the parentKeys;
-							}
-							binding.runningArrayFunction = false;
-	
-							for (var j=0; j<binding.elements.length; j++) {
-								binding.bind(binding.elements[j]);
-							}
-	
-							newValue = shadowValue;
-							shadowValue = null;
-							binding.set(newValue);
-							binding.resolve(); // and apply our array change;
-	
-							return result;
-						}
-					});
-				};
-				overrideArrayFunction("pop");
-				overrideArrayFunction("push");
-				overrideArrayFunction("shift");
-				overrideArrayFunction("unshift");
-				overrideArrayFunction("splice");
-			}
+				elementBinding.resumeListeners();
+				elementBinding.fireEvent("domchanged");
+			});
 		};
-		var resolverIsLooping = function() {
-			// Check for resolve loops - 5 seems like a safe count. If we pass this point 5 times within the same stack execution, break the loop.
-			binding.resolveCounter++;
-			if (binding.resolveCounter > 5) {
-				console.log("Warning: databinding resolve loop detected!");
-				window.setTimeout(function() {
-					binding.resolveCounter = 0;
-				}, 300); // 300 is a guess; could be any other number. It needs to be long enough so that everyone can settle down before we start resolving again.
-				return true;
-			}
-			return false;
-		};
-	
-		var setElements = function() {
-			if (binding.elementTimer) {
-				window.clearTimeout(binding.elementTimer);
-			}
-			for (var i=0; i<binding.elements.length; i++) {
-				if (
-					// binding.mode == "list" || // if it is a list, we need to reset the values so that the bindings are setup properly.
-					// FIXME: Always setting a list element will make a loop - find a better way to setup the bindings;
-					(!isEqual(binding.elements[i].getter(), shadowValue))
-				) {
-					binding.pauseListeners(binding.elements[i]);
-					binding.elements[i].setter(shadowValue);
-					binding.resumeListeners(binding.elements[i]);
-				}
-				fireEvent(binding.elements[i], "elementresolved");
-			}
-			if (data._parentBindings_ && data._parentBindings_[key] && data._parentBindings_[key] !== binding) {
-				data[key] = shadowValue; 
-			}
-			if (typeof binding.config.resolve === "function") {
-				if (!isEqual(oldValue, shadowValue)) {
-					oldValue = dereference(shadowValue);
-				}
-			}
-			fireEvent(document, "resolved");
-		};
-	
-		var initBindings = function(data, key) {
-			if (typeof data != "object") {
-				console.log("Attempted to bind on non-object data for " + key);
+	};
+
+	this.handleEvent = function (event) {
+		var target = event.currentTarget;
+		var dataBinding = target.dataBinding;
+		var elementBinding = target.elementBinding;
+
+		if (typeof dataBinding === 'undefined') {
+			return;
+		}
+		if (dataBinding.paused) {
+			return;
+		}
+		if (target.dataBindingPaused) {
+			event.stopPropagation();
+			return;
+		}
+		if (dataBinding.mode === "list") {
+			if (event.relatedNode && (target != event.relatedNode)) {
 				return;
 			}
-	
-			if (!data.hasOwnProperty("_bindings_")) {
+		}
+
+		var i, data, items;
+
+		switch (event.type) {
+			case "change":
+			case "databinding:valuechanged":
+				// Allow the browser to fix what it thinks needs to be fixed (node to be removed, cleaned etc) before setting the new data;
+
+				// these are needed to keep the focus in an element while typing;
+				elementBinding.pauseListeners();
+				dataBinding.set(elementBinding.getter());
+				elementBinding.resumeListeners();
+
+				// these are needed to update after the browser is done doing its thing;
+				window.setTimeout(function() {
+					elementBinding.pauseListeners();
+					dataBinding.set(elementBinding.getter());
+					elementBinding.resumeListeners();
+				}, 1); // allow the rest of the mutation event to occur;
+			break;
+		}
+		elementBinding.fireEvent("domchanged");
+	};
+	this.fireEvent = function(event) {
+		self.dataBinding.fireEvent(self.element, event);
+	};
+	this.fireParent = function(event) {
+		self.dataBinding.fireEvent(self.element.parentNode, event);
+	};
+	this.isInDocument = function() {
+		if (document.contains && document.contains(this.element)) {
+			return true;
+		}
+		var parent = element.parentNode;
+		while (parent) {
+			if (parent === document) {
+				return true;
+			}
+			if (parent.nodeType === document.DOCUMENT_FRAGMENT_NODE) {
+				if (parent.host && inDocument(parent.host)) {
+					return true;
+				}
+			}
+			parent = parent.parentNode;
+		}
+		return false;
+	};
+};
+
+dataBinding = function(config) {
+	var data = config.data;
+	var key = config.key;
+	this.config = config;
+	this.setter = config.setter;
+	this.getter = config.getter;
+	this.mode = config.mode;
+	this.parentKey = config.parentKey ? config.parentKey : "";
+
+	this.key = config.key;
+	this.attributeFilter = config.attributeFilter;
+	this.elements = [];
+	var changeStack = [];
+	var binding = this;
+	var shadowValue;
+	binding.resolveCounter = 0;
+
+	var oldValue;
+
+	if (!this.mode) {
+		this.mode = "field";
+	}
+	if (Array.isArray(data[key])) {
+		if (this.mode == "field") {
+			console.log("Warning: databinding started in field mode but array-type data given; Switching to list mode.");
+		}
+		this.mode = "list";
+		this.config.mode = "list";
+	}
+	if (!this.attributeFilter) {
+		this.attributeFilter = [];
+	}
+
+	// If we already have a databinding on this data[key], re-use that one instead of creating a new one;
+	if (data.hasOwnProperty("_bindings_") && data._bindings_[key]) {
+		return data._bindings_[key];
+	}
+	var dereference = function(value) {
+		if (typeof value==="undefined") {
+			return value;
+		}
+		return JSON.parse(JSON.stringify(value));
+	};
+	var isEqual = function(value1, value2) {
+		return JSON.stringify(value1) == JSON.stringify(value2);
+	};
+	this.setData = function(newdata) {
+		data = newdata;
+		initBindings(data, key);
+	};
+
+	var reconnectParentBindings = function(binding) {
+		var parent;
+
+		if (binding.config.data._parentBindings_) {
+			parent = binding.config.data._parentBindings_[binding.key];
+			while (parent && parent.get()[binding.key] == binding.get()) {
+				binding = parent;
+				parent = binding.config.data._parentBindings_? binding.config.data._parentBindings_[binding.key] : null;
+				if (!parent) {
+					if (binding.config.data._parentData_ && (binding.config.data._parentData_[binding.key] !== binding.get())) {
+						binding.config.data._parentData_[binding.key] = binding.get();
+					}
+					for (var i in binding.config.data._parentBindings_) {
+						parent = binding.config.data._parentBindings_[i];
+						continue;
+					}
+				}
+			}
+		}
+	};
+
+	var setShadowValue = function(value) {
+		var valueBindings;
+		if (shadowValue && shadowValue._bindings_) {
+			valueBindings = shadowValue._bindings_;
+		}
+
+		shadowValue = value;
+
+		reconnectParentBindings(binding);
+
+		if (valueBindings && (typeof shadowValue === "object")) {
+			if (shadowValue && !shadowValue.hasOwnProperty("_bindings_")) {
 				var bindings = {};
-	
-				Object.defineProperty(data, "_bindings_", {
+
+				Object.defineProperty(shadowValue, "_bindings_", {
 					get : function() {
 						return bindings;
 					},
@@ -4221,115 +4231,408 @@
 					}
 				});
 			}
-	
-			setShadowValue(data[key]);
-			oldValue = dereference(data[key]);
-	
-			data._bindings_[key] = binding;
-			if (binding.mode == "list") {
-				if (data[key] === null) {
-					data[key] = [];
-				}
-			}
-	
-			Object.defineProperty(data, key, {
-				set : function(value) {
-					if (!isEqual(value, shadowValue)) {
-						binding.set(value);
-						binding.resolve(true);
+
+			var setRestoreTrigger = function(data, key, previousBinding) {
+				var prevDescriptor = Object.getOwnPropertyDescriptor(previousBinding.config.data, key);
+				var childTriggers = function(previousData) {
+					return function(value) {
+						if (typeof value === "undefined") {
+							return;
+						}
+						if (previousData && previousData._bindings_) {
+							for (var i in previousData._bindings_) {
+								if (typeof value[i] === "undefined") {
+									setRestoreTrigger(value, i, previousData._bindings_[i]);
+									value._bindings_[i] = previousData._bindings_[i];
+								} else {
+									value._bindings_[i] = previousData._bindings_[i];
+									value._bindings_[i].config.data = value;
+									value._bindings_[i].set(value[i]);
+								}
+							}
+						}
+					};
+				}(previousBinding.config.data[key]);
+
+				previousBinding.config.data = data;
+			//	binding.config.data = data;
+
+				// binding.set(null);
+				// delete data[key];
+				var restoreBinding = function(value) {
+					if (typeof value === "object" && !value.hasOwnProperty("_bindings_")) {
+						var bindings = {};
+
+						Object.defineProperty(value, "_bindings_", {
+							get : function() {
+								return bindings;
+							},
+							set : function(value) {
+								bindings[key] = previousBinding;
+							}
+						});
 					}
-					if (data._parentBindings_ && data._parentBindings_[key]) {
-						if (data._parentBindings_[key].get()[key] !== value) {
-							data._parentBindings_[key].get()[key] = value;
-							data._parentBindings_[key].resolve(true);
+					childTriggers(value);
+					data._bindings_[key].setData(data);
+					data._bindings_[key].set(value);
+					if (typeof prevDescriptor.get !== "function" && typeof prevDescriptor.set === "function") {
+						prevDescriptor.set(value);
+					}
+				};
+
+				Object.defineProperty(data, key, {
+					set : restoreBinding,
+					configurable : true
+				});
+			};
+
+			for (var i in valueBindings) {
+				if (typeof shadowValue[i] === "undefined") {
+					if (typeof valueBindings[i].get() === "string") {
+						valueBindings[i].set("");
+					} else if (typeof valueBindings[i].get() === "object") {
+						if (valueBindings[i].get() instanceof Array) {
+							valueBindings[i].config.data[i] = [];
+						} else {
+							valueBindings[i].config.data[i] = {};
 						}
 					}
-				},
-				get : function() {
-					return shadowValue;
-				},
-				enumerable: true
-			});
-		};
-		var fireEvent = function(targetNode, eventName, detail) {
-			var event = document.createEvent('CustomEvent');
-			if (event && event.initCustomEvent) {
-				event.initCustomEvent('databind:' + eventName, true, true, detail);
-			} else {
-				event = document.createEvent('Event');
-				event.initEvent('databind:' + eventName, true, true);
-				event.detail = detail;
-			}
-			return targetNode.dispatchEvent(event);
-		};
-		this.fireEvent = fireEvent;
-	
-		this.set = function (value) {
-			changeStack.push(value);
-			this.resolve();
-		};
-	
-		this.get = function() {
-			if (changeStack.length) {
-				this.resolve();
-			}
-			return shadowValue;
-		};
-	
-		this.resolve = function(instant) {
-			if (!changeStack.length) {
-				if (instant) {
-					setElements();
+
+					setRestoreTrigger(shadowValue, i, valueBindings[i]);
+				} else {
+					valueBindings[i].set(shadowValue[i]);
+					valueBindings[i].resolve(true);
 				}
-				return; // No changes to resolve;
+				shadowValue._bindings_[i] = valueBindings[i];
 			}
-			var value = changeStack.pop(); // Only apply the last change;
-			changeStack = [];
-	
-			if (isEqual(value, shadowValue)) {
-				return; // The change is not actually a change, so no action needed;
+		}
+
+		if (typeof oldValue !== "undefined" && !isEqual(oldValue, shadowValue)) {
+			binding.config.resolve.call(binding, key, dereference(shadowValue), dereference(oldValue));
+		}
+		//if (typeof shadowValue === "object") {
+		//	shadowValue = dereference(shadowValue);
+		//}
+		updateConvertedDataParent(shadowValue);
+		monitorChildData(shadowValue);
+	};
+
+	var updateConvertedDataParent = function(data) {
+		if (
+			binding.config.data._parentBindings_ &&
+			binding.config.data._parentBindings_[binding.key] &&
+			binding.config.data._parentBindings_[binding.key].config.data._simplyListEntryMapping
+		) {
+			var listEntryMapping = binding.config.data._parentBindings_[binding.key].config.data._simplyListEntryMapping;
+			var convertedParent = binding.config.data._parentBindings_[binding.key].config.data._simplyConvertedParent;
+			var arrayPaths = binding.config.data._parentBindings_[binding.key].config.data[listEntryMapping]._parentBindings_[binding.key].parentKey.split("/");
+			var arrayIndex = arrayPaths.pop();
+			arrayIndex = arrayPaths.pop();
+			binding.config.data._parentBindings_[binding.key].config.data[binding.key] = data;
+			var parentData = convertedParent._parentBindings_[arrayIndex].config.data;
+			var parentKey = arrayPaths.pop();
+			parentData[parentKey][arrayIndex][binding.key] = data;
+		}
+	};
+
+	var monitorChildData = function(data) {
+		// Watch for changes in our child data, because these also need to register as changes in the databound data/elements;
+		// This allows the use of simple data structures (1 key deep) as databound values and still resolve changes on a specific entry;
+		var parentData = data;
+
+		if (typeof data === "object") {
+			var monitor = function(data, key) {
+				if (!data.hasOwnProperty("_parentBindings_")) {
+					var bindings = {};
+
+					Object.defineProperty(data, "_parentBindings_", {
+						get : function() {
+							return bindings;
+						},
+						set : function(value) {
+							bindings[key] = binding;
+						}
+					});
+					Object.defineProperty(data, "_parentData_", {
+						get : function() {
+							return parentData;
+						}
+					});
+				}
+				data._parentBindings_[key] = binding;
+
+				var myvalue = data[key];
+
+				var renumber = function(key, value, parentBinding) {
+					var oldparent, newparent;
+					if (value && value._bindings_) {
+						for (var subbinding in value._bindings_) {
+							oldparent = value._bindings_[subbinding].parentKey;
+							newparent = parentBinding.parentKey + parentBinding.key + "/" + key + "/";
+							// console.log(oldparent + " => " + newparent);
+							value._bindings_[subbinding].parentKey = newparent;
+							if (value[subbinding] && value[subbinding].length && (typeof value[subbinding] !== "string")) {
+								for (var i=0; i<value[subbinding].length; i++) {
+									renumber(i, value[subbinding][i], value._bindings_[subbinding]);
+								}
+							}
+						}
+					}
+				};
+
+				renumber(key, myvalue, binding);
+
+				Object.defineProperty(data, key, {
+					set : function(value) {
+						myvalue = value;
+						renumber(key, value, binding);
+
+						if (parentData._bindings_ && parentData._bindings_[key]) {
+							parentData._bindings_[key].set(value);
+							parentData._bindings_[key].resolve();
+						}
+
+						// Marker is set by the array function, it will do the resolve after we're done.
+						if (!binding.runningArrayFunction) {
+							newValue = shadowValue;
+							shadowValue = null;
+							binding.set(newValue);
+							binding.resolve();
+						}
+					},
+					get : function() {
+						if (parentData._bindings_ && parentData._bindings_[key]) {
+							return parentData._bindings_[key].get();
+						}
+						return myvalue;
+					}
+				});
+			};
+
+			for (var key in data) {
+				if (typeof data[key] !== "function") { // IE11 has a function 'includes' for arrays;
+					monitor(data, key);
+				}
 			}
-	
-			if (resolverIsLooping()) {
-				return; // The resolver is looping, yield to give everything time to settle down;
+		}
+
+		// Override basic array functions in the databound data, if it is an array;
+		// Allows the use of basic array functions and still resolve changes.
+		if (data instanceof Array) {
+			overrideArrayFunction = function(name) {
+				if (data.hasOwnProperty(name)) {
+					return; // we already did this;
+				}
+				Object.defineProperty(data, name, {
+					value : function() {
+						binding.resolve(); // make sure the shadowValue is in sync with the latest state;
+
+						// Add a marker so that array value set does not trigger resolving, we will resolve after we're done.
+						binding.runningArrayFunction = true;
+						var result = Array.prototype[name].apply(shadowValue, arguments);
+						for (var i in shadowValue) {
+							shadowValue[i] = shadowValue[i]; // this will force a renumber/reindex for the parentKeys;
+						}
+						binding.runningArrayFunction = false;
+
+						//for (var j=0; j<binding.elements.length; j++) {
+						//	binding.bind(binding.elements[j]);
+						//}
+
+						newValue = shadowValue;
+						shadowValue = null;
+						binding.set(newValue);
+						binding.resolve(); // and apply our array change;
+						return result;
+					}
+				});
+			};
+			overrideArrayFunction("pop");
+			overrideArrayFunction("push");
+			overrideArrayFunction("shift");
+			overrideArrayFunction("unshift");
+			overrideArrayFunction("splice");
+		}
+	};
+	var resolverIsLooping = function() {
+		// Check for resolve loops - 5 seems like a safe count. If we pass this point 5 times within the same stack execution, break the loop.
+		binding.resolveCounter++;
+		if (binding.resolveCounter > 5) {
+			console.log("Warning: databinding resolve loop detected!");
+			window.setTimeout(function() {
+				binding.resolveCounter = 0;
+			}, 300); // 300 is a guess; could be any other number. It needs to be long enough so that everyone can settle down before we start resolving again.
+			return true;
+		}
+		return false;
+	};
+
+	var setElements = function() {
+		if (binding.elementTimer) {
+			window.clearTimeout(binding.elementTimer);
+		}
+		for (var i=0; i<binding.elements.length; i++) {
+			if (
+				// binding.mode == "list" || // if it is a list, we need to reset the values so that the bindings are setup properly.
+				// FIXME: Always setting a list element will make a loop - find a better way to setup the bindings;
+				(!isEqual(binding.elements[i].getter(), shadowValue))
+			) {
+				binding.elements[i].pauseListeners();
+				binding.elements[i].fireEvent("pause");
+				binding.elements[i].setter(shadowValue);
+				binding.elements[i].fireEvent("resume");
+				binding.elements[i].resumeListeners();
 			}
-	
-			setShadowValue(value);		// Update the shadowValue to the new value;
-	
-			if (binding.config.data._simplyConverted) {
-				// Update the reference in the parent to the new value as well;
-				binding.config.data._simplyConvertedParent[binding.config.data._simplyConvertedParent.indexOf(binding.config.data)] = value;
+			binding.elements[i].fireEvent("elementresolved");
+		}
+		if (data._parentBindings_ && data._parentBindings_[key] && data._parentBindings_[key] !== binding) {
+			data[key] = shadowValue; 
+		}
+		if (typeof binding.config.resolve === "function") {
+			if (!isEqual(oldValue, shadowValue)) {
+				oldValue = dereference(shadowValue);
 			}
-	
+		}
+		fireEvent(document, "resolved");
+	};
+
+	var initBindings = function(data, key) {
+		if (typeof data != "object") {
+			console.log("Attempted to bind on non-object data for " + key);
+			return;
+		}
+
+		if (!data.hasOwnProperty("_bindings_")) {
+			var bindings = {};
+
+			Object.defineProperty(data, "_bindings_", {
+				get : function() {
+					return bindings;
+				},
+				set : function(value) {
+					bindings[key] = binding;
+				}
+			});
+		}
+
+		setShadowValue(data[key]);
+		oldValue = dereference(data[key]);
+
+		data._bindings_[key] = binding;
+		if (binding.mode == "list") {
+			if (data[key] === null) {
+				data[key] = [];
+			}
+		}
+
+		Object.defineProperty(data, key, {
+			set : function(value) {
+				if (!isEqual(value, shadowValue)) {
+					binding.set(value);
+					binding.resolve(true);
+				}
+				if (data._parentBindings_ && data._parentBindings_[key]) {
+					if (!isEqual(data._parentBindings_[key].get()[key], value)) {
+						data._parentBindings_[key].get()[key] = value;
+						data._parentBindings_[key].resolve(true);
+					}
+				}
+			},
+			get : function() {
+				return shadowValue;
+			},
+			enumerable: true
+		});
+	};
+	var fireEvent = function(targetNode, eventName, detail) {
+		if (!targetNode) {
+			return;
+		}
+		var event = document.createEvent('CustomEvent');
+		if (event && event.initCustomEvent) {
+			event.initCustomEvent('databind:' + eventName, true, true, detail);
+		} else {
+			event = document.createEvent('Event');
+			event.initEvent('databind:' + eventName, true, true);
+			event.detail = detail;
+		}
+		return targetNode.dispatchEvent(event);
+	};
+	this.fireEvent = fireEvent;
+
+	this.set = function (value) {
+		changeStack.push(value);
+		this.resolve();
+	};
+
+	this.get = function() {
+		if (changeStack.length) {
+			this.resolve();
+		}
+		return shadowValue;
+	};
+
+	this.resolve = function(instant) {
+		if (!changeStack.length) {
 			if (instant) {
 				setElements();
-			} else {
-				if (binding.elementTimer) {
-					window.clearTimeout(binding.elementTimer);
-				}
-				binding.elementTimer = window.setTimeout(function() {
-					setElements();	// Set the new value in all the databound elements;
-				}, 100);
 			}
-	
-			binding.resolveCounter--;
-		};
-	
-		this.bind = function(element, config) {
-			if (element.dataBinding) {
-				element.dataBinding.unbind(element);
+			return; // No changes to resolve;
+		}
+		var value = changeStack.pop(); // Only apply the last change;
+		changeStack = [];
+
+		if (isEqual(value, shadowValue)) {
+			return; // The change is not actually a change, so no action needed;
+		}
+
+		if (resolverIsLooping()) {
+			return; // The resolver is looping, yield to give everything time to settle down;
+		}
+
+		setShadowValue(value);		// Update the shadowValue to the new value;
+
+		if (binding.config.data._simplyConverted) {
+			// Update the reference in the parent to the new value as well;
+			binding.config.data._simplyConvertedParent[binding.config.data._simplyConvertedParent.indexOf(binding.config.data)] = value;
+		}
+
+		if (instant) {
+			setElements();
+		} else {
+			if (binding.elementTimer) {
+				window.clearTimeout(binding.elementTimer);
 			}
-	
-			binding.elements.push(element);
-			element.getter 		= (config && typeof config.getter === "function") ? config.getter : binding.getter;
-			element.setter 		= (config && typeof config.setter === "function") ? config.setter : binding.setter;
-			element.dataBinding 	= binding;
-			element.dataBindingPaused = 0;
-	
+			binding.elementTimer = window.setTimeout(function() {
+				setElements();	// Set the new value in all the databound elements;
+			}, 100);
+		}
+
+		binding.resolveCounter--;
+	};
+
+	this.bind = function(element, config) {
+		if (element.elementBinding) {
+			element.elementBinding.unbind();
+		}
+		if (element.nodeType && (element.nodeType == document.ELEMENT_NODE)) {
+			element = new elementBinding(element, config, binding);
+		} else if (element.simplyDataBindingElement) {
+			// already a data binding element, just add it to the list;
+		} else {
+			throw new Error("Not an element node");
+		}
+
+		binding.elements.push(element);
+
+		window.setTimeout(function() { // defer adding listeners until the run is done, this is a big performance improvement;
+			element.addListeners();
+		}, 1);
+		if (typeof shadowValue !== "undefined") {
 			element.setter(shadowValue);
 			var elementValue = element.getter();
 			window.setTimeout(function() { // defer adding listeners until the run is done, this is a big performance improvement;
-				binding.addListeners(element);
+				// element.addListeners();
 				// find out if our value / element changed since we bound, if so, update;
 				if (!isEqual(element.getter(), shadowValue)) {
 					changeStack.push(shadowValue);
@@ -4338,382 +4641,220 @@
 					changeStack.push(element.getter());
 				}
 			}, 0);
-			if (!binding.resolveTimer) {
-				binding.resolveTimer = window.setTimeout(this.resolve, 100);
-			}
-			binding.cleanupBindings();
-		};
-	
-		this.rebind = function(element, config) {
-			// Use this when a DOM node is cloned and the clone needs to be registered with the databinding, without setting its data.
-			if (element.dataBinding) {
-				element.dataBinding.unbind(element);
-			}
-			binding.elements.push(element);
-			element.getter 		= (config && typeof config.getter === "function") ? config.getter : binding.getter;
-			element.setter 		= (config && typeof config.setter === "function") ? config.setter : binding.setter;
-			element.dataBinding 	= binding;
-			element.dataBindingPaused = 0;
-	
-			var elementValue = element.getter();
-			window.setTimeout(function() { // defer adding listeners until the run is done, this is a big performance improvement;
-				binding.addListeners(element);
-				// find out if our value / element changed since we bound, if so, update;
-				if (!isEqual(element.getter(), shadowValue)) {
-					changeStack.push(shadowValue);
-				}
-				if (!isEqual(element.getter(), elementValue)) {
-					changeStack.push(element.getter());
-				}
-			}, 0);
-	
-			if (!binding.resolveTimer) {
-				binding.resolveTimer = window.setTimeout(this.resolve, 100);
-			}
-			binding.cleanupBindings();
-		};
-	
-		this.unbind = function(element) {
-			if (binding.elements.indexOf(element) > -1) {
-				binding.removeListeners(element);
-				binding.elements.splice(binding.elements.indexOf(element), 1);
-			}
-		};
-	
-		this.cleanupBindings = function() {
-			if (binding.elements.length < 2) {
-				return;
-			}
-	
-			var inDocument = function(element) {
-				if (document.contains && document.contains(element)) {
-					return true;
-				}
-				var parent = element.parentNode;
-				while (parent) {
-					if (parent === document) {
-						return true;
-					}
-					if (parent.nodeType === document.DOCUMENT_FRAGMENT_NODE) {
-						if (parent.host && inDocument(parent.host)) {
-							return true;
-						}
-					}
-					parent = parent.parentNode;
-				}
-				return false;
-			};
-			binding.elements.forEach(function(element) {
-				if (!inDocument(element)) {
-					element.markedForRemoval = true;
-				} else {
-					element.markedForRemoval = false;
-				}
-			});
-	
-			if (binding.cleanupTimer) {
-				clearTimeout(binding.cleanupTimer);
-			}
-	
-			binding.cleanupTimer = window.setTimeout(function() {
-				binding.elements.filter(function(element) {
-					if (element.markedForRemoval && !inDocument(element)) {
-						element.dataBinding.unbind(element);
-						return false;
-					}
-					element.markedForRemoval = false;
-					return true;
-				});
-			}, 1000); // If after 1 second the element is still not in the dom, remove the binding;
-		};
-	
-		initBindings(data, key);
-		// Call the custom init function, if it is there;
-		if (typeof binding.config.init === "function") {
-			binding.config.init.call(binding);
 		}
-	
-		if (binding.mode == "list") {
-			document.addEventListener("databind:resolved", function() {
-				if (!binding.skipOldValueUpdate) {
-					oldValue = dereference(binding.get());
-				}
-			});
+		if (!binding.resolveTimer) {
+			binding.resolveTimer = window.setTimeout(this.resolve, 100);
+		}
+		binding.cleanupBindings();
+	};
+
+	this.rebind = function(element, config) {
+		if (element.nodeType && (element.nodeType == document.ELEMENT_NODE)) {
+			if (element.elementBinding) {
+				element.elementBinding.unbind();
+			}
+			element = new elementBinding(element, config, binding);
+		} else if (element.simplyDataBindingElement) {
+			// already a data binding element, just add it to the list;
+		} else {
+			throw new Error("Not an element node");
+		}
+		// Use this when a DOM node is cloned and the clone needs to be registered with the databinding, without setting its data.
+		binding.elements.push(element);
+		var elementValue = element.getter();
+		window.setTimeout(function() { // defer adding listeners until the run is done, this is a big performance improvement;
+			element.addListeners();
+			// find out if our value / element changed since we bound, if so, update;
+			if (!isEqual(element.getter(), shadowValue)) {
+				changeStack.push(shadowValue);
+			}
+			if (!isEqual(element.getter(), elementValue)) {
+				changeStack.push(element.getter());
+			}
+		}, 0);
+
+		if (!binding.resolveTimer) {
+			binding.resolveTimer = window.setTimeout(this.resolve, 100);
+		}
+		binding.cleanupBindings();
+	};
+
+	this.unbind = function(element) {
+		if (binding.elements.indexOf(element) > -1) {
+			element.removeListeners();
+			binding.elements.splice(binding.elements.indexOf(element), 1);
 		}
 	};
 	
-	var fieldNodeRemovedHandler = function(evt) {
-		if (!this.parentNode && this.dataBinding) {
-			this.dataBinding.unbind(this);
+	this.cleanupBindings = function() {
+		if (binding.elements.length < 2) {
+			return;
 		}
-	};
-	
-	dataBinding.prototype.addListeners = function(element) {
-		if (element.dataBinding) {
-			element.dataBinding.removeListeners(element);
-		}
-		if (typeof element.mutationObserver === "undefined") {
-			if (typeof MutationObserver === "function") {
-				element.mutationObserver = new MutationObserver(this.handleMutation);
+
+		binding.elements.forEach(function(element) {
+			if (!element.isInDocument()) {
+				element.markedForRemoval = true;
+			} else {
+				element.markedForRemoval = false;
 			}
-		}
-		if (this.mode == "field") {
-			if (element.mutationObserver) {
-				element.mutationObserver.observe(element, {attributes: true});
-			}
-			element.addEventListener("DOMSubtreeModified", this.handleEvent);
-			element.addEventListener("DOMNodeRemoved", fieldNodeRemovedHandler);
-			element.addEventListener("change", this.handleEvent);
-		}
-		if (this.mode == "list") {
-			if (element.mutationObserver) {
-				element.mutationObserver.observe(element, {attributes: true});
-			}
-			element.addEventListener("DOMNodeRemoved", this.handleEvent);
-			element.addEventListener("DOMNodeInserted", this.handleEvent);
-		}
-		element.addEventListener("databinding:valuechanged", this.handleEvent);
-	
-		element.addEventListener("databinding:pause", function() {
-			this.dataBinding.pauseListeners(this);
 		});
-		element.addEventListener("databinding:resume", function() {
-			this.dataBinding.resumeListeners(this);
+
+		if (binding.cleanupTimer) {
+			clearTimeout(binding.cleanupTimer);
+		}
+
+		binding.cleanupTimer = window.setTimeout(function() {
+			binding.elements.filter(function(element) {
+				if (element.markedForRemoval && !element.isInDocument()) {
+					element.dataBinding.unbind(element);
+					return false;
+				}
+				element.markedForRemoval = false;
+				return true;
+			});
+		}, 1000); // If after 1 second the element is still not in the dom, remove the binding;
+	};
+
+	initBindings(data, key);
+	// Call the custom init function, if it is there;
+	if (typeof binding.config.init === "function") {
+		binding.config.init.call(binding);
+	}
+
+	if (binding.mode == "list") {
+		document.addEventListener("databind:resolved", function() {
+			if (!binding.skipOldValueUpdate) {
+				oldValue = dereference(binding.get());
+			}
 		});
-	};
-	dataBinding.prototype.resumeListeners = function(element) {
-		element.dataBindingPaused--;
-		if (element.dataBindingPaused < 0) {
-			console.log("Warning: resume called of non-paused databinding");
-			element.dataBindingPaused = 0;
+	}
+};
+
+dataBinding.prototype.resumeListeners = function(element) {
+	element.dataBindingPaused--;
+	if (element.dataBindingPaused < 0) {
+		console.log("Warning: resume called of non-paused databinding");
+		element.dataBindingPaused = 0;
+	}
+	if (element.dataBindingPaused === 0) {
+		if (element.mutationObserver) {
+			element.mutationObserver.observe(element, element.mutationObserverConfig);
+			element.mutationObserver.status = "observing";
+		} else {
+			console.log("Warning: no mutation observer found");
 		}
-	};
-	dataBinding.prototype.pauseListeners = function(element) {
-		element.dataBindingPaused++;
-	};
-	dataBinding.prototype.removeListeners = function(element) {
-		if (this.mode == "field") {
-			if (element.mutationObserver) {
-				element.mutationObserver.disconnect();
-			}
-			element.removeEventListener("DOMSubtreeModified", this.handleEvent);
-			element.removeEventListener("DOMNodeRemoved", fieldNodeRemovedHandler);
-			element.removeEventListener("change", this.handleEvent);
-		}
-		if (this.mode == "list") {
-			if (element.mutationObserver) {
-				element.mutationObserver.disconnect();
-			}
-			element.removeEventListener("DOMNodeRemoved", this.handleEvent);
-			element.removeEventListener("DOMNodeInserted", this.handleEvent);
-		}
-		element.removeEventListener("databinding:valuechanged", this.handleEvent);
-	};
-	
-	dataBinding.prototype.handleMutation = function(event) {
-		// FIXME: assuming that one set of mutation events always have the same target; this might not be the case;
-		var target = event[0].target;
-		if (!target.dataBinding) {
-			return;
-		}
-		if (target.dataBindingPaused) {
-			return;
-		}
-	
-		if (target.dataBinding.paused) {
-			return;
-		}
-		var handleMe = false;
-		for (var i=0; i<event.length; i++) {
-			if (target.dataBinding.attributeFilter.indexOf(event[i].attributeName) == -1) {
-				handleMe = true; // only handle the event 
-			}
-		}
-	
-		if (handleMe) {
-			var self = target.dataBinding;
-			window.setTimeout(function() {
-				self.pauseListeners(target);	// prevent possible looping, getter sometimes also triggers an attribute change;
-				self.set(target.getter());
-				self.resumeListeners(target);
-			}, 0); // allow the rest of the mutation event to occur;
-		}
-	};
-	
-	dataBinding.prototype.handleEvent = function (event) {
-		var target = event.currentTarget;
-		var self = target.dataBinding;
-	
-		if (typeof self === 'undefined') {
-			return;
-		}
-		if (self.paused) {
-			return;
-		}
-		if (target.dataBindingPaused) {
-			event.stopPropagation();
-			return;
-		}
-		if (self.mode === "list") {
-			if (event.relatedNode && (target != event.relatedNode)) {
-				return;
-			}
-		}
-	
-		var i, data, items;
-		if (self.mode === "list" && event.type == "DOMNodeRemoved") {
-			if (event.target.nodeType != document.ELEMENT_NODE) {
-				return;
-			}
-			console.time("removing node");
-			// find the index of the removed target node;
-			items = this.querySelectorAll(":scope > [data-simply-list-item]");
-			for (i=0; i<items.length; i++) {
-				if (items[i] == event.target) {
-					data = target.dataBinding.get();
-					items[i].simplyData = data.splice(i, 1)[0];
+	}
+};
+dataBinding.prototype.pauseListeners = function(element) {
+	element.dataBindingPaused++;
+	if (element.mutationObserver) {
+                element.mutationObserver.status = "disconnected";
+		element.mutationObserver.disconnect();
+	}
+};
+
+// Housekeeping, remove references to deleted nodes
+var removalObserver = new MutationObserver(function(mutations) {
+	mutations.forEach(function(mutation) {
+		if (mutation.type == "childList") {
+			mutation.removedNodes.forEach(function(target) {
+				if (target.nodeType != document.ELEMENT_NODE) { // We don't care about removed text nodes;
 					return;
 				}
-			}
-			console.timeEnd("removing node");
-		}
-	
-		if (self.mode === "list" && event.type == "DOMNodeInserted") {
-			// find the index of the inserted target node;
-			items = this.querySelectorAll(":scope > [data-simply-list-item]");
-			for (i=0; i<items.length; i++) {
-				if (items[i] == event.target) {
-					if (items[i].simplyData) {
-						data = target.dataBinding.get();
-						data.splice(i, 0, items[i].simplyData);
-						return;
-					}
+				if (!target.dataBinding) { // nor any element that doesn't have a databinding;
+					return;
 				}
-			}
+				window.setTimeout(function() { // chrome sometimes 'helpfully' removes the element and then inserts it back, probably as a rendering optimalization. We're fine cleaning up in a bit, if still needed.
+					if (!target.parentNode && target.dataBinding && target.elementBinding) {
+						target.dataBinding.unbind(target.elementBinding);
+						// if (target.dataBinding.mode == "field") {
+						//	target.dataBinding.set();
+						// }
+						delete target.dataBinding;
+					}
+				}, 400);
+			});
 		}
-	
-		switch (event.type) {
-			case "DOMCharacterDataModified":
-			case "databinding:valuechanged":
-			case "change":
-			case "DOMAttrModified":
-			case "DOMNodeInserted":
-			case "DOMSubtreeModified":
-			case "DOMNodeRemoved":
-				// Allow the browser to fix what it thinks needs to be fixed (node to be removed, cleaned etc) before setting the new data;
-	
-				// there are needed to keep the focus in an element while typing;
-				self.pauseListeners(target);
-				self.set(target.getter());
-				self.resumeListeners(target);
-	
-				// these are needed to update after the browser is done doing its thing;
-				window.setTimeout(function() {
-					self.pauseListeners(target);
-					self.set(target.getter());
-					self.resumeListeners(target);
-				}, 1); // allow the rest of the mutation event to occur;
-			break;
-		}
-		self.fireEvent(target, "domchanged");
-	};
-	
-	// Housekeeping, remove references to deleted nodes
-	document.addEventListener("DOMNodeRemoved", function(evt) {
-		var target = evt.target;
-		if (target.nodeType != document.ELEMENT_NODE) { // We don't care about removed text nodes;
-			return;
-		}
-		if (!target.dataBinding) { // nor any element that doesn't have a databinding;
-			return;
-		}
-		window.setTimeout(function() { // chrome sometimes 'helpfully' removes the element and then inserts it back, probably as a rendering optimalization. We're fine cleaning up in a bit, if still needed.
-			if (!target.parentNode && target.dataBinding) {
-				target.dataBinding.unbind(target);
-				delete target.dataBinding;
-			}
-		}, 1000);
 	});
-	
-	// polyfill to add :scope selector for IE
-	(function() {
-	  if (!HTMLElement.prototype.querySelectorAll) {
-	    throw new Error('rootedQuerySelectorAll: This polyfill can only be used with browsers that support querySelectorAll');
-	  }
-	
-	  // A temporary element to query against for elements not currently in the DOM
-	  // We'll also use this element to test for :scope support
-	  var container = document.createElement('div');
-	
-	  // Check if the browser supports :scope
-	  try {
-	    // Browser supports :scope, do nothing
-	    container.querySelectorAll(':scope *');
-	  }
-	  catch (e) {
-	    // Match usage of scope
-	    var scopeRE = /\s*:scope/gi;
-	
-	    // Overrides
-	    function overrideNodeMethod(prototype, methodName) {
-	      // Store the old method for use later
-	      var oldMethod = prototype[methodName];
-	
-	      // Override the method
-	      prototype[methodName] = function(query) {
-	        var nodeList,
-	            gaveId = false,
-	            gaveContainer = false;
-	
-	        if (query.match(scopeRE)) {
-	          if (!this.parentNode) {
-	            // Add to temporary container
-	            container.appendChild(this);
-	            gaveContainer = true;
-	          }
-	
-	          parentNode = this.parentNode;
-	
-	          if (!this.id) {
-	            // Give temporary ID
-	            this.id = 'rootedQuerySelector_id_'+(new Date()).getTime();
-	            gaveId = true;
-	          }
-	
-	          // Remove :scope
-	          query = query.replace(scopeRE, '#' + this.id + " ");
-	
-	          // Find elements against parent node
-	          // nodeList = oldMethod.call(parentNode, '#'+this.id+' '+query);
-	          nodeList = parentNode[methodName](query);
-	          // Reset the ID
-	          if (gaveId) {
-	            this.id = '';
-	          }
-	
-	          // Remove from temporary container
-	          if (gaveContainer) {
-	            container.removeChild(this);
-	          }
-	
-	          return nodeList;
-	        }
-	        else {
-	          // No immediate child selector used
-	          return oldMethod.call(this, query);
-	        }
-	      };
-	    }
-	
-	    // Browser doesn't support :scope, add polyfill
-	    overrideNodeMethod(HTMLElement.prototype, 'querySelector');
-	    overrideNodeMethod(HTMLElement.prototype, 'querySelectorAll');
-	  }
-	}());
+});
 
-	editor.init({
-		endpoint : document.querySelector("[data-simply-endpoint]") ? document.querySelector("[data-simply-endpoint]").getAttribute("data-simply-endpoint") : null,
-		toolbars : defaultToolbars,
-		profile : 'live'
-	});
+removalObserver.observe(document.body, {
+	"childList" : true,
+	"subtree" : true
+});
+
+// polyfill to add :scope selector for IE
+(function() {
+  if (!HTMLElement.prototype.querySelectorAll) {
+    throw new Error('rootedQuerySelectorAll: This polyfill can only be used with browsers that support querySelectorAll');
+  }
+
+  // A temporary element to query against for elements not currently in the DOM
+  // We'll also use this element to test for :scope support
+  var container = document.createElement('div');
+
+  // Check if the browser supports :scope
+  try {
+    // Browser supports :scope, do nothing
+    container.querySelectorAll(':scope *');
+  }
+  catch (e) {
+    // Match usage of scope
+    var scopeRE = /\s*:scope/gi;
+
+    // Overrides
+    function overrideNodeMethod(prototype, methodName) {
+      // Store the old method for use later
+      var oldMethod = prototype[methodName];
+
+      // Override the method
+      prototype[methodName] = function(query) {
+        var nodeList,
+            gaveId = false,
+            gaveContainer = false;
+
+        if (query.match(scopeRE)) {
+          if (!this.parentNode) {
+            // Add to temporary container
+            container.appendChild(this);
+            gaveContainer = true;
+          }
+
+          parentNode = this.parentNode;
+
+          if (!this.id) {
+            // Give temporary ID
+            this.id = 'rootedQuerySelector_id_'+(new Date()).getTime();
+            gaveId = true;
+          }
+
+          // Remove :scope
+          query = query.replace(scopeRE, '#' + this.id + " ");
+
+          // Find elements against parent node
+          // nodeList = oldMethod.call(parentNode, '#'+this.id+' '+query);
+          nodeList = parentNode[methodName](query);
+          // Reset the ID
+          if (gaveId) {
+            this.id = '';
+          }
+
+          // Remove from temporary container
+          if (gaveContainer) {
+            container.removeChild(this);
+          }
+
+          return nodeList;
+        }
+        else {
+          // No immediate child selector used
+          return oldMethod.call(this, query);
+        }
+      };
+    }
+
+    // Browser doesn't support :scope, add polyfill
+    overrideNodeMethod(HTMLElement.prototype, 'querySelector');
+    overrideNodeMethod(HTMLElement.prototype, 'querySelectorAll');
+  }
 }());
