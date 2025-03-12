@@ -15,7 +15,8 @@
 <script type="application/json" id="storageUrl">
     <?php echo($_['storageUrl']); ?>
 </script>
-<script data-simply-sorage="none"></script>
+<!-- the following template is used to convince simply-edit to use this for settings -->
+<template src="simply-edit.js" data-api-key="nextcloud" data-simply-sorage="none"></template>
 <main class="solid-container solid-launcher" data-simply-field="page" data-simply-content="template">
 	<template data-simply-template="Launcher">
 		<ul data-simply-list="apps" class="solid-apps">
