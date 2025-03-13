@@ -7,12 +7,26 @@ on:
   pull_request:
     branches: [ main ]
     paths:
+      - '.config/hadolint.yml'
+      - '.dockerignore'
       - 'Dockerfile'
+      # Docker project specific, Dockerfile "COPY" and "ADD" entries.
+      - 'solid/'
+      - 'init-live.sh'
+      - 'init.sh'
+      - 'site.conf'
     types: [ opened, reopened, synchronize ]
   # This event occurs when there is a push to the repository.
   push:
     paths:
+      - '.config/hadolint.yml'
+      - '.dockerignore'
       - 'Dockerfile'
+      # Docker project specific, Dockerfile "COPY" and "ADD" entries.
+      - 'solid/'
+      - 'init-live.sh'
+      - 'init.sh'
+      - 'site.conf'
   # Allow manually triggering the workflow.
   workflow_dispatch:
 
@@ -35,3 +49,4 @@ jobs:
         with:
           args: >-
             hadolint
+            --config .config/hadolint.yml
