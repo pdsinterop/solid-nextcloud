@@ -54,5 +54,5 @@ jobs:
             --ignore-numbers
             --report
             '**/*.md'
-            '!**/node_modules/**/*.md'
-            '!**/vendor/**/*.md'
+            '\\!**/node_modules/**/*.md'
+            '\\!**/vendor/**/*.md'
