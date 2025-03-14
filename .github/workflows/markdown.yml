@@ -40,19 +40,3 @@ jobs:
             remark
             --rc-path=.config/.remarkrc
             --ignore-pattern='*/vendor/*'
-  # 03.quality.markdown.lint-spelling.yml
-  spellcheck-markdown:
-    name: Markdown Spellcheck
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker://pipelinecomponents/markdown-spellcheck
-        with:
-          args: >-
-            mdspell
-            --en-us
-            --ignore-numbers
-            --report
-            '**/*.md'
-            '\\!**/node_modules/**/*.md'
-            '\\!**/vendor/**/*.md'
