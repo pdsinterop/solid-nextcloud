@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: docker://pipeline-components/php-codesniffer
+      - uses: docker://pipelinecomponents/php-codesniffer
         with:
           options: --standard=.config/phpcs.xml.dist
   # 03.quality.php.lint-version-compatibility.yml
