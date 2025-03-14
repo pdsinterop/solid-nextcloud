@@ -25,12 +25,8 @@ on:
       - 'composer.lock'
   # Allow manually triggering the workflow.
   workflow_dispatch:
-  # Run once the "JSON Quality Assistance" workflow has been completed.
-  workflow_run:
-    workflows: [ "JSON Quality Assistance" ]
-    types:
-      - completed
 
+# Cancels all previous workflow runs for the same branch that have not yet completed.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -66,9 +62,9 @@ jobs:
             --no-plugins
             --no-scripts
             --strict
+        working-directory: "solid"
   # 02.test.php.test-unit.yml
   php-unittest:
-    continue-on-error: ${{ matrix.php < '8.1' || matrix.php > '8.4' }}
     name: PHP Unit Tests
     needs:
       - lint-php-syntax
@@ -82,8 +78,6 @@ jobs:
           - '8.1'  # from 2021-11 to 2023-11 (2025-12)
           - '8.2'  # from 2022-12 to 2024-12 (2026-12)
           - '8.3'  # from 2023-11 to 2025-12 (2027-12)
-          - '8.4'  # from 2024-11 to 2026-12 (2028-12)
-          - '8.5'  # from 2025-11 to 2027-12 (2029-12)
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -113,6 +107,7 @@ jobs:
             --no-dev
             --no-plugins
             --no-scripts
+        working-directory: "solid"
   # 03.quality.php.lint-quality.yml
   php-lint-quality:
     needs:
@@ -120,12 +115,11 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: pipeline-components/php-codesniffer@main
+      - uses: docker://pipeline-components/php-codesniffer
         with:
           options: --standard=.config/phpcs.xml.dist
   # 03.quality.php.lint-version-compatibility.yml
   php-check-version-compatibility:
-    continue-on-error: ${{ matrix.php < '8.1' || matrix.php > '8.4' }}
     name: PHP Version Compatibility
     needs:
       - lint-php-syntax
@@ -138,8 +132,6 @@ jobs:
           - '8.1'  # from 2021-11 to 2023-11 (2025-12)
           - '8.2'  # from 2022-12 to 2024-12 (2026-12)
           - '8.3'  # from 2023-11 to 2025-12 (2027-12)
-          - '8.4'  # from 2024-11 to 2026-12 (2028-12)
-          - '8.5'  # from 2025-11 to 2027-12 (2029-12)
     steps:
       - uses: actions/checkout@v4
       - uses: docker://pipelinecomponents/php-codesniffer

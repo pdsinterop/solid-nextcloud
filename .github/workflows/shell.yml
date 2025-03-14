@@ -1,7 +1,6 @@
 ---
 name: Shell Script Quality Assistance
 
-
 on:
   # This event occurs when there is activity on a pull request. The workflow
   # will be run against the commits, after merge to the target branch (main).
@@ -21,6 +20,7 @@ on:
   # Allow manually triggering the workflow.
   workflow_dispatch:
 
+# Cancels all previous workflow runs for the same branch that have not yet completed.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
