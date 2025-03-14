@@ -9,12 +9,14 @@ on:
     paths:
       - '**.xml'
       - '**.xml.dist'
+      - '.github/workflows/xml.yml'
     types: [ opened, reopened, synchronize ]
   # This event occurs when there is a push to the repository.
   push:
     paths:
       - '**.xml'
       - '**.xml.dist'
+      - '.github/workflows/xml.yml'
   # Allow manually triggering the workflow.
   workflow_dispatch:
 

@@ -9,6 +9,7 @@ on:
       - '**.php'
       - '.config/phpcs.xml.dist'
       - '.config/phpunit.xml.dist'
+      - '.github/workflows/php.yml'
       - 'composer.json'
       - 'composer.lock'
     branches: [ main ]
@@ -19,6 +20,7 @@ on:
       - '**.php'
       - '.config/phpcs.xml.dist'
       - '.config/phpunit.xml.dist'
+      - '.github/workflows/php.yml'
       - 'composer.json'
       - 'composer.lock'
   # Allow manually triggering the workflow.

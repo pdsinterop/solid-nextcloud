@@ -10,12 +10,14 @@ on:
     paths:
       - '**.bash'
       - '**.sh'
+      - '.github/workflows/shell.yml'
     types: [ opened, reopened, synchronize ]
   # This event occurs when there is a push to the repository.
   push:
     paths:
       - '**.bash'
       - '**.sh'
+      - '.github/workflows/shell.yml'
   # Allow manually triggering the workflow.
   workflow_dispatch:
 

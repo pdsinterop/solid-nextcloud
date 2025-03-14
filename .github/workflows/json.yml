@@ -8,11 +8,13 @@ on:
     branches: [ main ]
     paths:
       - '**.json'
+      - '.github/workflows/json.yml'
     types: [ opened, reopened, synchronize ]
   # This event occurs when there is a push to the repository.
   push:
     paths:
       - '**.json'
+      - '.github/workflows/json.yml'
   # Allow manually triggering the workflow.
   workflow_dispatch:
 
