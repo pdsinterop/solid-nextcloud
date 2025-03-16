@@ -1,0 +1,46 @@
+---
+name: JSON Quality Assistance
+
+on:
+  # This event occurs when there is activity on a pull request. The workflow
+  # will be run against the commits, after merge to the target branch (main).
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.json'
+      - '.github/workflows/json.yml'
+    types: [ opened, reopened, synchronize ]
+  # This event occurs when there is a push to the repository.
+  push:
+    paths:
+      - '**.json'
+      - '.github/workflows/json.yml'
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Needed to allow the "concurrency" section to cancel a workflow run.
+  actions: write
+
+jobs:
+  # 01.preflight.json.lint-syntax.yml
+  lint-json-syntax:
+    name: JSON Syntax Linting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/jsonlint
+        with:
+          args: >-
+            find .
+            -not -path '*/.git/*'
+            -not -path '*/node_modules/*'
+            -not -path '*/vendor/*'
+            -name '*.json'
+            -type f
+            -exec jsonlint --quiet {} ;
