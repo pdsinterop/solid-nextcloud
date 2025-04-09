@@ -11,7 +11,9 @@ return [
     'routes' => [
         ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
         ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
-        ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
+        ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'DELETE'],
+        ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'POST'],
+
         ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
         ['name' => 'page#dataJson', 'url' => '/@{userId}/data.json', 'verb' => 'GET' ],
         ['name' => 'page#customscheme', 'url' => '/customscheme', 'verb' => 'GET'],
