@@ -12,7 +12,7 @@
         }
 
         public function send($path, $type) {
-            $pubsub = str_replace(["https://", "http://"], "ws://", $this->pubsub);
+            $pubsub = str_replace(["https://", "http://"], "wss://", $this->pubsub);
 
             $client = new Client($pubsub, array(
                 'headers' => array(
