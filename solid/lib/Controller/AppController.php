@@ -20,7 +20,9 @@ class AppController extends Controller {
 	private $urlGenerator;
 	private $config;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId
+		// , bool $userDomains
+	){
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
@@ -28,6 +30,7 @@ class AppController extends Controller {
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
+		// $this->userDomains = $userDomains;
 	}
 
 	private function getUserApps($userId) {   
@@ -67,6 +70,9 @@ class AppController extends Controller {
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
 		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+//		if ($this->userDomains) {
+			$storageUrl = $userId.'.'.$storageUrl;
+//		}
 		return $storageUrl;
 	}
 	/**

@@ -93,8 +93,12 @@ class StorageController extends Controller
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
 		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
+//		if ($this->userDomains) {
+			$storageUrl = $userId.'.'.$storageUrl;
+//		}
 		return $storageUrl;
 	}
+
 	private function generateDefaultAcl($userId) {
 		$defaultAcl = <<< EOF
 # Root ACL resource for the user account

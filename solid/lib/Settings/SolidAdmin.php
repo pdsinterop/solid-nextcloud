@@ -11,11 +11,15 @@ class SolidAdmin implements ISettings {
     private IL10N $l;
     private IConfig $config;
     private BaseServerConfig $serverConfig;
+    // private Bool $userDomains;
 
-    public function __construct(IConfig $config, IL10N $l) {
+    public function __construct(IConfig $config, IL10N $l
+        // , bool $userDomains
+    ) {
         $this->config = $config;
         $this->l = $l;
         $this->serverConfig = new BaseServerConfig($config);
+        // $this->userDomains = $userDomains;
     }
 
     /**
@@ -26,8 +30,9 @@ class SolidAdmin implements ISettings {
 
         $parameters = [
             'privateKey'    => $this->serverConfig->getPrivateKey(),
-	    'encryptionKey' => $this->serverConfig->getEncryptionKey(),
-	    'clients' => $allClients
+	        'encryptionKey' => $this->serverConfig->getEncryptionKey(),
+	        'clients'       => $allClients,
+            // 'userDomains'   => (int) $this->userDomains
         ];
 
         return new TemplateResponse('solid', 'admin', $parameters, '');

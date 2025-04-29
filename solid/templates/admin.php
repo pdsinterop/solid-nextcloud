@@ -6,14 +6,22 @@
 ?>
 
 <div id="solid-admin" class="section">
-	<h2 class="inlineblock"><?php p($l->t('Solid OpenID Connect Settings')); ?></h2>
+	<h2 class="inlineblock"><?php p($l->t('Solid Server Settings')); ?></h2>
 	<p>
 		<label>
+			<input type="checkbox" id="solid-user-subdomains" class="textaligned" value="1" <?php if ($_['userDomains']); ?> checked="checked" <?php endif; ?>>
+			<span><?php p($l->t('Enable User Subdomains')); ?></span>
+		</label>
+	</p>
+
+	<h2 class="inlineblock"><?php p($l->t('Solid OpenID Connect Settings')); ?></h2>
+	<p>
+		<label class="narrow">
 			<span><?php p($l->t('Private Key')); ?></span>
 			<textarea id="solid-private-key" type="text"><?php p($_['privateKey']); ?></textarea>
 		</label>
 
-		<label>
+		<label class="narrow">
 			<span><?php p($l->t('Encryption Key')); ?></span>
 			<textarea id="solid-encryption-key" type="text"><?php p($_['encryptionKey']); ?></textarea>
 		</label>
@@ -37,4 +45,5 @@
 			<?php } ?>
 		</tbody>
 	</table>
+
 </div>

@@ -131,9 +131,24 @@ EOF;
 		$profileUrl = preg_replace('/foo$/', '', $profileUrl);
 		return $profileUrl;
 	}
+	
+	private function build_url(array $parts) {
+	    return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') . 
+	        (isset($parts['host']) ? "//{$parts['host']}" : '') . 
+	        (isset($parts['port']) ? ":{$parts['port']}" : '') . 
+	        (isset($parts['path']) ? "{$parts['path']}" : '') . 
+	        (isset($parts['query']) ? "?{$parts['query']}" : '') . 
+	        (isset($parts['fragment']) ? "#{$parts['fragment']}" : '');
+    }
+
 	private function getStorageUrl($userId) {
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
 		$storageUrl = preg_replace('/foo$/', '/', $storageUrl);
+//		if ($this->userDomains) {
+			$url = parse_url($storageUrl);
+			$url['host'] = $userId.'.'.$url['host'];
+			$storageUrl = $this->build_url($url);
+//		}
 		return $storageUrl;
 	}
 
@@ -190,6 +205,7 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleGet($userId, $path) {	
+		//TODO: check that the $userId matches the userDomain, if enabled.
 		return $this->handleRequest($userId, $path);
 	}
 	
@@ -287,6 +303,7 @@ EOF;
 					}
 				}
 			}
+			//TODO: privateTypeIndex and publisTypeIndex need to user getStorageURL
 			if ($user !== null) {
 				$profile = array(
 					'id' => $userId,
