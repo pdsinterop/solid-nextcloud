@@ -34,6 +34,9 @@ jobs:
         # Version 24 comes with PHP 8.0, which is no longer supported;
         # Latest is not tested here, as that could cause failures unrelated to project changes
         nextcloud_version:
+          - 25
+          - 26
+          - 27
           - 28
           - 29
           - 30
@@ -82,6 +85,9 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
+          - 25
+          - 26
+          - 27
           - 28
           - 29
           - 30
