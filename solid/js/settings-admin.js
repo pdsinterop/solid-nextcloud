@@ -1,4 +1,8 @@
-$(document).ready(function() {
+$(document).ready(function () {
+	$('#solid-enable-user-subdomains').change(function (el) {
+		OCP.AppConfig.setValue('solid', 'userSubDomainsEnabled', this.checked ? true : false)
+	})
+
 	$('#solid-private-key').change(function(el) {
 		OCP.AppConfig.setValue('solid', 'privateKey', this.value);
 	});
