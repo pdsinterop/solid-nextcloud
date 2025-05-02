@@ -4,6 +4,7 @@ namespace OCA\Solid\Controller;
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
+use OCA\Solid\ServerConfig;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -21,9 +22,10 @@ use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class ProfileController extends Controller {
 	use DpopFactoryTrait;
+	use GetStorageUrlTrait;
 
-	/* @var IURLGenerator */
-	private $urlGenerator;
+	protected ServerConfig $config;
+	protected IURLGenerator $urlGenerator;
 
 	/* @var ISession */
 	private $session;
@@ -130,26 +132,6 @@ EOF;
 		$profileUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleHead", array("userId" => $userId, "path" => "foo")));
 		$profileUrl = preg_replace('/foo$/', '', $profileUrl);
 		return $profileUrl;
-	}
-	
-	private function build_url(array $parts) {
-	    return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') . 
-	        (isset($parts['host']) ? "//{$parts['host']}" : '') . 
-	        (isset($parts['port']) ? ":{$parts['port']}" : '') . 
-	        (isset($parts['path']) ? "{$parts['path']}" : '') . 
-	        (isset($parts['query']) ? "?{$parts['query']}" : '') . 
-	        (isset($parts['fragment']) ? "#{$parts['fragment']}" : '');
-    }
-
-	private function getStorageUrl($userId) {
-		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '/', $storageUrl);
-//		if ($this->userDomains) {
-			$url = parse_url($storageUrl);
-			$url['host'] = $userId.'.'.$url['host'];
-			$storageUrl = $this->build_url($url);
-//		}
-		return $storageUrl;
 	}
 
 	/**

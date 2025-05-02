@@ -5,6 +5,7 @@ use OCA\Solid\BearerFactoryTrait;
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\Notifications\SolidNotifications;
 use OCA\Solid\PlainResponse;
+use OCA\Solid\ServerConfig;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -22,11 +23,12 @@ use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class StorageController extends Controller
 {
-	use DpopFactoryTrait;
 	use BearerFactoryTrait;
+	use DpopFactoryTrait;
+	use GetStorageUrlTrait;
 
-	/* @var IURLGenerator */
-	private $urlGenerator;
+	protected ServerConfig $config;
+	protected IURLGenerator $urlGenerator;
 
 	/* @var ISession */
 	private $session;
@@ -88,14 +90,6 @@ class StorageController extends Controller
 
 	private function getUserProfile($userId) {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
-	}
-	private function getStorageUrl($userId) {
-		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
-//		if ($this->userDomains) {
-			$storageUrl = $userId.'.'.$storageUrl;
-//		}
-		return $storageUrl;
 	}
 
 	private function generateDefaultAcl($userId) {

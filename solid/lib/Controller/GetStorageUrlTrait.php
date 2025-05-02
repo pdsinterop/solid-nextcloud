@@ -2,14 +2,14 @@
 
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\BaseServerConfig;
+use OCA\Solid\ServerConfig;
 use OCP\IURLGenerator;
 
 trait GetStorageUrlTrait
 {
 	//////////////////////////// GETTERS AND SETTERS \\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	final public function setConfig(BaseServerConfig $config): void
+	final public function setConfig(ServerConfig $config): void
 	{
 		$this->config = $config;
 	}
@@ -21,13 +21,12 @@ trait GetStorageUrlTrait
 
 	////////////////////////////// CLASS PROPERTIES \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	protected BaseServerConfig $config;
+	protected ServerConfig $config;
 	protected IURLGenerator $urlGenerator;
 
 	/////////////////////////////// PROTECTED API \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	/**
-	 * @FIXME: Deduplicate multiple declarations of getStorageUrl()
 	 * @FIXME: Add check for bob.nextcloud.local/solid/alice to throw 404
 	 * @TODO: Use route without `@alice` in /apps/solid/@alice/profile/card#me when user-domains are enabled
 	 */

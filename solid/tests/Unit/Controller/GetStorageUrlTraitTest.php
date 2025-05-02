@@ -3,7 +3,7 @@
 namespace OCA\Solid\Controller;
 
 use Error;
-use OCA\Solid\BaseServerConfig;
+use OCA\Solid\ServerConfig;
 use OCP\IURLGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -110,9 +110,9 @@ class GetStorageUrlTraitTest extends TestCase
 
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	public function getMockConfig($enabled = false): MockObject|BaseServerConfig
+	public function getMockConfig($enabled = false): MockObject|ServerConfig
 	{
-		$mockConfig = $this->getMockBuilder(BaseServerConfig::class)
+		$mockConfig = $this->getMockBuilder(ServerConfig::class)
 			->disableOriginalConstructor()
 			->getMock();
 

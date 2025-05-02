@@ -6,6 +6,7 @@ use Closure;
 
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
+use OCA\Solid\ServerConfig;
 use OCA\Solid\Service\SolidWebhookService;
 
 use OCP\AppFramework\Controller;
@@ -23,9 +24,10 @@ use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {
 	use DpopFactoryTrait;
+	use GetStorageUrlTrait;
 
-	/* @var IURLGenerator */
-	private $urlGenerator;
+	protected ServerConfig $config;
+	protected IURLGenerator $urlGenerator;
 
 	/* @var ISession */
 	private $session;
@@ -137,11 +139,6 @@ class SolidWebhookController extends Controller {
 		return $filesystem;
 	}
 
-	private function getStorageUrl($userId) {
-		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
-		return $storageUrl;
-	}
 	private function getAppBaseUrl() {
 		$appBaseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher"));
 		return $appBaseUrl;
