@@ -2,17 +2,17 @@
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Contacts\IManager;
-use OCP\IURLGenerator;
-use OCP\IConfig;
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Http\DataResponse;
+
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\Contacts\IManager;
+use OCP\IConfig;
+use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 class AppController extends Controller {
 	private $userId;
@@ -33,7 +33,7 @@ class AppController extends Controller {
 		// $this->userDomains = $userDomains;
 	}
 
-	private function getUserApps($userId) {   
+	private function getUserApps($userId) {
 		$userApps = [];
 		if ($this->userManager->userExists($userId)) {
 			$allowedClients = $this->config->getAllowedClients($userId);
@@ -49,7 +49,7 @@ class AppController extends Controller {
 		$path = __DIR__ . "/../solid-app-list.json";
 		$appsListJson = file_get_contents($path);
 		$appsList = json_decode($appsListJson, true);
-		
+
 		$userApps = $this->getUserApps($this->userId);
 
 		foreach ($appsList as $key => $app) {

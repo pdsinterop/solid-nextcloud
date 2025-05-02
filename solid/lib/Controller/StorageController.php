@@ -1,13 +1,14 @@
 <?php
 namespace OCA\Solid\Controller;
 
-use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\BearerFactoryTrait;
-use OCA\Solid\PlainResponse;
+use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\Notifications\SolidNotifications;
+use OCA\Solid\PlainResponse;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
 use OCP\Files\IRootFolder;
 use OCP\IConfig;
 use OCP\IDBConnection;
@@ -15,8 +16,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
-use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
 
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
@@ -80,7 +79,7 @@ class StorageController extends Controller
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-		
+
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
 		$filesystem->addPlugin($plugin);
 
@@ -307,7 +306,7 @@ EOF;
 		$this->WAC = new WAC($this->filesystem);
 
 		$request = $this->rawRequest;
-		$baseUrl = $this->getStorageUrl($userId);		
+		$baseUrl = $this->getStorageUrl($userId);
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 
@@ -355,20 +354,20 @@ EOF;
 			->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
-		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->resourceServer->respondToRequest($request);
 		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handleGet($userId, $path) {	
+	public function handleGet($userId, $path) {
 		return $this->handleRequest($userId, $path);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
@@ -385,7 +384,7 @@ EOF;
 	public function handlePut() { // $userId, $path) {
 		// FIXME: Adding the correct variables in the function name will make nextcloud
 		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
-		
+
 		// because we got here, the request uri should look like:
 		// /index.php/apps/solid/@{userId}/storage{path}
 		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
@@ -393,7 +392,7 @@ EOF;
 		$userId = $pathInfo[0];
 		$path = $pathInfo[1];
 		$path = preg_replace("/^storage/", "", $path);
-		
+
 		return $this->handleRequest($userId, $path);
 	}
 	/**
@@ -438,7 +437,7 @@ EOF;
 //		$result->addHeader('Access-Control-Allow-Credentials', 'true');
 //		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //		$result->addHeader('Access-Control-Allow-Origin', $origin);
-		
+
 		$policy = new EmptyContentSecurityPolicy();
 		$policy->addAllowedStyleDomain("*");
 		$policy->addAllowedStyleDomain("data:");
