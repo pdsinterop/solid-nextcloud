@@ -44,9 +44,12 @@ trait GetStorageUrlTrait
 
 		// @FIXME: $this->getUserSubDomainsEnabled should contain true/false from (?) somewhere
 		if ($this->config->getUserSubDomainsEnabled()) {
-			// @FIXME: Check whether we are already on a domain that starts with $userId,
-			//          in which case it should not be prepended again
 			$url = parse_url($storageUrl);
+
+			if (strpos($url['host'], $userId . '.') !== false) {
+				$url['host'] = str_replace($userId . '.', '', $url['host']);
+			}
+
 			$url['host'] = $userId . '.' . $url['host']; // $storageUrl = $userId . '.' . $storageUrl;
 			$storageUrl = $this->build_url($url);
 		}

@@ -161,8 +161,8 @@ class GetStorageUrlTraitTest extends TestCase
 			['url' => 'http://example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.example.com//'],
 			['url' => 'https://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'https://alice.bob.example.com//'],
 			['url' => 'http://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.bob.example.com//'],
-			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.bob.example.com//'],
-			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.bob.example.com//'],
+			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.example.com//'],
+			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.example.com//'],
 		];
 	}
 }
