@@ -4,7 +4,7 @@
 	use OCP\IConfig;
 
 	class BaseServerConfig {
-		private IConfig $config;
+		protected IConfig $config;
 
 		/**
 		 * @param IConfig $config
@@ -181,5 +181,13 @@
 		public function getClientRegistration($clientId) {
 			$data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
 			return json_decode($data, true);
+		}
+
+		public function getUserSubDomainsEnabled(): bool {
+			return $this->config->getAppValue('solid', 'userSubDomainsEnabled', false);
+		}
+
+		public function setUserSubDomainsEnabled(bool $enabled) {
+			$this->config->setAppValue('solid', 'userSubDomainsEnabled', $enabled);
 		}
 	}

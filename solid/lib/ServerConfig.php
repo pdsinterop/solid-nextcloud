@@ -10,24 +10,19 @@
 	 * @package OCA\Solid
 	 */
 	class ServerConfig extends BaseServerConfig {
-		private IConfig $config;
 		private IUrlGenerator $urlGenerator;
 		private IUserManager $userManager;
-//		private bool $userDomains;
 
 		/**
 		 * @param IConfig $config
 		 * @param IUrlGenerator $urlGenerator
 		 * @param IUserManager $userManager
-		 * @param bool $userDomains
 		 */
-		public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager
-//			, bool $userDomains
-		) {
+		public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager) {
 			$this->config = $config;
 			$this->userManager = $userManager;
 			$this->urlGenerator = $urlGenerator;
-//			$this->userDomains = $userDomains;
+
 			parent::__construct($config);
 		}
 
@@ -67,11 +62,4 @@
 				$user->setDisplayName($fields['name']);
 			}
 		}
-		// public function getUserDomains() {
-		// 	return $this->userDomains;
-		// }
-		// public function setUserDomains($userDomains) {
-		// 	$this->userDomains = $userDomains;
-		// }
-
 	}

@@ -42,7 +42,6 @@ trait GetStorageUrlTrait
 		// (?) $storageUrl = preg_replace('/foo$/', '', $storageUrl);
 		$storageUrl = preg_replace('/foo$/', '/', $storageUrl);
 
-		// @FIXME: $this->getUserSubDomainsEnabled should contain true/false from (?) somewhere
 		if ($this->config->getUserSubDomainsEnabled()) {
 			$url = parse_url($storageUrl);
 
