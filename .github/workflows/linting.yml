@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint-json:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: "docker://pipelinecomponents/jsonlint:latest"
@@ -15,13 +15,13 @@ jobs:
           args: "find . -not -path './.git/*' -name '*.json' -type f"
 
   lint-php:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: pipeline-components/php-linter@master
 
   lint-markdown:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: pipeline-components/remark-lint@master
@@ -29,7 +29,7 @@ jobs:
           options: --rc-path=build/.remarkrc --ignore-pattern='*/vendor/*'
 
   lint-yaml:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: pipeline-components/yamllint@master
