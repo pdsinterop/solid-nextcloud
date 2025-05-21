@@ -27,16 +27,6 @@ class GetStorageUrlTraitTest extends TestCase
 	{
 		$this->trait = new class {
 			use GetStorageUrlTrait;
-
-			public function _getStorageUrl($userId)
-			{
-				$class = new ReflectionObject($this);
-				$method = $class->getMethod('getStorageUrl');
-				// Only needed for PHP 8.1 and lower
-				$method->setAccessible(true);
-
-				return $method->invokeArgs($this, [$userId]);
-			}
 		};
 	}
 
@@ -51,7 +41,7 @@ class GetStorageUrlTraitTest extends TestCase
 		$this->expectException(Error::class);
 		$this->expectExceptionMessage('urlGenerator must not be accessed before initialization');
 
-		$this->trait->_getStorageUrl(self::MOCK_USER_ID);
+		$this->trait->getStorageUrl(self::MOCK_USER_ID);
 	}
 
 	/**
@@ -67,7 +57,7 @@ class GetStorageUrlTraitTest extends TestCase
 
 		$this->trait->setUrlGenerator($mockUrlGenerator);
 
-		$this->trait->_getStorageUrl(self::MOCK_USER_ID);
+		$this->trait->getStorageUrl(self::MOCK_USER_ID);
 	}
 
 	/**
@@ -83,7 +73,7 @@ class GetStorageUrlTraitTest extends TestCase
 		$this->trait->setUrlGenerator($mockUrlGenerator);
 		$this->trait->setConfig($mockConfig);
 
-		$actual = $this->trait->_getStorageUrl($userId);
+		$actual = $this->trait->getStorageUrl($userId);
 
 		$this->assertEquals($expected, $actual);
 	}
@@ -103,7 +93,7 @@ class GetStorageUrlTraitTest extends TestCase
 		$this->trait->setUrlGenerator($mockUrlGenerator);
 		$this->trait->setConfig($mockConfig);
 
-		$actual = $this->trait->_getStorageUrl($userId);
+		$actual = $this->trait->getStorageUrl($userId);
 
 		$this->assertEquals($expected, $actual);
 	}

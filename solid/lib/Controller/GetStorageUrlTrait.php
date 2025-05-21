@@ -30,7 +30,7 @@ trait GetStorageUrlTrait
 	 * @FIXME: Add check for bob.nextcloud.local/solid/alice to throw 404
 	 * @TODO: Use route without `@alice` in /apps/solid/@alice/profile/card#me when user-domains are enabled
 	 */
-	protected function getStorageUrl($userId) {
+	public function getStorageUrl($userId) {
 		$routeUrl = $this->urlGenerator->linkToRoute(
 			'solid.storage.handleHead',
 			['userId' => $userId, 'path' => 'foo']
