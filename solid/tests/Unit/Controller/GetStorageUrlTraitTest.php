@@ -3,11 +3,13 @@
 namespace OCA\Solid\Controller;
 
 use Error;
+use Laminas\Diactoros\Request;
+use Laminas\Diactoros\Uri;
 use OCA\Solid\ServerConfig;
 use OCP\IURLGenerator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionObject;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * @coversDefaultClass \OCA\Solid\Controller\GetStorageUrlTrait
@@ -98,6 +100,20 @@ class GetStorageUrlTraitTest extends TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	/**
+	 * @testdox GetStorageUrlTrait should return expected validity when asked to validateUrl
+	 *
+	 * @covers ::validateUrl
+	 *
+	 * @dataProvider provideRequests
+	 */
+	public function testValidateUrl(RequestInterface $response, $expected)
+	{
+		$actual = $this->trait->validateUrl($response);
+
+		$this->assertEquals($expected, $actual);
+	}
+
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	public function getMockConfig($enabled = false): MockObject|ServerConfig
@@ -127,6 +143,22 @@ class GetStorageUrlTraitTest extends TestCase
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+	public function provideRequests()
+	{
+		$request = new Request();
+
+		return [
+			'invalid: invalid URL' => ['request' => $request->withUri(new Uri('!@#$%^&*()_')), 'expected' => false],
+			'invalid: no domain user' => ['request' => $request->withUri(new Uri('https://example.com/@alice/profile/card#me')), 'expected' => false],
+			'invalid: no path or domain user' => ['request' => $request->withUri(new Uri('https://example.com/')), 'expected' => false],
+			'invalid: no path user' => ['request' => $request->withUri(new Uri('https://alice.example.com/profile/card#me')), 'expected' => false],
+			'invalid: no URL' => ['request' => $request, 'expected' => false],
+			'invalid: path and domain user mismatch' => ['request' => $request->withUri(new Uri('https://bob.example.com/@alice/profile/card#me')), 'expected' => false],
+			'valid: minimal path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/@alice')), 'expected' => true],
+			'valid: path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/solid/@alice/profile/card#me')), 'expected' => true],
+		];
+	}
 
 	public function provideSubDomainsDisabledUrls()
 	{

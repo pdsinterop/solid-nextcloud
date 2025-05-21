@@ -4,6 +4,7 @@ namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
 use OCP\IURLGenerator;
+use Psr\Http\Message\RequestInterface;
 
 trait GetStorageUrlTrait
 {
@@ -53,6 +54,27 @@ trait GetStorageUrlTrait
 		}
 
 		return $storageUrl;
+	}
+
+	public function validateUrl(RequestInterface $request): bool {
+		$isValid = false;
+
+		$host = $request->getUri()->getHost();
+		$path = $request->getUri()->getPath();
+		$pathParts = explode('/', $path);
+
+		$pathUsers = array_filter($pathParts, static function ($value) {
+			return str_starts_with($value, '@');
+		});
+
+		if (count($pathUsers) === 1) {
+			$pathUser = reset($pathUsers);
+			$subDomainUser = explode('.', $host)[0];
+
+			$isValid = $pathUser === '@' . $subDomainUser;
+		}
+
+		return $isValid;
 	}
 
 	////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
