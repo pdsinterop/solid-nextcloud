@@ -96,7 +96,7 @@
 					$clients[] = [
 						"clientId" => $matches[1],
 						"clientName" => $clientRegistration['client_name'],
-						"clientBlocked" => $clientRegistration['blocked']
+						"clientBlocked" => $clientRegistration['blocked'] ?? false,
 					];
 				}
 			}
