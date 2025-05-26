@@ -88,6 +88,7 @@ jobs:
       - name: Install and Cache Composer dependencies
         uses: "ramsey/composer-install@v2"
         with:
+          dependency-versions: "lowest"
           working-directory: "solid"
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
