@@ -23,8 +23,7 @@ class AppController extends Controller {
 	private $userId;
 	private $userManager;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId
-	){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId) {
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
