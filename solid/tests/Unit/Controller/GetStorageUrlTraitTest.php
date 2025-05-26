@@ -20,8 +20,8 @@ class GetStorageUrlTraitTest extends TestCase
 {
 	////////////////////////////////// FIXTURES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	const MOCK_URL = 'mock url';
-	const MOCK_USER_ID = 'mock user id';
+	private const MOCK_URL = 'mock url';
+	private const MOCK_USER_ID = 'mock user id';
 
 	private $trait;
 
@@ -83,7 +83,7 @@ class GetStorageUrlTraitTest extends TestCase
 	/**
 	 * @testdox GetStorageUrlTrait should return a string when called with a UrlGenerator and Configuration
 	 * @covers ::getStorageUrl
-	 * @covers ::build_url
+	 * @covers ::buildUrl
 	 *
 	 * @dataProvider provideSubDomainsEnabledUrls
 	 */

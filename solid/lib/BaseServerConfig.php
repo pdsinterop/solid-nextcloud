@@ -5,7 +5,6 @@
 	use OCP\IConfig;
 
 	class BaseServerConfig {
-
 		////////////////////////////// CLASS PROPERTIES \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 		public const ERROR_INVALID_ARGUMENT = 'Invalid %s for %s: %s. Must be one of %s.';

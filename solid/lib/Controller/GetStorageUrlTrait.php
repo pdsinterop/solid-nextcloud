@@ -50,7 +50,7 @@ trait GetStorageUrlTrait
 			}
 
 			$url['host'] = $userId . '.' . $url['host']; // $storageUrl = $userId . '.' . $storageUrl;
-			$storageUrl = $this->build_url($url);
+			$storageUrl = $this->buildUrl($url);
 		}
 
 		return $storageUrl;
@@ -79,7 +79,7 @@ trait GetStorageUrlTrait
 
 	////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	private function build_url(array $parts) {
+	private function buildUrl(array $parts) {
 		// @FIXME: Replace with existing more robust URL builder
 		return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
 			(isset($parts['host']) ? "//{$parts['host']}" : '') .
