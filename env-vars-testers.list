@@ -1,11 +1,11 @@
-WEBID_ALICE=https://server/apps/solid/@alice/profile/card#me
+WEBID_ALICE=https://server/apps/solid/~alice/profile/card#me
 OIDC_ISSUER_ALICE=https://server
-STORAGE_ROOT_ALICE=https://server/apps/solid/@alice/storage/
-WEBID_BOB=https://thirdparty/apps/solid/@alice/profile/card#me
+STORAGE_ROOT_ALICE=https://server/apps/solid/~alice/storage/
+WEBID_BOB=https://thirdparty/apps/solid/~alice/profile/card#me
 OIDC_ISSUER_BOB=https://thirdparty
 STORAGE_ROOT_BOB=https://thirdparty/
-ALICE_WEBID=https://server/apps/solid/@alice/profile/card#me
+ALICE_WEBID=https://server/apps/solid/~alice/profile/card#me
 SERVER_ROOT_ESCAPED=https:\/\/server
 SERVER_ROOT=https://server
-STORAGE_ROOT=https://server/apps/solid/@alice/storage/
+STORAGE_ROOT=https://server/apps/solid/~alice/storage/
 SKIP_CONC=1

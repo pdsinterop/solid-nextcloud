@@ -15,7 +15,6 @@ use OCP\IRequest;
  * it's instantiated in there
  */
 
-
 $routes = [
 	['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
 	['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'DELETE'],
@@ -44,33 +43,33 @@ $routes = [
 ];
 
 $userIdRoutes = [
-	['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
+	['name' => 'page#profile', 'url' => '/~{userId}/', 'verb' => 'GET'],
 
-	['name' => 'profile#handleGet', 'url' => '/@{userId}/profile{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
-	['name' => 'profile#handlePut', 'url' => '/@{userId}/profile{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
-	['name' => 'profile#handlePatch', 'url' => '/@{userId}/profile{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
-	['name' => 'profile#handleHead', 'url' => '/@{userId}/profile{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handleGet', 'url' => '/~{userId}/profile{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handlePut', 'url' => '/~{userId}/profile{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handlePatch', 'url' => '/~{userId}/profile{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handleHead', 'url' => '/~{userId}/profile{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
 
-	['name' => 'storage#handleGet', 'url' => '/@{userId}/storage{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
-	['name' => 'storage#handlePost', 'url' => '/@{userId}/storage{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
-	['name' => 'storage#handlePut', 'url' => '/@{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
-	['name' => 'storage#handleDelete', 'url' => '/@{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
-	['name' => 'storage#handlePatch', 'url' => '/@{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
-	['name' => 'storage#handleHead', 'url' => '/@{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handleGet', 'url' => '/~{userId}/storage{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePost', 'url' => '/~{userId}/storage{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePut', 'url' => '/~{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handleDelete', 'url' => '/~{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePatch', 'url' => '/~{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handleHead', 'url' => '/~{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
 
-	['name' => 'calendar#handleGet', 'url' => '/@{userId}/calendar{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
-	['name' => 'calendar#handlePost', 'url' => '/@{userId}/calendar{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
-	['name' => 'calendar#handlePut', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
-	['name' => 'calendar#handleDelete', 'url' => '/@{userId}/calendar{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
-	['name' => 'calendar#handlePatch', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
-	['name' => 'calendar#handleHead', 'url' => '/@{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handleGet', 'url' => '/~{userId}/calendar{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePost', 'url' => '/~{userId}/calendar{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePut', 'url' => '/~{userId}/calendar{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handleDelete', 'url' => '/~{userId}/calendar{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePatch', 'url' => '/~{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handleHead', 'url' => '/~{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
 
-	['name' => 'contacts#handleGet', 'url' => '/@{userId}/contacts{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
-	['name' => 'contacts#handlePost', 'url' => '/@{userId}/contacts{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
-	['name' => 'contacts#handlePut', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
-	['name' => 'contacts#handleDelete', 'url' => '/@{userId}/contacts{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
-	['name' => 'contacts#handlePatch', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
-	['name' => 'contacts#handleHead', 'url' => '/@{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handleGet', 'url' => '/~{userId}/contacts{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePost', 'url' => '/~{userId}/contacts{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePut', 'url' => '/~{userId}/contacts{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handleDelete', 'url' => '/~{userId}/contacts{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePatch', 'url' => '/~{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handleHead', 'url' => '/~{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
 ];
 
 // @TODO: All routes NOT generated by the UrlGenerator ANYWHERE in the code need to be checked!
@@ -78,13 +77,13 @@ $userIdRoutes = [
 if (Application::$userSubDomainsEnabled) {
 	$userIdRoutes = array_map(function ($route) {
 		if ($route['name'] === 'page#profile') {
-			// The profile route should be `/me` instead of `/@{userId}/`
+			// The profile route should be `/me` instead of `/~{userId}/`
 			$route['url'] = '/me';
 		} else {
 			// When UserSubDomains are enabled, all routes that start with
-			// `/@{userId}/` should just be `/`, as the userId is present
+			// `/~{userId}/` should just be `/`, as the userId is present
 			// in the subdomain.
-			$route['url'] = preg_replace('#^/@{userId}/#', '/', $route['url']);
+			$route['url'] = preg_replace('#^/~{userId}/#', '/', $route['url']);
 		}
 
 		// The required userId is set to the userId from the subdomain

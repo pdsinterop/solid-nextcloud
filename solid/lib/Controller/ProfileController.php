@@ -213,7 +213,6 @@ EOF;
                 //    /index.php/apps/solid/profile{path}
                 // and otherwise:
                 //   index.php/apps/solid/~{userId}/profile{path}
-
 		// In the first case, we'll get the username from the SERVER_NAME. In the latter, it will come from the URL;
                 if ($this->config->getUserSubDomainsEnabled()) {
                         $pathInfo = explode("profile/", $_SERVER['REQUEST_URI']);
