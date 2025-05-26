@@ -6,7 +6,7 @@ if (!defined('PHPUNIT_RUN')) {
     // phpcs:enable
 }
 
-require_once __DIR__.'/../../../lib/base.php';
+require_once __DIR__.'../vendor/nextcloud/server/lib/base.php';
 
 // Fix for "Autoload path not allowed: .../tests/lib/testcase.php"
 \OC::$loader->addValidRoot(OC::$SERVERROOT . '/tests');
