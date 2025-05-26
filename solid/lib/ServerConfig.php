@@ -10,7 +10,6 @@
 	 * @package OCA\Solid
 	 */
 	class ServerConfig extends BaseServerConfig {
-		private IConfig $config;
 		private IUrlGenerator $urlGenerator;
 		private IUserManager $userManager;
 
@@ -23,6 +22,7 @@
 			$this->config = $config;
 			$this->userManager = $userManager;
 			$this->urlGenerator = $urlGenerator;
+
 			parent::__construct($config);
 		}
 
