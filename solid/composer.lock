@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1843d50801f15c12e9fb50345b3bfb3b",
+    "content-hash": "59e7e42f9da02ea5c9908f49de8cdae5",
     "packages": [
         {
             "name": "arc/base",
@@ -1455,24 +1455,24 @@
         },
         {
             "name": "pdsinterop/flysystem-rdf",
-            "version": "v0.5.0",
+            "version": "v0.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-rdf.git",
-                "reference": "2a0b105f66c16b664bcd56f30d76f464b18be065"
+                "reference": "cb72c2a0538b2a552a9281f2bd9e4a7f48ca035d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/flysystem-rdf/zipball/2a0b105f66c16b664bcd56f30d76f464b18be065",
-                "reference": "2a0b105f66c16b664bcd56f30d76f464b18be065",
+                "url": "https://api.github.com/repos/pdsinterop/flysystem-rdf/zipball/cb72c2a0538b2a552a9281f2bd9e4a7f48ca035d",
+                "reference": "cb72c2a0538b2a552a9281f2bd9e4a7f48ca035d",
                 "shasum": ""
             },
             "require": {
-                "easyrdf/easyrdf": "^1.1.1",
                 "ext-mbstring": "*",
                 "league/flysystem": "^1.0",
                 "ml/json-ld": "^1.2",
-                "php": "^8.0"
+                "php": "^8.0",
+                "sweetrdf/easyrdf": "^1.1"
             },
             "require-dev": {
                 "phpunit/phpunit": "^8|^9"
@@ -1490,22 +1490,22 @@
             "description": "Flysystem plugin to transform RDF data between various serialization formats.",
             "support": {
                 "issues": "https://github.com/pdsinterop/flysystem-rdf/issues",
-                "source": "https://github.com/pdsinterop/flysystem-rdf/tree/v0.5.0"
+                "source": "https://github.com/pdsinterop/flysystem-rdf/tree/v0.6.0"
             },
-            "time": "2022-08-22T14:36:29+00:00"
+            "time": "2025-05-16T08:57:11+00:00"
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.11.0",
+            "version": "v0.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "0c5f65b0a9340fe9d50bef9d0e279db54610ffac"
+                "reference": "3674b864cbf8b70fa6da49bb8ee4e0f6c772cbc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/0c5f65b0a9340fe9d50bef9d0e279db54610ffac",
-                "reference": "0c5f65b0a9340fe9d50bef9d0e279db54610ffac",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/3674b864cbf8b70fa6da49bb8ee4e0f6c772cbc1",
+                "reference": "3674b864cbf8b70fa6da49bb8ee4e0f6c772cbc1",
                 "shasum": ""
             },
             "require": {
@@ -1514,7 +1514,7 @@
                 "ext-openssl": "*",
                 "laminas/laminas-diactoros": "^2.8",
                 "lcobucci/jwt": "^4.1",
-                "league/oauth2-server": "^8.3.5",
+                "league/oauth2-server": "^8.5.5",
                 "php": "^8.0",
                 "web-token/jwt-core": "^2.2"
             },
@@ -1539,22 +1539,22 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.11.0"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.12.1"
             },
-            "time": "2025-02-14T12:57:21+00:00"
+            "time": "2025-05-18T15:26:58+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "v0.7.3",
+            "version": "v0.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "c5369ef7b46d3d77a7686c3f4531e818e1797e27"
+                "reference": "ca1421770b17c69cc5989ce6864e86405030a50c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/c5369ef7b46d3d77a7686c3f4531e818e1797e27",
-                "reference": "c5369ef7b46d3d77a7686c3f4531e818e1797e27",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/ca1421770b17c69cc5989ce6864e86405030a50c",
+                "reference": "ca1421770b17c69cc5989ce6864e86405030a50c",
                 "shasum": ""
             },
             "require": {
@@ -1562,7 +1562,7 @@
                 "laminas/laminas-diactoros": "^2.14",
                 "league/flysystem": "^1.0",
                 "mjrider/flysystem-factory": "^0.7",
-                "pdsinterop/flysystem-rdf": "^0.5",
+                "pdsinterop/flysystem-rdf": "^0.6",
                 "php": "^8.0",
                 "pietercolpaert/hardf": "^0.3",
                 "psr/http-factory": "^1.0",
@@ -1586,9 +1586,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.7.3"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.8.0"
             },
-            "time": "2024-01-17T10:48:57+00:00"
+            "time": "2025-05-16T09:04:57+00:00"
         },
         {
             "name": "phrity/net-uri",
@@ -2127,6 +2127,82 @@
                 }
             ],
             "time": "2020-11-03T09:10:25+00:00"
+        },
+        {
+            "name": "sweetrdf/easyrdf",
+            "version": "1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sweetrdf/easyrdf.git",
+                "reference": "6952b79bd1818817f20d0c64de54c7ecd5a24947"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sweetrdf/easyrdf/zipball/6952b79bd1818817f20d0c64de54c7ecd5a24947",
+                "reference": "6952b79bd1818817f20d0c64de54c7ecd5a24947",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "ext-pcre": "*",
+                "ext-xmlreader": "*",
+                "lib-libxml": "*",
+                "php": "^7.1|^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "ml/json-ld": "^1.0",
+                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpunit/phpunit": "^7.5|^8.5|^9.5",
+                "semsol/arc2": "^2.4",
+                "zendframework/zend-http": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasyRdf\\": "lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nicholas Humfrey",
+                    "email": "njh@aelius.com",
+                    "homepage": "http://www.aelius.com/njh/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Alexey Zakhlestin",
+                    "email": "indeyets@gmail.com",
+                    "homepage": "http://indeyets.ru/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Konrad Abicht",
+                    "email": "hi@inspirito.de",
+                    "homepage": "http://inspirito.de/",
+                    "role": "Maintainer, Developer"
+                }
+            ],
+            "description": "EasyRdf is a PHP library designed to make it easy to consume and produce RDF.",
+            "keywords": [
+                "Linked Data",
+                "RDF",
+                "Semantic Web",
+                "Turtle",
+                "rdfa",
+                "sparql"
+            ],
+            "support": {
+                "issues": "https://github.com/sweetrdf/easyrdf/issues",
+                "source": "https://github.com/sweetrdf/easyrdf/tree/1.7"
+            },
+            "time": "2022-09-19T07:53:57+00:00"
         },
         {
             "name": "textalk/websocket",
