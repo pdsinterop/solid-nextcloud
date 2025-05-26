@@ -9,7 +9,8 @@ ignored:
 # The following keys are available:
 #
 # failure-threshold: string               # name of threshold level (error | warning | info | style | ignore | none)
-# format: string                          # Output format (tty | json | checkstyle | codeclimate | gitlab_codeclimate | gnu | codacy)
+# format: string                          # Output format
+#                                         # (tty | json | checkstyle | codeclimate | gitlab_codeclimate | gnu | codacy)
 # label-schema:                           # See https://github.com/hadolint/hadolint#linting-labels for details
 #   author: string                        # Your name
 #   contact: string                       # email address

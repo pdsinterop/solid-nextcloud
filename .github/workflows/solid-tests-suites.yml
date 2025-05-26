@@ -28,7 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # For the latest version information see: https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
+        # For the latest version information see:
+        # https://github.com/nextcloud/server/wiki/Maintenance-and-Release-Schedule
         # Versions before 22 are not tested as they run on PHP versions lower than 8.0
         # Versions before 24 are not tested as they do not support `.well-known` entries
         # Version 24 comes with PHP 8.0, which is no longer supported;
@@ -69,7 +70,8 @@ jobs:
           .
           docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
-          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
+          docker image save solid-nextcloud:${{ env.TAG }} \
+            --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
   solid-testsuite:
     timeout-minutes: 30
