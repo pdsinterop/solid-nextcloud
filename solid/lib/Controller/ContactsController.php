@@ -186,20 +186,31 @@ EOF;
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handlePut() { // $userId, $path) {
-		// FIXME: Adding the correct variables in the function name will make nextcloud
-		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
-		
-		// because we got here, the request uri should look like:
-		// /index.php/apps/solid/@{userId}/storage{path}
-		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
-		$pathInfo = explode("/", $pathInfo[1], 2);
-		$userId = $pathInfo[0];
-		$path = $pathInfo[1];
-		$path = preg_replace("/^contacts/", "", $path);
-		
-		return $this->handleRequest($userId, $path);
-	}
+        public function handlePut() { // $userId, $path) {
+                // FIXME: Adding the correct variables in the function name will make nextcloud
+                // throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
+
+                // because we got here, the request uri should look like:
+                // - if we have user subdomains enabled:
+                //    /index.php/apps/solid/contacts{path}
+                // and otherwise:
+                //   index.php/apps/solid/~{userId}/contacts{path}
+
+		// In the first case, we'll get the username from the SERVER_NAME. In the latter, it will come from the URL;
+                if ($this->config->getUserSubDomainsEnabled()) {
+                        $pathInfo = explode("contacts/", $_SERVER['REQUEST_URI']);
+                        $path = $pathInfo[1];
+                        $userId = explode(".", $_SERVER['SERVER_NAME'])[0];
+                } else {
+                        $pathInfo = explode("~", $_SERVER['REQUEST_URI']);
+                        $pathInfo = explode("/", $pathInfo[1], 2);
+                        $userId = $pathInfo[0];
+                        $path = $pathInfo[1];
+                        $path = preg_replace("/^contacts/", "", $path);
+                }
+
+                return $this->handleRequest($userId, $path);
+        }
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
