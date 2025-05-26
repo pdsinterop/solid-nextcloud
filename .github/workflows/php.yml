@@ -91,7 +91,7 @@ jobs:
           working-directory: "solid"
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-      - run: solid/vendor/phpunit/phpunit/phpunit --configuration .config/phpunit.xml.dist
+      - run: solid/vendor/phpunit/phpunit/phpunit --configuration solid/phpunit.xml
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
   scan-dependencies-vulnerabilities:
     name: Scan Dependencies Vulnerabilities
