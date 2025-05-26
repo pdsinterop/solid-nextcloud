@@ -63,36 +63,6 @@ jobs:
             --no-scripts
             --strict
         working-directory: "solid"
-  # 02.test.php.test-unit.yml 
-  php-unittest:
-    name: PHP Unit Tests
-    needs:
-      - lint-php-syntax
-      - validate-dependencies-file
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        php:
-#disabled for now - phpunit needs to run in a complete nextcloud env to work so this route is not doing to fly.
-#          - '8.1'  # from 2021-11 to 2023-11 (2025-12)
-#          - '8.2'  # from 2022-12 to 2024-12 (2026-12)
-#          - '8.3'  # from 2023-11 to 2025-12 (2027-12)
-    steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          coverage: xdebug
-          ini-values: error_reporting=E_ALL, display_errors=On
-          php-version: ${{ matrix.php }}
-      - name: Install and Cache Composer dependencies
-        uses: "ramsey/composer-install@v2"
-        with:
-          dependency-versions: "lowest"
-          working-directory: "solid"
-        env:
-          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-      - run: solid/vendor/phpunit/phpunit/phpunit --configuration solid/phpunit.xml
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
   scan-dependencies-vulnerabilities:
     name: Scan Dependencies Vulnerabilities
