@@ -1,7 +1,8 @@
-ARG NEXTCLOUD_VERSION
-FROM nextcloud:${NEXTCLOUD_VERSION}
+#ARG NEXTCLOUD_VERSION
+#FROM nextcloud:${NEXTCLOUD_VERSION}
+FROM nextcloud:31
 
-RUN apt-get update && apt-get install -yq \
+RUN apt-get update && apt-get install --no-install-recommends -yq \
       git \
       sudo \
       vim \
