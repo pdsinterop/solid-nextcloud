@@ -214,7 +214,7 @@
 					$mixedValue = strtolower($mixedValue);
 					if ($mixedValue === 'true' || $mixedValue === '1') {
 						$value = true;
-					} elseif ($mixedValue === 'false' || $mixedValue === '0') {
+					} elseif ($mixedValue === 'false' || $mixedValue === '0' || $mixedValue === '') {
 						$value = false;
 					} else {
 						$error = [
