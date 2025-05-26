@@ -83,7 +83,7 @@ class GetStorageUrlTraitTest extends TestCase
 	/**
 	 * @testdox GetStorageUrlTrait should return a string when called with a UrlGenerator and Configuration
 	 * @covers ::getStorageUrl
-	 * @covers ::build_url
+	 * @covers ::buildUrl
 	 *
 	 * @dataProvider provideSubDomainsEnabledUrls
 	 */
