@@ -306,7 +306,7 @@ EOF;
 					'preferences' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/preferences.ttl"))),
 					'privateTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/privateTypeIndex.ttl"))),
 					'publicTypeIndex' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleGet", array("userId" => $userId, "path" => "/settings/publicTypeIndex.ttl"))),
-					'storage' => $this->getStorageUrl($userId),
+					'storage' => $this->getStorageUrl($userId) . "/",
 					'issuer' => $this->urlGenerator->getBaseURL()
 				);
 				return $profile;
