@@ -29,7 +29,7 @@ trait GetStorageUrlTrait
 
 	/**
 	 * @FIXME: Add check for bob.nextcloud.local/solid/alice to throw 404
-	 * @TODO: Use route without `@alice` in /apps/solid/@alice/profile/card#me when user-domains are enabled
+	 * @TODO: Use route without `~alice` in /apps/solid/~alice/profile/card#me when user-domains are enabled
 	 */
 	public function getStorageUrl($userId) {
 		$routeUrl = $this->urlGenerator->linkToRoute(
@@ -39,8 +39,7 @@ trait GetStorageUrlTrait
 
 		$storageUrl = $this->urlGenerator->getAbsoluteURL($routeUrl);
 
-		// (?) $storageUrl = preg_replace('/foo$/', '', $storageUrl);
-		$storageUrl = preg_replace('/foo$/', '/', $storageUrl);
+		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
 
 		if ($this->config->getUserSubDomainsEnabled()) {
 			$url = parse_url($storageUrl);
@@ -64,14 +63,14 @@ trait GetStorageUrlTrait
 		$pathParts = explode('/', $path);
 
 		$pathUsers = array_filter($pathParts, static function ($value) {
-			return str_starts_with($value, '@');
+			return str_starts_with($value, '~');
 		});
 
 		if (count($pathUsers) === 1) {
 			$pathUser = reset($pathUsers);
 			$subDomainUser = explode('.', $host)[0];
 
-			$isValid = $pathUser === '@' . $subDomainUser;
+			$isValid = $pathUser === '~' . $subDomainUser;
 		}
 
 		return $isValid;
