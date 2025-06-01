@@ -91,7 +91,15 @@ jobs:
           working-directory: "solid"
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-      - run: bin/phpunit --configuration .config/phpunit.xml.dist
+      - run: |
+            docker run \
+            --env 'XDEBUG_MODE=coverage' \
+            --rm \
+            --volume="./solid:/var/www/html/apps/solid" \
+            --workdir=/var/www/html/apps/solid \
+            ghcr.io/pdsinterop/solid-nextcloud:179_merge-30 \
+            bin/phpunit --configuration phpunit.xml
+
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
   scan-dependencies-vulnerabilities:
     name: Scan Dependencies Vulnerabilities
