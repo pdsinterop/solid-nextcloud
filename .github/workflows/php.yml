@@ -73,18 +73,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php:
-          - '8.0'  # from 2020-11 to 2022-11 (2023-11)
-          - '8.1'  # from 2021-11 to 2023-11 (2025-12)
-          - '8.2'  # from 2022-12 to 2024-12 (2026-12)
-          - '8.3'  # from 2023-11 to 2025-12 (2027-12)
+        nextcloud_version:
+          - 28
+          - 29
+          - 30
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
-          coverage: xdebug
           ini-values: error_reporting=E_ALL, display_errors=On
-          php-version: ${{ matrix.php }}
+          php-version: 8.3
       - name: Install and Cache Composer dependencies
         uses: "ramsey/composer-install@v2"
         with:
@@ -97,7 +95,7 @@ jobs:
             --rm \
             --volume="./solid:/var/www/html/apps/solid" \
             --workdir=/var/www/html/apps/solid \
-            ghcr.io/pdsinterop/solid-nextcloud:179_merge-30 \
+            ghcr.io/pdsinterop/solid-nextcloud:179_merge-${{ matrix.nextcloud_version }} \
             bin/phpunit --configuration phpunit.xml
 
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
