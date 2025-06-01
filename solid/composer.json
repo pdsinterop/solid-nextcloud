@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
@@ -45,9 +45,9 @@
             "type": "package",
             "package": {
                 "name": "nextcloud/server",
-                "version": "27.0.0",
+                "version": "31.0.0",
                 "dist": {
-                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v27.0.0.zip",
+                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v31.0.0.zip",
                     "type": "zip"
                 },
                 "source": {
