@@ -37,33 +37,6 @@
     },
     "require-dev": {
         "doctrine/dbal": "*",
-        "nextcloud/server": "*",
         "phpunit/phpunit": "^8 || ^9"
-    },
-    "repositories": [
-        {
-            "type": "package",
-            "package": {
-                "name": "nextcloud/server",
-                "version": "27.0.0",
-                "dist": {
-                    "url": "https://github.com/nextcloud/server/archive/refs/tags/v27.0.0.zip",
-                    "type": "zip"
-                },
-                "source": {
-                    "url": "https://github.com/nextcloud/server.git",
-                    "type": "git",
-                    "reference": "master"
-                },
-                "autoload": {
-                    "psr-4": {
-                        "": "lib/private/legacy",
-                        "OC\\": "lib/private",
-                        "OC\\Core\\": "core/",
-                        "OCP\\": "lib/public"
-                    }
-                }
-            }
-        }
-    ]
+    }
 }
