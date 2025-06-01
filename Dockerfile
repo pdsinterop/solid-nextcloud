@@ -1,6 +1,5 @@
-#ARG NEXTCLOUD_VERSION
-#FROM nextcloud:${NEXTCLOUD_VERSION}
-FROM nextcloud:31
+ARG NEXTCLOUD_VERSION
+FROM nextcloud:${NEXTCLOUD_VERSION}
 
 RUN apt-get update && apt-get install --no-install-recommends -yq \
       git \
