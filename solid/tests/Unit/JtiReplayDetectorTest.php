@@ -9,20 +9,20 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\DB\IResult;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @coversDefaultClass \OCA\Solid\JtiReplayDetector
+ * @covers ::__construct
+ * @covers ::<!public>
+ */
 class JtiReplayDetectorTest extends TestCase
 {
-	public static function setUpBeforeClass(): void
-	{
-		require_once __DIR__.'/../../lib/JtiReplayDetector.php';
-	}
-
 	private function createMocks($result)
 	{
 		$mockIDBConnection = $this->createMock(IDBConnection::class);
 		$mockQueryBuilder = $this->createMock(IQueryBuilder::class);
 		$mockExpr = $this->createMock(IExpressionBuilder::class);
 		$mockResult = $this->createMock(IResult::class);
-		
+
 		$mockIDBConnection->expects($this->any())
 			->method('getQueryBuilder')
 			->willReturn($mockQueryBuilder);
@@ -34,7 +34,7 @@ class JtiReplayDetectorTest extends TestCase
 			->willReturn($mockExpr);
 		$mockExpr->expects($this->any())
 			->method('eq')
-			->willReturn("");
+			->willReturn('');
 		$mockQueryBuilder->expects($this->once())
 			->method('from')
 			->willReturnSelf();
@@ -67,13 +67,16 @@ class JtiReplayDetectorTest extends TestCase
 		return $mockIDBConnection;
 	}
 
+	/**
+	 * @covers ::detect
+	 */
 	public function testJtiDetected(): void
-    {
+	{
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(true);
-					
+
 		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
-		
+
 		$mockUUID = 'mockUUID-with-some-more-text';
 		$mockURI = 'mockURI';
 		$result = $detector->detect($mockUUID, $mockURI);
@@ -81,13 +84,16 @@ class JtiReplayDetectorTest extends TestCase
 		$this->assertTrue($result);
 	}
 
+	/**
+	 * @covers ::detect
+	 */
 	public function testJtiNotDetected(): void
 	{
 		$dateInterval = new DateInterval('PT90S');
 		$mockIDBConnection = $this->createMocks(false);
-					
+
 		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
-		
+
 		$mockUUID = 'mockUUID-with-some-more-text';
 		$mockURI = 'mockURI';
 		$result = $detector->detect($mockUUID, $mockURI);
