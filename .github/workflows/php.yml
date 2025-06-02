@@ -95,7 +95,7 @@ jobs:
             --rm \
             --volume="./solid:/var/www/html/apps/solid" \
             --workdir=/var/www/html/apps/solid \
-            ghcr.io/pdsinterop/solid-nextcloud:179_merge-${{ matrix.nextcloud_version }} \
+            ghcr.io/pdsinterop/solid-nextcloud:main-${{ matrix.nextcloud_version }} \
             bin/phpunit --configuration phpunit.xml
 
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
