@@ -68,5 +68,6 @@ class Application extends App implements IBootstrap {
 
     public function boot(IBootContext $context): void {
         self::$userSubDomainsEnabled = OC::$server->get(AppConfig::class)->getValueBool(self::APP_ID, 'userSubDomainsEnabled');
+        require_once(__DIR__.'/../../vendor/autoload.php');
     }
 }
