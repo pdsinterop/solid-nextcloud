@@ -1,0 +1,56 @@
+---
+name: Dockerfile Quality Assistance
+
+on:
+  # This event occurs when there is activity on a pull request. The workflow
+  # will be run against the commits, after merge to the target branch (main).
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.config/hadolint.yml'
+      - '.dockerignore'
+      - '.github/workflows/dockerfile.yml'
+      - 'Dockerfile'
+      # Docker project specific, Dockerfile "COPY" and "ADD" entries.
+      - 'solid/'
+      - 'init-live.sh'
+      - 'init.sh'
+      - 'site.conf'
+    types: [ opened, reopened, synchronize ]
+  # This event occurs when there is a push to the repository.
+  push:
+    paths:
+      - '.config/hadolint.yml'
+      - '.dockerignore'
+      - '.github/workflows/dockerfile.yml'
+      - 'Dockerfile'
+      # Docker project specific, Dockerfile "COPY" and "ADD" entries.
+      - 'solid/'
+      - 'init-live.sh'
+      - 'init.sh'
+      - 'site.conf'
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Needed to allow the "concurrency" section to cancel a workflow run.
+  actions: write
+
+jobs:
+  # 03.quality.docker.lint.yml
+  lint-dockerfile:
+    name: Dockerfile Linting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/hadolint
+        with:
+          args: >-
+            hadolint
+            --config .config/hadolint.yml
+            Dockerfile

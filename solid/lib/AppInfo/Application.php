@@ -4,31 +4,22 @@ declare(strict_types=1);
 
 namespace OCA\Solid\AppInfo;
 
-use OC\AppFramework\Utility\TimeFactory;
-use OC\Authentication\Events\AppPasswordCreatedEvent;
-use OC\Authentication\Token\IProvider;
-use OC\Server;
+use OC;
+use OC\AppConfig;
 
-use OCA\Solid\Service\UserService;
 use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\Db\SolidWebhookMapper;
-use OCA\Solid\WellKnown\OpenIdConfigurationHandler;
-use OCA\Solid\WellKnown\SolidHandler;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
-use OCP\AppFramework\IAppContainer;
-use OCP\Defaults;
-use OCP\IServerContainer;
-use OCP\Settings\IManager;
-use OCP\Util;
 use OCP\IDBConnection;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'solid';
+	public static $userSubDomainsEnabled;
 
     /**
      * @param array $urlParams
@@ -76,5 +67,7 @@ class Application extends App implements IBootstrap {
     }
 
     public function boot(IBootContext $context): void {
+        self::$userSubDomainsEnabled = OC::$server->get(AppConfig::class)->getValueBool(self::APP_ID, 'userSubDomainsEnabled');
+        require_once(__DIR__.'/../../vendor/autoload.php');
     }
 }

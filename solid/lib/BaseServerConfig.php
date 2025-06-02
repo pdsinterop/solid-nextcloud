@@ -1,14 +1,18 @@
 <?php
 	namespace OCA\Solid;
 
+	use InvalidArgumentException;
 	use OCP\IConfig;
 
 	class BaseServerConfig {
-		private IConfig $config;
+		////////////////////////////// CLASS PROPERTIES \\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-		/**
-		 * @param IConfig $config
-		 */
+		public const ERROR_INVALID_ARGUMENT = 'Invalid %s for %s: %s. Must be one of %s.';
+
+		protected IConfig $config;
+
+		//////////////////////////////// PUBLIC API \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
 		public function __construct(IConfig $config) {
 			$this->config = $config;
 		}
@@ -91,7 +95,7 @@
 					$clients[] = [
 						"clientId" => $matches[1],
 						"clientName" => $clientRegistration['client_name'],
-						"clientBlocked" => $clientRegistration['blocked']
+						"clientBlocked" => $clientRegistration['blocked'] ?? false,
 					];
 				}
 			}
@@ -152,6 +156,7 @@
 			unset($scopes[$clientId]);
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
+
 		public function saveClientRegistration($origin, $clientData) {
 			$originHash = md5($origin);
 			$existingRegistration = $this->getClientRegistration($originHash);
@@ -181,5 +186,58 @@
 		public function getClientRegistration($clientId) {
 			$data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
 			return json_decode($data, true);
+		}
+
+		public function getUserSubDomainsEnabled() {
+			$value = $this->config->getAppValue('solid', 'userSubDomainsEnabled', false);
+
+			return $this->castToBool($value);
+		}
+
+		public function setUserSubDomainsEnabled($enabled) {
+			$value = $this->castToBool($enabled);
+
+			$this->config->setAppValue('solid', 'userSubDomainsEnabled', $value);
+		}
+
+		////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+		private function castToBool(string $mixedValue): bool
+		{
+			$type = gettype($mixedValue);
+
+			if ($type === 'boolean' || $type === 'NULL' || $type === 'integer') {
+				$value = (bool) $mixedValue;
+			} else {
+				if ($type === 'string') {
+					$mixedValue = strtolower($mixedValue);
+					if ($mixedValue === 'true' || $mixedValue === '1') {
+						$value = true;
+					} elseif ($mixedValue === 'false' || $mixedValue === '0' || $mixedValue === '') {
+						$value = false;
+					} else {
+						$error = [
+							'invalid' => 'value',
+							'for' => 'userSubDomainsEnabled',
+							'received' => $mixedValue,
+							'expected' => implode(',', ['true', 'false', '1', '0'])
+						];
+					}
+				} else {
+					$error = [
+						'invalid' => 'type',
+						'for' => 'userSubDomainsEnabled',
+						'received' => $type,
+						'expected' => implode(',', ['boolean', 'NULL', 'integer', 'string'])
+					];
+				}
+			}
+
+			if (isset($error)) {
+				$errorMessage = vsprintf(self::ERROR_INVALID_ARGUMENT, $error);
+				throw new InvalidArgumentException($errorMessage);
+			}
+
+			return $value;
 		}
 	}
