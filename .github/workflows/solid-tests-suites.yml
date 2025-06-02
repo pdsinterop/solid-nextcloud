@@ -64,10 +64,10 @@ jobs:
         run: |
           docker build \
             --tag "solid-nextcloud:${{ env.TAG }}" \
-            --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}" \
+            --tag "ghcr.io/${{ github.repository }}:${{ env.TAG }}" \
             --build-arg 'NEXTCLOUD_VERSION=${{ matrix.nextcloud_version }}' \
           .
-          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
+          docker push "ghcr.io/${{ github.repository }}:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
           docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
