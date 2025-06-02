@@ -163,13 +163,13 @@ class GetStorageUrlTraitTest extends TestCase
 	public function provideSubDomainsDisabledUrls()
 	{
 		return [
-			['url' => 'example.com/foo', 'userId' => 'alice', 'expected' => 'example.com//'],
-			['url' => 'https://example.com/foo', 'userId' => 'alice', 'expected' => 'https://example.com//'],
-			['url' => 'http://example.com/foo', 'userId' => 'alice', 'expected' => 'http://example.com//'],
-			['url' => 'https://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'https://bob.example.com//'],
-			['url' => 'http://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'http://bob.example.com//'],
-			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.example.com//'],
-			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.example.com//'],
+			['url' => 'example.com/foo', 'userId' => 'alice', 'expected' => 'example.com/'],
+			['url' => 'https://example.com/foo', 'userId' => 'alice', 'expected' => 'https://example.com/'],
+			['url' => 'http://example.com/foo', 'userId' => 'alice', 'expected' => 'http://example.com/'],
+			['url' => 'https://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'https://bob.example.com/'],
+			['url' => 'http://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'http://bob.example.com/'],
+			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.example.com/'],
+			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.example.com/'],
 		];
 	}
 
@@ -177,14 +177,14 @@ class GetStorageUrlTraitTest extends TestCase
 	{
 		return [
 			// @FIXME: "Undefined array key 'host'" caused by the use of `parse_url`
-			// ['url' => 'example.com/foo', 'userId' => 'alice', 'expected' => 'example.com//'],
+			// ['url' => 'example.com/foo', 'userId' => 'alice', 'expected' => 'example.com/'],
 
-			['url' => 'https://example.com/foo', 'userId' => 'alice', 'expected' => 'https://alice.example.com//'],
-			['url' => 'http://example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.example.com//'],
-			['url' => 'https://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'https://alice.bob.example.com//'],
-			['url' => 'http://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.bob.example.com//'],
-			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.example.com//'],
-			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.example.com//'],
+			['url' => 'https://example.com/foo', 'userId' => 'alice', 'expected' => 'https://alice.example.com/'],
+			['url' => 'http://example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.example.com/'],
+			['url' => 'https://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'https://alice.bob.example.com/'],
+			['url' => 'http://bob.example.com/foo', 'userId' => 'alice', 'expected' => 'http://alice.bob.example.com/'],
+			['url' => 'https://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'https://bob.example.com/'],
+			['url' => 'http://bob.example.com/foo', 'userId' => 'bob', 'expected' => 'http://bob.example.com/'],
 		];
 	}
 }
