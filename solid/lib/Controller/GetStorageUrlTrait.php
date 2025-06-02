@@ -65,15 +65,9 @@ trait GetStorageUrlTrait
 		$pathUsers = array_filter($pathParts, static function ($value) {
 			return str_starts_with($value, '~');
 		});
-var_dump($host);
-var_dump($path);
-var_dump($pathParts);
-var_dump($pathUsers);
 		if (count($pathUsers) === 1) {
 			$pathUser = reset($pathUsers);
 			$subDomainUser = explode('.', $host)[0];
-var_dump($pathUser);
-var_dump($subDomainUser);
 
 			$isValid = $pathUser === '~' . $subDomainUser;
 		}

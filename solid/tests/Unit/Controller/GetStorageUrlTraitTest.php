@@ -150,13 +150,13 @@ class GetStorageUrlTraitTest extends TestCase
 
 		return [
 			'invalid: invalid URL' => ['request' => $request->withUri(new Uri('!@#$%^&*()_')), 'expected' => false],
-			'invalid: no domain user' => ['request' => $request->withUri(new Uri('https://example.com/@alice/profile/card#me')), 'expected' => false],
+			'invalid: no domain user' => ['request' => $request->withUri(new Uri('https://example.com/~alice/profile/card#me')), 'expected' => false],
 			'invalid: no path or domain user' => ['request' => $request->withUri(new Uri('https://example.com/')), 'expected' => false],
 			'invalid: no path user' => ['request' => $request->withUri(new Uri('https://alice.example.com/profile/card#me')), 'expected' => false],
 			'invalid: no URL' => ['request' => $request, 'expected' => false],
-			'invalid: path and domain user mismatch' => ['request' => $request->withUri(new Uri('https://bob.example.com/@alice/profile/card#me')), 'expected' => false],
-			'valid: minimal path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/@alice')), 'expected' => true],
-			'valid: path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/solid/@alice/profile/card#me')), 'expected' => true],
+			'invalid: path and domain user mismatch' => ['request' => $request->withUri(new Uri('https://bob.example.com/~alice/profile/card#me')), 'expected' => false],
+			'valid: minimal path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/~alice')), 'expected' => true],
+			'valid: path and domain user match' => ['request' => $request->withUri(new Uri('https://alice.example.com/apps/solid/~alice/profile/card#me')), 'expected' => true],
 		];
 	}
 
