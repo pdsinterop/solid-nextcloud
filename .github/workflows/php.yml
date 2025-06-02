@@ -94,9 +94,11 @@ jobs:
             --env 'XDEBUG_MODE=coverage' \
             --rm \
             --volume="./solid:/var/www/html/apps/solid" \
-            --workdir=/var/www/html/apps/solid \
             ghcr.io/pdsinterop/solid-nextcloud:main-${{ matrix.nextcloud_version }} \
-            bin/phpunit --configuration phpunit.xml
+            bash -c 'NEXTCLOUD_UPDATE=1 /entrypoint.sh "echo" \
+              && sudo -u www-data bash /init.sh \
+              && cd /var/www/html/apps/solid \
+              && bin/phpunit --configuration phpunit.xml'
 
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
   scan-dependencies-vulnerabilities:
