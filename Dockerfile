@@ -29,17 +29,8 @@ COPY site.conf /etc/apache2/sites-enabled/000-default.conf
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-RUN composer install --working-dir=/usr/src/nextcloud/apps/solid --prefer-dist \
-    && sh /xdebug.sh \
-    && pecl install "xdebug-$(cat /xdebug.version)" \
-    && docker-php-ext-enable xdebug \
-    && NEXTCLOUD_ADMIN_PASSWORD='alice123' \
-       NEXTCLOUD_ADMIN_USER='alice' \
-       NEXTCLOUD_TRUSTED_DOMAINS='localhost server thirdparty nextcloud.local *.nextcloud.local' \
-       NEXTCLOUD_UPDATE=1 \
-       /entrypoint.sh 'echo' \
-    && php /var/www/html/console.php maintenance:install --admin-user='alice' --admin-pass='alice123' \
-    && php /var/www/html/console.php app:enable solid
+RUN composer install --working-dir=/usr/src/nextcloud/apps/solid --no-dev --prefer-dist
+    && rm  /usr/local/bin/composer
 
 WORKDIR /var/www/html
 EXPOSE 443
