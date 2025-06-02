@@ -33,7 +33,7 @@
         "pdsinterop/flysystem-rdf": "^0.6",
         "pdsinterop/solid-auth": "^0.12.2",
         "pdsinterop/solid-crud": "^0.8",
-        "psr/log": "^1.1"
+        "psr/log": "^3.0"
     },
     "require-dev": {
         "doctrine/dbal": "*",
