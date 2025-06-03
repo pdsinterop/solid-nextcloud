@@ -155,4 +155,4 @@ jobs:
       - name: Show nextcloud logs - ${{ matrix.test }}
         if: always()
         run: |
-          docker exec -it server cat /var/www/html/data/nextcloud.log
+          docker exec -i server cat /var/www/html/data/nextcloud.log
