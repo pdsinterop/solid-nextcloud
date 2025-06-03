@@ -32,8 +32,7 @@
         "pdsinterop/flysystem-nextcloud": "^0.2",
         "pdsinterop/flysystem-rdf": "^0.6",
         "pdsinterop/solid-auth": "^0.12.2",
-        "pdsinterop/solid-crud": "^0.8",
-        "psr/log": "^3.0"
+        "pdsinterop/solid-crud": "^0.8"
     },
     "require-dev": {
         "doctrine/dbal": "*",
