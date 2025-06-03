@@ -136,8 +136,8 @@ jobs:
           echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
           echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
 
       - name: Run tests - ${{ matrix.test }}
         run: |
