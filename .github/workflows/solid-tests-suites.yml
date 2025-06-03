@@ -152,3 +152,8 @@ jobs:
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
             ${{ matrix.test }}
+
+      - name: Show nextcloud logs - ${{ matrix.test }}
+        if: always()
+        run: |
+          docker exec -i server cat /var/www/html/data/nextcloud.log
