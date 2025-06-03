@@ -74,8 +74,9 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
+          - 28
+          - 29
           - 30
-          - 31
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
