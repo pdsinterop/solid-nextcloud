@@ -153,4 +153,7 @@ jobs:
             --env-file ./env-vars-testers.list \
             ${{ matrix.test }}
 
-          docker exec -it server cat /var/www/html/data/nextcloud.log
+      - name: Show nextcloud logs - ${{ matrix.test }}
+        if: always()
+        run: |
+          docker exec server cat /var/www/html/data/nextcloud.log
