@@ -5,17 +5,19 @@ set -e
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
 function setup {
-  docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
-  docker build -t solid-nextcloud --build-arg NEXTCLOUD_VERSION=25 .
+
+  docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#feature-secure-webhook-to-ws
+  docker build -t solid-nextcloud .
 
   docker network create testnet
 
   docker pull michielbdejong/nextcloud-cookie
-  docker pull solidtestsuite/solid-crud-tests:v7.0.5
+  docker pull solidtestsuite/solid-crud-tests:v7.0.6
+
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
   docker pull solidtestsuite/webid-provider-tests:v2.1.1
 
-  docker tag solidtestsuite/solid-crud-tests:v7.0.5 solid-crud-tests
+  docker tag solidtestsuite/solid-crud-tests:v7.0.6 solid-crud-tests
   docker tag solidtestsuite/web-access-control-tests:v7.1.0 web-access-control-tests
   docker tag solidtestsuite/webid-provider-tests:v2.1.1 webid-provider-tests
 }
@@ -28,6 +30,7 @@ function teardown {
 
 function startPubSub {
   docker run -d --name pubsub --network=testnet pubsub-server
+  docker exec -it pubsub php server/serverWh2Ws.php &
 }
 
 function startSolidNextcloud {
