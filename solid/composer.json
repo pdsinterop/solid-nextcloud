@@ -35,7 +35,6 @@
         "pdsinterop/solid-crud": "^0.8"
     },
     "require-dev": {
-        "doctrine/dbal": "*",
         "phpunit/phpunit": "^8 || ^9"
     }
 }
