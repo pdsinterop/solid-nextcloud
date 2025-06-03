@@ -34,9 +34,7 @@ jobs:
         # Version 24 comes with PHP 8.0, which is no longer supported;
         # Latest is not tested here, as that could cause failures unrelated to project changes
         nextcloud_version:
-          - 28
-          - 29
-          - 30
+          - 31
 
     steps:
       - name: Create docker tag from git reference
@@ -82,16 +80,14 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
-          - 28
-          - 29
-          - 30
+          - 31
         test:
           - 'solidtestsuite/solid-crud-tests:v7.0.5'
           - 'solidtestsuite/web-access-control-tests:v7.1.0'
           - 'solidtestsuite/webid-provider-tests:v2.1.1'
 
     # Prevent EOL or non-stable versions of Nextcloud to fail the test-suite
-    continue-on-error: ${{ contains(fromJson('[28,29,30]'), matrix.nextcloud_version) == false }}
+    continue-on-error: ${{ contains(fromJson('[31]'), matrix.nextcloud_version) == false }}
 
     steps:
       - name: Create docker tag from git reference
@@ -140,6 +136,9 @@ jobs:
           echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
           echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
 
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+
       - name: Run tests - ${{ matrix.test }}
         run: |
           export COOKIE_server="${{ env.COOKIE_server }}"
@@ -152,3 +151,8 @@ jobs:
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
             ${{ matrix.test }}
+
+      - name: Show nextcloud logs - ${{ matrix.test }}
+        if: always()
+        run: |
+          docker exec -i server cat /var/www/html/data/nextcloud.log
