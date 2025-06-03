@@ -29,8 +29,8 @@ COPY site.conf /etc/apache2/sites-enabled/000-default.conf
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
-RUN composer install --working-dir=/usr/src/nextcloud/apps/solid --no-dev --prefer-dist \
-    && rm  /usr/local/bin/composer
+RUN composer install --working-dir=/usr/src/nextcloud/apps/solid --prefer-dist \
+    && rm /usr/local/bin/composer
 
 WORKDIR /var/www/html
 EXPOSE 443
