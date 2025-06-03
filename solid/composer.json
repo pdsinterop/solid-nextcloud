@@ -36,7 +36,6 @@
         "psr/log": "^1.1"
     },
     "require-dev": {
-        "doctrine/dbal": "*",
         "phpunit/phpunit": "^8 || ^9"
     }
 }
