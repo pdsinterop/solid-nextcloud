@@ -14,8 +14,4 @@ require_once __DIR__.'/../../../lib/base.php';
 // Fix for "Autoload path not allowed: .../solid/tests/testcase.php"
 \OC_App::loadApp('solid');
 
-if(!class_exists('PHPUnit_Framework_TestCase')) {
-    require_once('PHPUnit/Autoload.php');
-}
-
 OC_Hook::clear();

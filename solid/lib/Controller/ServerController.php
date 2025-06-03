@@ -196,12 +196,19 @@ class ServerController extends Controller
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData);
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData);
+			$clientId = $this->config->saveClientRegistration($origin, $clientData)['client_id'];
+			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['client_id'];
 			$returnUrl = $getVars['redirect_uri'];
 		} else {
 			$clientId = $getVars['client_id'];
 			$returnUrl = $_SERVER['REQUEST_URI'];
+		}
+
+		$clientRegistration = $this->config->getClientRegistration($clientId);
+		if (isset($clientRegistration['blocked']) && ($clientRegistration['blocked'] === true)) {
+			$result = new JSONResponse('Unauthorized client');
+			$result->setStatus(403);
+			return $result;
 		}
 
 		$approval = $this->checkApproval($clientId);
@@ -211,6 +218,20 @@ class ServerController extends Controller
 			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $returnUrl)));
 			$result->addHeader("Location", $approvalUrl);
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
+		}
+
+		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		if (
+			$parsedOrigin['scheme'] != "https" &&
+			$parsedOrigin['scheme'] != "http" &&
+			!isset($_GET['customscheme'])
+		) {
+			$result = new JSONResponse('Custom schema');
+			$result->setStatus(302);
+			$originalRequest = parse_url($_SERVER['REQUEST_URI']);
+			$customSchemeUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.customscheme")) . ($originalRequest['query'] ? "?" . $originalRequest['query'] . "&customscheme=" . $parsedOrigin['scheme'] : '');
+			$result->addHeader("Location", $customSchemeUrl);
+			return $result;
 		}
 
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
@@ -343,10 +364,18 @@ class ServerController extends Controller
 			$origin .= ":" . $parsedOrigin['port'];
 		}
 
-		$clientId = $this->config->saveClientRegistration($origin, $clientData);
+		$clientData = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
-			'client_id' => $clientId,
-			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientId))),
+			'client_id' => $clientData['client_id'],
+			/*
+				 FIXME: returning client_secret will trigger calls with basic auth to us. To get this to work, we need this patch:
+				// File /var/www/vhosts/solid-nextcloud/site/www/lib/base.php not changed so no update needed
+				//	($request->getRawPathInfo() !== '/apps/oauth2/api/v1/token') &&
+				//	($request->getRawPathInfo() !== '/apps/solid/token')
+			*/
+			// 'client_secret' => $clientData['client_secret'], // FIXME: Returning this means we need to patch Nextcloud to accept tokens on calls to
+
+			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
@@ -413,7 +442,7 @@ class ServerController extends Controller
 		if ($clientId && count($clientRegistration)) {
 			return new \Pdsinterop\Solid\Auth\Config\Client(
 				$clientId,
-				$clientRegistration['client_secret'],
+				$clientRegistration['client_secret'] ?? '',
 				$clientRegistration['redirect_uris'],
 				$clientRegistration['client_name']
 			);

@@ -51,7 +51,7 @@ class ContactsController extends Controller
 
 	private function getFileSystem($userId) {
 		// Make sure the root folder has an acl file, as is required by the spec;
-        // Generate a default file granting the owner full access.
+		// Generate a default file granting the owner full access.
 		$defaultAcl = $this->generateDefaultAcl($userId);
 
 		// Create the Nextcloud Contacts Adapter
@@ -62,7 +62,11 @@ class ContactsController extends Controller
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverUri = "https://" . $this->rawRequest->getServerParams()["SERVER_NAME"] . $this->rawRequest->getServerParams()["REQUEST_URI"]; // FIXME: doublecheck that this is the correct url;
+		$serverParams = $this->rawRequest->getServerParams();
+		$scheme = $serverParams['REQUEST_SCHEME'];
+		$domain = $serverParams['SERVER_NAME'];
+		$path = $serverParams['REQUEST_URI'];
+		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
@@ -123,8 +127,8 @@ EOF;
 	 * @NoCSRFRequired
 	 */
 	public function handleRequest($userId, $path) {
-        $this->contactsUserId = $userId;
-        
+		$this->contactsUserId = $userId;
+
 		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$this->response = new \Laminas\Diactoros\Response();
 
@@ -185,15 +189,26 @@ EOF;
 	public function handlePut() { // $userId, $path) {
 		// FIXME: Adding the correct variables in the function name will make nextcloud
 		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
-		
+
 		// because we got here, the request uri should look like:
-		// /index.php/apps/solid/@{userId}/storage{path}
-		$pathInfo = explode("@", $_SERVER['REQUEST_URI']);
-		$pathInfo = explode("/", $pathInfo[1], 2);
-		$userId = $pathInfo[0];
-		$path = $pathInfo[1];
-		$path = preg_replace("/^contacts/", "", $path);
-		
+		// - if we have user subdomains enabled:
+		//    /index.php/apps/solid/contacts{path}
+		// and otherwise:
+		//   index.php/apps/solid/~{userId}/contacts{path}
+
+		// In the first case, we'll get the username from the SERVER_NAME. In the latter, it will come from the URL;
+		if ($this->config->getUserSubDomainsEnabled()) {
+			$pathInfo = explode("contacts/", $_SERVER['REQUEST_URI']);
+			$path = $pathInfo[1];
+			$userId = explode(".", $_SERVER['SERVER_NAME'])[0];
+		} else {
+			$pathInfo = explode("~", $_SERVER['REQUEST_URI']);
+			$pathInfo = explode("/", $pathInfo[1], 2);
+			$userId = $pathInfo[0];
+			$path = $pathInfo[1];
+			$path = preg_replace("/^contacts/", "", $path);
+		}
+
 		return $this->handleRequest($userId, $path);
 	}
 	/**

@@ -2,35 +2,38 @@
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\Contacts\IManager;
-use OCP\IURLGenerator;
-use OCP\IConfig;
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\TemplateResponse;
-use OCP\AppFramework\Http\DataResponse;
+
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\JSONResponse;
+use OCP\AppFramework\Http\TemplateResponse;
+use OCP\Contacts\IManager;
+use OCP\IConfig;
+use OCP\IRequest;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
 class AppController extends Controller {
+	use GetStorageUrlTrait;
+
+	protected ServerConfig $config;
+	protected IURLGenerator $urlGenerator;
+
 	private $userId;
 	private $userManager;
-	private $urlGenerator;
-	private $config;
 
-	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId){
+	public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId) {
 		parent::__construct($AppName, $request);
 		$this->userId = $userId;
 		$this->userManager = $userManager;
 		$this->contactsManager = $contactsManager;
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
-		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
+		$this->config = new ServerConfig($config, $urlGenerator, $userManager);
 	}
 
-	private function getUserApps($userId) {   
+	private function getUserApps($userId) {
 		$userApps = [];
 		if ($this->userManager->userExists($userId)) {
 			$allowedClients = $this->config->getAllowedClients($userId);
@@ -46,7 +49,7 @@ class AppController extends Controller {
 		$path = __DIR__ . "/../solid-app-list.json";
 		$appsListJson = file_get_contents($path);
 		$appsList = json_decode($appsListJson, true);
-		
+
 		$userApps = $this->getUserApps($this->userId);
 
 		foreach ($appsList as $key => $app) {
@@ -64,11 +67,7 @@ class AppController extends Controller {
 	private function getProfilePage() {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
-	private function getStorageUrl($userId) {
-		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
-		return $storageUrl;
-	}
+
 	/**
 	 * @NoAdminRequired
 	 * @NoCSRFRequired

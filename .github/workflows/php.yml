@@ -1,0 +1,159 @@
+---
+name: PHP Quality Assistance
+
+on:
+  # This event occurs when there is activity on a pull request. The workflow
+  # will be run against the commits, after merge to the target branch (main).
+  pull_request:
+    paths:
+      - '**.php'
+      - '.config/phpcs.xml.dist'
+      - '.config/phpunit.xml.dist'
+      - '.github/workflows/php.yml'
+      - 'composer.json'
+      - 'composer.lock'
+    branches: [ main ]
+    types: [ opened, reopened, synchronize ]
+  # This event occurs when there is a push to the repository.
+  push:
+    paths:
+      - '**.php'
+      - '.config/phpcs.xml.dist'
+      - '.config/phpunit.xml.dist'
+      - '.github/workflows/php.yml'
+      - 'composer.json'
+      - 'composer.lock'
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Needed to allow the "concurrency" section to cancel a workflow run.
+  actions: write
+
+jobs:
+  # 01.preflight.php.lint-syntax.yml
+  lint-php-syntax:
+    name: PHP Syntax Linting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/php-linter
+        with:
+          args: >-
+            parallel-lint
+            --exclude .git
+            --exclude vendor
+            --no-progress
+            .
+  # 01.quality.php.validate.dependencies-file.yml
+  validate-dependencies-file:
+    name: Validate dependencies file
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+            composer validate
+            --check-lock
+            --no-plugins
+            --no-scripts
+            --strict
+        working-directory: "solid"
+  # 02.test.php.test-unit.yml
+  php-unittest:
+    name: PHP Unit Tests
+    needs:
+      - lint-php-syntax
+      - validate-dependencies-file
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        nextcloud_version:
+          - 28
+          - 29
+          - 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          ini-values: error_reporting=E_ALL, display_errors=On
+          php-version: 8.3
+      - name: Install and Cache Composer dependencies
+        uses: "ramsey/composer-install@v2"
+        with:
+          working-directory: "solid"
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
+      - run: |
+            docker run \
+            --env 'XDEBUG_MODE=coverage' \
+            --rm \
+            --volume="./solid:/var/www/html/apps/solid" \
+            ghcr.io/${{ github.repository }}:main-${{ matrix.nextcloud_version }} \
+            bash -c 'NEXTCLOUD_UPDATE=1 /entrypoint.sh "echo" \
+              && sudo -u www-data bash /init.sh \
+              && cd /var/www/html/apps/solid \
+              && bin/phpunit --configuration phpunit.xml'
+
+  # 03.quality.php.scan.dependencies-vulnerabilities.yml
+  scan-dependencies-vulnerabilities:
+    name: Scan Dependencies Vulnerabilities
+    needs:
+      - validate-dependencies-file
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+            composer audit
+            --abandoned=report
+            --locked
+            --no-dev
+            --no-plugins
+            --no-scripts
+        working-directory: "solid"
+  # 03.quality.php.lint-quality.yml
+  php-lint-quality:
+    needs:
+      - lint-php-syntax
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/php-codesniffer
+        with:
+          args: >-
+            phpcs
+            -s
+            --extensions=php
+            --ignore='*vendor/*'
+            --standard=.config/phpcs.xml.dist
+            .
+  # 03.quality.php.lint-version-compatibility.yml
+  php-check-version-compatibility:
+    name: PHP Version Compatibility
+    needs:
+      - lint-php-syntax
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        php:
+          - '8.1'  # from 2021-11 to 2023-11 (2025-12)
+          - '8.2'  # from 2022-12 to 2024-12 (2026-12)
+          - '8.3'  # from 2023-11 to 2025-12 (2027-12)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/php-codesniffer
+        with:
+          args: >-
+            phpcs
+            -s
+            --extensions=php
+            --ignore='*vendor/*'
+            --runtime-set testVersion ${{ matrix.php }}
+            --standard=PHPCompatibility
+            .

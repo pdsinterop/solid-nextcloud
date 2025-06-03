@@ -15,6 +15,8 @@
 <script type="application/json" id="storageUrl">
     <?php echo($_['storageUrl']); ?>
 </script>
+<!-- the following template is used to convince simply-edit to use this for settings -->
+<template data-api-key="nextcloud" data-simply-storage="none"></template>
 <main class="solid-container solid-launcher" data-simply-field="page" data-simply-content="template">
 	<template data-simply-template="Launcher">
 		<ul data-simply-list="apps" class="solid-apps">
@@ -36,6 +38,14 @@
 								</template>
 								<template data-simply-template="container">
 									Permissions in the folder <code x-data-simply-field="container"></code> in your Pod:
+									<ul data-simply-list="permissions" data-simply-entry="entry">
+										<template>
+											<li class="solid-acl"><span data-simply-field="entry" data-simply-transformer="grants"></li>
+										</template>
+									</ul>
+								</template>
+								<template data-simply-template="file">
+									Permissions to the file <code data-simply-field="filename"></code> in your Pod:
 									<ul data-simply-list="permissions" data-simply-entry="entry">
 										<template>
 											<li class="solid-acl"><span data-simply-field="entry" data-simply-transformer="grants"></li>

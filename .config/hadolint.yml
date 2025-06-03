@@ -1,0 +1,30 @@
+---
+# For all available rules see: https://github.com/hadolint/hadolint#rules
+ignored:
+  - DL3008  # We do not want to pin versions in apt get install.
+  - DL3018  # We do not want to pin versions in apk add
+
+# For full details see https://github.com/hadolint/hadolint#configure
+#
+# The following keys are available:
+#
+# failure-threshold: string               # name of threshold level (error | warning | info | style | ignore | none)
+# format: string                          # Output format (tty | json | checkstyle | codeclimate | gitlab_codeclimate | gnu | codacy)
+# label-schema:                           # See https://github.com/hadolint/hadolint#linting-labels for details
+#   author: string                        # Your name
+#   contact: string                       # email address
+#   created: timestamp                    # rfc3339 datetime
+#   version: string                       # semver
+#   documentation: string                 # url
+#   git-revision: string                  # hash
+#   license: string                       # spdx
+# no-color: boolean                       # true | false
+# no-fail: boolean                        # true | false
+# override:
+#   error: [string]                       # list of rules
+#   warning: [string]                     # list of rules
+#   info: [string]                        # list of rules
+#   style: [string]                       # list of rules
+# strict-labels: boolean                  # true | false
+# disable-ignore-pragma: boolean          # true | false
+# trustedRegistries: string | [string]    # registry or list of registries

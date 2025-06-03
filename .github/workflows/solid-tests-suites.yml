@@ -46,15 +46,15 @@ jobs:
             | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
             >> "${GITHUB_ENV}"
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
           key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -64,10 +64,10 @@ jobs:
         run: |
           docker build \
             --tag "solid-nextcloud:${{ env.TAG }}" \
-            --tag "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}" \
+            --tag "ghcr.io/${{ github.repository }}:${{ env.TAG }}" \
             --build-arg 'NEXTCLOUD_VERSION=${{ matrix.nextcloud_version }}' \
           .
-          docker push "ghcr.io/pdsinterop/solid-nextcloud:${{ env.TAG }}"
+          docker push "ghcr.io/${{ github.repository }}:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
           docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
@@ -88,7 +88,7 @@ jobs:
         test:
           - 'solidtestsuite/solid-crud-tests:v7.0.5'
           - 'solidtestsuite/web-access-control-tests:v7.1.0'
-          - 'solidtestsuite/webid-provider-tests:v2.1.0'
+          - 'solidtestsuite/webid-provider-tests:v2.1.1'
 
     # Prevent EOL or non-stable versions of Nextcloud to fail the test-suite
     continue-on-error: ${{ contains(fromJson('[28,29,30]'), matrix.nextcloud_version) == false }}
@@ -101,15 +101,15 @@ jobs:
             | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
             >> "${GITHUB_ENV}"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: cache-solid-nextcloud-docker
         with:
           path: cache/solid-nextcloud
           key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
 
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -152,3 +152,8 @@ jobs:
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
             ${{ matrix.test }}
+
+      - name: Show nextcloud logs - ${{ matrix.test }}
+        if: always()
+        run: |
+          docker exec -i server cat /var/www/html/data/nextcloud.log

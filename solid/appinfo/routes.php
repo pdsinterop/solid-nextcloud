@@ -7,56 +7,93 @@
  * The controller class has to be registered in the application.php file since
  * it's instantiated in there
  */
-return [
-    'routes' => [
-        ['name' => 'page#profile', 'url' => '/@{userId}/', 'verb' => 'GET'],
-        ['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
-        ['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'GET'],
-        ['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
-        ['name' => 'page#dataJson', 'url' => '/@{userId}/data.json', 'verb' => 'GET' ],
-		
-        ['name' => 'server#cors', 'url' => '/{path}', 'verb' => 'OPTIONS', 'requirements' => array('path' => '.+') ],
-        ['name' => 'server#authorize', 'url' => '/authorize', 'verb' => 'GET'],
-        ['name' => 'server#jwks', 'url' => '/jwks', 'verb' => 'GET'],
-        ['name' => 'server#session', 'url' => '/session', 'verb' => 'GET'],
-        ['name' => 'server#logout', 'url' => '/logout', 'verb' => 'GET'],
-        ['name' => 'server#token', 'url' => '/token', 'verb' => 'POST'],
-        ['name' => 'server#userinfo', 'url' => '/userinfo', 'verb' => 'GET'],
-        ['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
-        ['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
 
-        ['name' => 'profile#handleGet', 'url' => '/@{userId}/profile{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
-        ['name' => 'profile#handlePut', 'url' => '/@{userId}/profile{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'profile#handlePatch', 'url' => '/@{userId}/profile{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
-        ['name' => 'profile#handleHead', 'url' => '/@{userId}/profile{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+use OC\AllConfig;
+use OC\AppConfig;
+use OCA\Solid\AppInfo\Application;
+use OCP\IConfig;
+use OCP\IRequest;
 
-        ['name' => 'storage#handleGet', 'url' => '/@{userId}/storage{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePost', 'url' => '/@{userId}/storage{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePut', 'url' => '/@{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handleDelete', 'url' => '/@{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handlePatch', 'url' => '/@{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
-        ['name' => 'storage#handleHead', 'url' => '/@{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+$routes = [
+	['name' => 'page#approval', 'url' => '/sharing/{clientId}', 'verb' => 'GET'],
+	['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'DELETE'],
+	['name' => 'page#handleRevoke', 'url' => '/revoke/{clientId}', 'verb' => 'POST'],
 
-        ['name' => 'calendar#handleGet', 'url' => '/@{userId}/calendar{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
-        ['name' => 'calendar#handlePost', 'url' => '/@{userId}/calendar{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
-        ['name' => 'calendar#handlePut', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'calendar#handleDelete', 'url' => '/@{userId}/calendar{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
-        ['name' => 'calendar#handlePatch', 'url' => '/@{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
-        ['name' => 'calendar#handleHead', 'url' => '/@{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+	['name' => 'page#handleApproval', 'url' => '/sharing/{clientId}', 'verb' => 'POST'],
+	['name' => 'page#customscheme', 'url' => '/customscheme', 'verb' => 'GET'],
 
-        ['name' => 'contacts#handleGet', 'url' => '/@{userId}/contacts{path}', 'verb' => 'GET', 'requirements' => array('path' => '.+')],
-        ['name' => 'contacts#handlePost', 'url' => '/@{userId}/contacts{path}', 'verb' => 'POST', 'requirements' => array('path' => '.+')],
-        ['name' => 'contacts#handlePut', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PUT', 'requirements' => array('path' => '.+')],
-        ['name' => 'contacts#handleDelete', 'url' => '/@{userId}/contacts{path}', 'verb' => 'DELETE', 'requirements' => array('path' => '.+')],
-        ['name' => 'contacts#handlePatch', 'url' => '/@{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => array('path' => '.+')],
-        ['name' => 'contacts#handleHead', 'url' => '/@{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => array('path' => '.+')],
+	['name' => 'server#cors', 'url' => '/{path}', 'verb' => 'OPTIONS', 'requirements' => ['path' => '.+']],
+	['name' => 'server#authorize', 'url' => '/authorize', 'verb' => 'GET'],
+	['name' => 'server#jwks', 'url' => '/jwks', 'verb' => 'GET'],
+	['name' => 'server#session', 'url' => '/session', 'verb' => 'GET'],
+	['name' => 'server#logout', 'url' => '/logout', 'verb' => 'GET'],
+	['name' => 'server#token', 'url' => '/token', 'verb' => 'POST'],
+	['name' => 'server#userinfo', 'url' => '/userinfo', 'verb' => 'GET'],
+	['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
+	['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
 
-        ['name' => 'solidWebhook#listWebhooks', 'url' => '/webhook/list', 'verb' => 'GET'],
-        ['name' => 'solidWebhook#register', 'url' => '/webhook/register', 'verb' => 'POST'],
-        ['name' => 'solidWebhook#unregister', 'url' => '/webhook/unregister', 'verb' => 'POST'],
+	['name' => 'solidWebhook#listWebhooks', 'url' => '/webhook/list', 'verb' => 'GET'],
+	['name' => 'solidWebhook#register', 'url' => '/webhook/register', 'verb' => 'POST'],
+	['name' => 'solidWebhook#unregister', 'url' => '/webhook/unregister', 'verb' => 'POST'],
 
         ['name' => 'solidWebhook#registerWs', 'url' => '/websocket/register', 'verb' => 'POST'],
 
-        ['name' => 'app#appLauncher', 'url' => '/', 'verb' => 'GET'],
-    ]
+	['name' => 'app#appLauncher', 'url' => '/', 'verb' => 'GET'],
+];
+
+$userIdRoutes = [
+	['name' => 'page#profile', 'url' => '/~{userId}/', 'verb' => 'GET'],
+
+	['name' => 'profile#handleGet', 'url' => '/~{userId}/profile{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handlePut', 'url' => '/~{userId}/profile{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handlePatch', 'url' => '/~{userId}/profile{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'profile#handleHead', 'url' => '/~{userId}/profile{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+
+	['name' => 'storage#handleGet', 'url' => '/~{userId}/storage{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePost', 'url' => '/~{userId}/storage{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePut', 'url' => '/~{userId}/storage{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handleDelete', 'url' => '/~{userId}/storage{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handlePatch', 'url' => '/~{userId}/storage{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'storage#handleHead', 'url' => '/~{userId}/storage{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+
+	['name' => 'calendar#handleGet', 'url' => '/~{userId}/calendar{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePost', 'url' => '/~{userId}/calendar{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePut', 'url' => '/~{userId}/calendar{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handleDelete', 'url' => '/~{userId}/calendar{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handlePatch', 'url' => '/~{userId}/calendar{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'calendar#handleHead', 'url' => '/~{userId}/calendar{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+
+	['name' => 'contacts#handleGet', 'url' => '/~{userId}/contacts{path}', 'verb' => 'GET', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePost', 'url' => '/~{userId}/contacts{path}', 'verb' => 'POST', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePut', 'url' => '/~{userId}/contacts{path}', 'verb' => 'PUT', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handleDelete', 'url' => '/~{userId}/contacts{path}', 'verb' => 'DELETE', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handlePatch', 'url' => '/~{userId}/contacts{path}', 'verb' => 'PATCH', 'requirements' => ['path' => '.+'], ],
+	['name' => 'contacts#handleHead', 'url' => '/~{userId}/contacts{path}', 'verb' => 'HEAD', 'requirements' => ['path' => '.+'], ],
+];
+
+// @TODO: All routes NOT generated by the UrlGenerator ANYWHERE in the code need to be checked!
+
+if (Application::$userSubDomainsEnabled) {
+	$userIdRoutes = array_map(function ($route) {
+		if ($route['name'] === 'page#profile') {
+			// The profile route should be `/me` instead of `/~{userId}/`
+			$route['url'] = '/me';
+		} else {
+			// When UserSubDomains are enabled, all routes that start with
+			// `/~{userId}/` should just be `/`, as the userId is present
+			// in the subdomain.
+			$route['url'] = preg_replace('#^/~{userId}/#', '/', $route['url']);
+		}
+
+		// The required userId is set to the userId from the subdomain
+		$host = OC::$server->get(IRequest::class)->getServerHost();
+		$userId = explode('.', $host)[0];
+		$route['defaults'] = ['userId' => $userId];
+
+		return $route;
+	}, $userIdRoutes);
+}
+
+return [
+	'routes' => array_merge($routes, $userIdRoutes),
 ];

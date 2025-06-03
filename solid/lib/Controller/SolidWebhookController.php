@@ -3,42 +3,35 @@
 namespace OCA\Solid\Controller;
 
 use Closure;
-use OCA\Solid\AppInfo\Application;
-use OCA\Solid\Service\SolidWebhookService;
-use OCA\Solid\ServerConfig;
-use OCA\Solid\PlainResponse;
-use OCA\Solid\Notifications\SolidNotifications;
+
 use OCA\Solid\DpopFactoryTrait;
+use OCA\Solid\PlainResponse;
+use OCA\Solid\ServerConfig;
+use OCA\Solid\Service\SolidWebhookService;
 
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\IRequest;
-use OCP\IUserManager;
-use OCP\IURLGenerator;
-use OCP\ISession;
-use OCP\IDBConnection;
-use OCP\IConfig;
-use OCP\Files\IRootFolder;
-use OCP\Files\IHomeStorage;
-use OCP\Files\SimpleFS\ISimpleRoot;
 use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\Response;
-use OCP\AppFramework\Http\JSONResponse;
-use OCP\AppFramework\Http\ContentSecurityPolicy;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\Files\IRootFolder;
+use OCP\IConfig;
+use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\ISession;
+use OCP\IURLGenerator;
+use OCP\IUserManager;
 
-use Pdsinterop\Solid\Resources\Server as ResourceServer;
-use Pdsinterop\Solid\Auth\Utils\DPop as DPop;
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {
 	use DpopFactoryTrait;
+	use GetStorageUrlTrait;
 
-	/* @var IURLGenerator */
-	private $urlGenerator;
+	protected ServerConfig $config;
+	protected IURLGenerator $urlGenerator;
 
 	/* @var ISession */
 	private $session;
-	
+
 	/** @var SolidWebhookService */
 	private $webhookService;
 
@@ -164,18 +157,13 @@ class SolidWebhookController extends Controller {
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
 		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-		
+
 		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
 		$filesystem->addPlugin($plugin);
 
 		return $filesystem;
 	}
 
-	private function getStorageUrl($userId) {
-		$storageUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.storage.handleHead", array("userId" => $userId, "path" => "foo")));
-		$storageUrl = preg_replace('/foo$/', '', $storageUrl);
-		return $storageUrl;
-	}
 	private function getAppBaseUrl() {
 		$appBaseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher"));
 		return $appBaseUrl;
@@ -187,20 +175,20 @@ class SolidWebhookController extends Controller {
 	}
 
 	private function parseTopic($topic) {
-		// topic = https://nextcloud.server/solid/@alice/storage/foo/bar
+		// topic = https://nextcloud.server/solid/~alice/storage/foo/bar
 		$appBaseUrl = $this->getAppBaseUrl(); //  https://nextcloud.server/solid/
-		$internalUrl = str_replace($appBaseUrl, '', $topic); // @alice/storage/foo/bar
+		$internalUrl = str_replace($appBaseUrl, '', $topic); // ~alice/storage/foo/bar
 		$pathicles = explode("/", $internalUrl);
-		$userId = $pathicles[0]; // @alice
-		$userId = preg_replace("/^@/", "", $userId); // alice
-                $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/@alice/storage/
+		$userId = $pathicles[0]; // ~alice
+		$userId = preg_replace("/^~/", "", $userId); // alice
+                $storageUrl = $this->getStorageUrl($userId); // https://nextcloud.server/solid/~alice/storage/
 		$storagePath = str_replace($storageUrl, '/', $topic); // /foo/bar
 		return array(
 			"userId" => $userId,
 			"path" => $storagePath
 		);
 	}
-	
+
 	private function createGetRequest($topic) {
 		$serverParams = [];
 		$fileParams = [];
@@ -217,15 +205,15 @@ class SolidWebhookController extends Controller {
 			$headers
 		);
 	}
-	
+
 	private function checkReadAccess($topic) {
-		// split out $topic into $userId and $path https://nextcloud.server/solid/@alice/storage/foo/bar
+		// split out $topic into $userId and $path https://nextcloud.server/solid/~alice/storage/foo/bar
 		// - userId in this case is the pod owner (not the one doing the request). (alice)
 		// - path is the path within the storage pod (/foo/bar)
 		$target = $this->parseTopic($topic);
 		$userId = $target["userId"];
 		$path = $target["path"];
-		
+
 		$this->initializeStorage($userId);
 		$this->WAC = new WAC($this->filesystem);
 

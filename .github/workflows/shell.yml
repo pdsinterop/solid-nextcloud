@@ -1,0 +1,55 @@
+---
+name: Shell Script Quality Assistance
+
+on:
+  # This event occurs when there is activity on a pull request. The workflow
+  # will be run against the commits, after merge to the target branch (main).
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.bash'
+      - '**.sh'
+      - '.github/workflows/shell.yml'
+    types: [ opened, reopened, synchronize ]
+  # This event occurs when there is a push to the repository.
+  push:
+    paths:
+      - '**.bash'
+      - '**.sh'
+      - '.github/workflows/shell.yml'
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  # Needed to allow the "concurrency" section to cancel a workflow run.
+  actions: write
+
+jobs:
+  # 01.preflight.shell.lint-syntax.yml
+  lint-shell-syntax:
+    name: Shell Syntax Linting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          find .
+          -name '*.sh'
+          -not -path '*/.git/*'
+          -type f
+          -print0
+          | xargs -0 -P"$(nproc)" -I{} bash -n "{}"
+  # 03.quality.shell.lint.yml
+  lint-shell-quality:
+    name: Shell Quality Linting
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker://pipelinecomponents/shellcheck
+        with:
+          # yamllint disable-line rule:line-length
+          args: /bin/sh -c "find . -not -path '*/.git/*' -name '*.sh' -type f -print0 | xargs -0 -r -n1 shellcheck"

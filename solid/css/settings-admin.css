@@ -1,14 +1,15 @@
-#solid-admin label {
+#solid-admin label.narrow {
 	width: 160px;
 	vertical-align: top;
 	display: block;
 }
-#solid-admin input {
-	width: 480px;
-}
 #solid-admin textarea {
-	width: 480px;
+	width: 500px;
 	height: 240px;
 	font-size: 12px;
 	font-family: monospace;
+}
+#solid-admin input.textaligned {
+	height: 1rem;
+	min-height: unset;
 }

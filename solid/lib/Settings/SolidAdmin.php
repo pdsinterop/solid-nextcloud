@@ -22,9 +22,13 @@ class SolidAdmin implements ISettings {
      * @return TemplateResponse
      */
     public function getForm() {
+        $allClients = $this->serverConfig->getClients();
+
         $parameters = [
-            'privateKey'    => $this->serverConfig->getPrivateKey(),
-	    'encryptionKey' => $this->serverConfig->getEncryptionKey()
+            'clients' => $allClients,
+            'encryptionKey' => $this->serverConfig->getEncryptionKey(),
+            'privateKey' => $this->serverConfig->getPrivateKey(),
+            'userSubDomainsEnabled' => $this->serverConfig->getUserSubDomainsEnabled(),
         ];
 
         return new TemplateResponse('solid', 'admin', $parameters, '');

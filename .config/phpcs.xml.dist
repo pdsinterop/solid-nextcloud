@@ -15,7 +15,7 @@
     <!--    <arg name="parallel" value="75"/>-->
 
     <file>.</file>
-    <exclude-pattern>*/vendor/*|*/build/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*|*/.config/*</exclude-pattern>
 
     <rule ref="PHPCompatibility"/>
     <config name="testVersion" value="8.0-"/>
