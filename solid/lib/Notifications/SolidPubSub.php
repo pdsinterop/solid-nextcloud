@@ -23,7 +23,7 @@
             try {
                 $client->send("pub $path\n");
             } catch (\WebSocket\Exception $exception) {
-                throw new Exception('Could not write to pubsub server', 502, $exception);
+                throw new \Exception('Could not write to pubsub server', 502, $exception);
             }
         }
     }
