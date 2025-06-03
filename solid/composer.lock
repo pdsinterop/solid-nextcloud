@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ecc7c22c83c7870543e9be45c1e341f",
+    "content-hash": "f075502dbe91353b4a314dee71be9618",
     "packages": [
         {
             "name": "arc/base",
