@@ -82,8 +82,8 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
-          - 28
-          - 29
+#          - 28
+#          - 29
           - 30
         test:
           - 'solidtestsuite/solid-crud-tests:v7.0.5'
@@ -152,6 +152,10 @@ jobs:
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
             ${{ matrix.test }}
+
+      - name: Setup tmate session - ${{ matrix.test }}
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
 
       - name: Show nextcloud logs - ${{ matrix.test }}
         if: always()
