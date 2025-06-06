@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc0bc814626b598e13effe83a418ef2a",
+    "content-hash": "f31a4097fe6ac68cfd4641ac50324fdc",
     "packages": [
         {
             "name": "arc/base",
@@ -1496,16 +1496,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.12.2",
+            "version": "v0.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "1d1160ee0f7ca71d3e34151aea94232e1cfa49ff"
+                "reference": "f5fa8941c4178c18d5e278fb814351033a5f2a03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/1d1160ee0f7ca71d3e34151aea94232e1cfa49ff",
-                "reference": "1d1160ee0f7ca71d3e34151aea94232e1cfa49ff",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/f5fa8941c4178c18d5e278fb814351033a5f2a03",
+                "reference": "f5fa8941c4178c18d5e278fb814351033a5f2a03",
                 "shasum": ""
             },
             "require": {
@@ -1539,22 +1539,22 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.12.2"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.13.0"
             },
-            "time": "2025-05-28T14:53:41+00:00"
+            "time": "2025-06-06T09:08:14+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "dev-feature/wss",
+            "version": "v0.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "bf674388a5d1544d9931a4fa92f2f932a81b69c4"
+                "reference": "4b973948cca24bd38fd843dd3d356cb4f7c5de04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/bf674388a5d1544d9931a4fa92f2f932a81b69c4",
-                "reference": "bf674388a5d1544d9931a4fa92f2f932a81b69c4",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/4b973948cca24bd38fd843dd3d356cb4f7c5de04",
+                "reference": "4b973948cca24bd38fd843dd3d356cb4f7c5de04",
                 "shasum": ""
             },
             "require": {
@@ -1585,9 +1585,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/feature/wss"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.8.1"
             },
-            "time": "2025-06-06T10:02:27+00:00"
+            "time": "2025-06-06T12:20:43+00:00"
         },
         {
             "name": "phrity/comparison",
@@ -4221,9 +4221,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "pdsinterop/solid-crud": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
