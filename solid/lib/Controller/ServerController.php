@@ -127,12 +127,7 @@ class ServerController extends Controller
 	 * @NoCSRFRequired
 	 */
 	public function cors($path) {
-		$origin = $_SERVER['HTTP_ORIGIN'];
 		return (new DataResponse('OK'));
-//		->addHeader('Access-Control-Allow-Origin', $origin)
-//		->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-//		->addHeader('Access-Control-Allow-Methods', 'POST')
-//		->addHeader('Access-Control-Allow-Credentials', 'true');
 	}
 
 	/**
