@@ -4,4 +4,4 @@ ALICE_WEBID=https://server/apps/solid/~alice/profile/card#me
 COOKIE_TYPE=nextcloud-compatible
 USERNAME=alice
 PASSWORD=alice123
-PUBSUB_URL=http://pubsub:8080
+PUBSUB_URL=https://pubsub:8080
