@@ -15,6 +15,11 @@
             $pubsub = str_replace(["https://", "http://"], "wss://", $this->pubsub);
 
             $client = new Client($pubsub);
+            $client->setContext(['ssl' => [
+                'verify_peer'       => false, // if false, accept SSL handshake without client certificate
+                'verify_peer_name'  => false,
+                'allow_self_signed' => true,
+            ]]);
             $client->addHeader("Sec-WebSocket-Protocol", "solid-0.1");
             try {
                 $client->text("pub $path\n");
