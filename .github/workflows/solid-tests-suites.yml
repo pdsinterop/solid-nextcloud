@@ -3,7 +3,7 @@ name: Solid Test Suites
 
 env:
   # Docker Hub digest (i.e. hash) of the used Docker Images that do not have a version tag.
-  PUBSUB_TAG: latest@sha256:ab180a21f0f3e42e7d80acb785ab96e88076f2a00461309e65fe425623bed9fa
+  PUBSUB_TAG: latest@sha256:b73a2a5c98d2005bb667dfc69d1c859d704366024298b9caa24ea2e182c456c2
   COOKIE_TAG: latest@sha256:c71a3947f97d96ce09823743182582e0d919738be0d4ef5c8c55a9c22c615b91
 
 on:
