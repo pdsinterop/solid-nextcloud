@@ -32,8 +32,8 @@
         "pdsinterop/flysystem-nextcloud": "^0.2",
         "pdsinterop/flysystem-rdf": "^0.6",
         "pdsinterop/solid-auth": "^0.12.2",
-        "pdsinterop/solid-crud": "^0.8",
-        "psr/log": "^1.1"
+        "pdsinterop/solid-crud": "dev-feature/wss",
+        "phrity/websocket": "^3.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^8 || ^9"
