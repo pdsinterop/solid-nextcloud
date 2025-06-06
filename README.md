@@ -23,6 +23,21 @@ Please follow the [install instructions](https://github.com/pdsinterop/solid-nex
 
 <!-- @TODO: ## Usage --> 
 
+## Acknowledgements
+
+There is [a list of all contributors on GitHub][contributors-page].
+
+<p>
+  This project was funded through the <a href="https://nlnet.nl/core">NGI0 Core</a> and <a href="https://nlnet.nl/discovery">NGI0 Discovery</a> Funds, established by <a href="https://nlnet.nl">NLnet</a> with financial support from the European Commission's <a href="https://ngi.eu">Next Generation Internet</a> programme. 
+  Learn more at the NLnet project pages: <a href="https://nlnet.nl/project/Solid-NextCloud/">Solid-NextCloud</a> and <a href="https://nlnet.nl/project/Solid-NC/">Solid NC 2024</a>
+</p>
+<p>
+  <a href="https://nlnet.nl"><img height="64" alt="NLNet logo" src="https://nlnet.nl/logo/banner.svg"></a>
+  <a href="https://nlnet.nl/core"><img height="64" alt="NGI0 Core logo" src="https://nlnet.nl/image/logos/NGI0Core_tag.svg"></a>
+  <a href="https://nlnet.nl/discovery"><img height="64" alt="NGI Zero Discovery logo" src="https://nlnet.nl/image/logos/NGI0Discovery_tag.svg"></a>
+  <a href="https://ec.europa.eu/"><img height="64" alt="European Commision logo" src="https://nlnet.nl/image/logos/EC.svg"></a>
+</p>
+
 ## Contributing
 
 Questions or feedback can be given by [opening an issue on GitHub][issues-link].
@@ -33,8 +48,6 @@ For more details read the [contribution guidelines][contributing-link].
 
 All PDS Interop projects adhere to [the Code Manifesto](http://codemanifesto.com)
 as its [code-of-conduct][code-of-conduct]. Contributors are expected to abide by its terms.
-
-There is [a list of all contributors on GitHub][contributors-page].
 
 For a list of changes see the [CHANGELOG][changelog] or [the GitHub releases page][releases-page].
 
