@@ -16,6 +16,8 @@ class BaseServerConfigTest extends TestCase
 {
 	/////////////////////////////////// TESTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+	private const MOCK_CLIENT_ID = 'mock-client-id';
+
 	/**
 	 * @testdox BaseServerConfig should complain when called before given a Configuration
 	 * @covers ::__construct
@@ -91,6 +93,48 @@ class BaseServerConfigTest extends TestCase
 
 		$baseServerConfig = new BaseServerConfig($configMock);
 		$baseServerConfig->setUserSubDomainsEnabled($expected);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should retrieve client ID AppValue when asked to GetClientRegistration for existing client
+	 * @covers ::getClientRegistration
+	 */
+	public function testGetClientRegistrationForExistingClient()
+	{
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$expected = ['mock' => 'client'];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID)
+			->willReturn(json_encode($expected));
+
+		$actual = $baseServerConfig->getClientRegistration(self::MOCK_CLIENT_ID);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should return empty array when asked to GetClientRegistration for non-existing client
+	 * @covers ::getClientRegistration
+	 */
+	public function testGetClientRegistrationForNonExistingClient()
+	{
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$expected = [];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID)
+			->willReturnArgument(2);
+
+		$actual = $baseServerConfig->getClientRegistration(self::MOCK_CLIENT_ID);
+
+		$this->assertEquals($expected, $actual);
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
