@@ -2,6 +2,7 @@
 
 namespace OCA\Solid\Controller;
 
+use Laminas\Diactoros\Response;
 use OC\AppFramework\Http;
 use OCA\Solid\AppInfo\Application;
 use OCA\Solid\Service\UserService;
@@ -308,6 +309,69 @@ class ServerControllerTest extends TestCase
 			],
 			'status' => Http::STATUS_OK,
 		], $actual);
+	}
+
+	/**
+	 * @testdox ServerController should consume Post, Server, and Session variables when generating a token
+	 *
+	 * @covers ::token
+	 */
+	public function testToken()
+	{
+		$_POST['client_id'] = self::MOCK_CLIENT_ID;
+		$_POST['code'] = '';
+		$_SERVER['HTTP_DPOP'] = 'mock dpop';
+		$_SESSION['nonce'] = 'mock nonce';
+
+		$parameters = $this->createMockConstructorParameters();
+
+		// @FIXME: Use actual TokenGenerator when we know how to make a valid 'code' for the test
+		$mockTokenGenerator = $this->createMock(\Pdsinterop\Solid\Auth\TokenGenerator::class);
+		$mockTokenGenerator->method('getCodeInfo')->willReturn(['user_id' => self::MOCK_USER_ID]);
+		$mockTokenGenerator->expects($this->once())
+			->method('addIdTokenToResponse')
+			->with(
+				$this->isInstanceOf(Response::class),
+				$_POST['client_id'],
+				self::MOCK_USER_ID,
+				$_SESSION['nonce'],
+				self::$privateKey,
+				$_SERVER['HTTP_DPOP'],
+			)
+			->willReturn(new Response('php://memory', Http::STATUS_IM_A_TEAPOT, [
+				'Content-Type' => 'mock application type'
+			]));
+
+		$controller = new ServerController(...$parameters);
+
+		$reflectionObject = new \ReflectionObject($controller);
+		$reflectionProperty = $reflectionObject->getProperty('tokenGenerator');
+		$reflectionProperty->setAccessible(true);
+		$reflectionProperty->setValue($controller, $mockTokenGenerator);
+
+		$tokenResponse = $controller->token();
+
+		$expected = [
+			'data' => "I'm a teapot",
+			'headers' => [
+				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
+				'X-Robots-Tag' => 'noindex, nofollow',
+				'Content-Type' => 'application/json; charset=utf-8',
+			],
+			'status' => Http::STATUS_IM_A_TEAPOT,
+		];
+
+		$actual = [
+			'data' => $tokenResponse->getData(),
+			'headers' => $tokenResponse->getHeaders(),
+			'status' => $tokenResponse->getStatus(),
+		];
+		unset($actual['headers']['X-Request-Id']);
+
+
+		$this->assertEquals($expected, $actual);
 	}
 
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
