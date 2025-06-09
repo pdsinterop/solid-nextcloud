@@ -3,15 +3,16 @@
 namespace OCA\Solid\Controller\ServerController;
 
 use OCA\Solid\AppInfo\Application;
-use OCA\Solid\BaseServerConfig;
 use OCA\Solid\Controller\ServerController;
 use OCA\Solid\Service\UserService;
+use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -19,15 +20,21 @@ use PHPUnit\Framework\TestCase;
  * @covers ::__construct
  *
  * @uses \OCA\Solid\Controller\ServerController
+ * @uses \OCA\Solid\BaseServerConfig
+ * @uses \OCA\Solid\JtiReplayDetector
+ * @uses \OCA\Solid\ServerConfig
  */
 class ServerControllerTest extends TestCase
 {
 	////////////////////////////////// FIXTURES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	private const MOCK_CLIENT_ID = 'mock-client-id';
-	private static string $encryptionKey;
+	private const MOCK_USER_ID = 'mock user id';
+
 	private static string $privateKey;
-	private static string $publicKey;
+
+	private IConfig|MockObject $mockConfig;
+	private IUserManager|MockObject $mockUserManager;
 
 
 	public static function setUpBeforeClass(): void
@@ -35,6 +42,7 @@ class ServerControllerTest extends TestCase
 		$keyPath = __DIR__ . '/../../fixtures/keys';
 		self::$privateKey = file_get_contents($keyPath . '/private.key');
 	}
+
 	/////////////////////////////////// TESTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	/**
@@ -44,19 +52,9 @@ class ServerControllerTest extends TestCase
 	 *
 	 * @dataProvider provideConstructorParameterIndex
 	 */
-	public function testInstatiationWithoutRequiredParameter($index)
+	public function testInstantiationWithoutRequiredParameter($index)
 	{
-		$parameters = [
-			'mock appname',
-			$this->createMock(IRequest::class),
-			$this->createMock(ISession::class),
-			$this->createMock(IUserManager::class),
-			$this->createMock(IURLGenerator::class),
-			'mock user id',
-			$this->createMock(IConfig::class),
-			$this->createMock(UserService::class),
-			$this->createMock(IDBConnection::class),
-		];
+		$parameters = $this->createMockConstructorParameters();
 
 		$parameters = array_slice($parameters, 0, $index);
 
@@ -83,44 +81,195 @@ class ServerControllerTest extends TestCase
 	 * @testdox ServerController should be instantiable with all required parameters
 	 *
 	 * @covers ::__construct
-	 *
-	 * @uses \League\OAuth2\Server\AuthorizationServer
-	 * @uses \OCA\Solid\BaseServerConfig
-	 * @uses \OCA\Solid\JtiReplayDetector
-	 * @uses \OCA\Solid\ServerConfig
-	 * @uses \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory
-	 * @uses \Pdsinterop\Solid\Auth\Factory\GrantTypeFactory
-	 * @uses \Pdsinterop\Solid\Auth\Factory\RepositoryFactory
-	 * @uses \Pdsinterop\Solid\Auth\TokenGenerator
 	 */
-	public function testInstatiation()
+	public function testInstantiation()
 	{
-		$configMock = $this->createMock(IConfig::class);
+		$parameters = $this->createMockConstructorParameters();
 
-		$configMock->method('getAppValue')->willReturnMap([
-			[Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID, '{}', 'return' => '{}'],
-			[Application::APP_ID, 'client-d6d7896757f61ac4c397d914053180ff', '{}', 'return' => '{}'],
-			[Application::APP_ID, 'client-', '{}', 'return' => '{}'],
+		$controller = new ServerController(...$parameters);
+
+		$this->assertInstanceOf(ServerController::class, $controller);
+	}
+
+	/**
+	 * @testdox ServerController should return a 401 when asked to authorize without signed-in user
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutUser()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...$parameters);
+
+		$expected = new JSONResponse('Authorization required', 401);
+		$actual = $controller->authorize();
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox ServerController should return a 400 when asked to authorize with a user but without valid token
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutValidToken()
+	{
+		$_GET['response_type'] = 'mock-response-type';
+
+		$parameters = $this->createMockConstructorParameters();
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		$actual = $controller->authorize();
+		$expected = new JSONResponse('Bad request, does not contain valid token', 400);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox ServerController should return a 302 redirect when asked to authorize client that has not been approved
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutApprovedClient()
+	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
+		$_GET['nonce'] = 'mock-nonce';
+		// JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
+		$_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
+		$_GET['response_type'] = 'mock-response-type';
+
+		$_SERVER['REQUEST_URI'] = 'mock uri';
+
+		$parameters = $this->createMockConstructorParameters();
+
+		$this->mockConfig->method('getUserValue')->willReturnArgument(3);
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		$actual = $controller->authorize();
+		$expected = new JSONResponse('Approval required', 302, ['Location' => '']);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox ServerController should return a 302 redirect when asked to authorize client that has been approved
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithApprovedClient()
+	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
+		$_GET['nonce'] = 'mock-nonce';
+		// JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
+		$_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
+		$_GET['response_type'] = 'mock-response-type';
+
+		$_SERVER['REQUEST_URI'] = 'https://mock.server';
+
+		$clientData = json_encode(['client_name' => 'Mock Client', 'redirect_uris' => ['https://mock.client/redirect']]);
+
+		$parameters = $this->createMockConstructorParameters($clientData);
+
+		$this->mockConfig->method('getUserValue')
+			->with(self::MOCK_USER_ID, Application::APP_ID, 'allowedClients', '[]')
+			->willReturn(json_encode([self::MOCK_CLIENT_ID]));
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		$response = $controller->authorize();
+
+		$expected = [
+			'data' => 'ok',
+			'headers' => [
+				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
+				'X-Robots-Tag' => 'noindex, nofollow',
+				'Content-Type' => 'application/json; charset=utf-8',
+
+			],
+			'status' => 302,
+		];
+
+		$headers = $response->getHeaders();
+		$location = $headers['Location'];
+		// Not comparing time-sensitive data
+		unset($headers['X-Request-Id'], $headers['Location']);
+
+		$actual = [
+			'data' => $response->getData(),
+			'headers' => $headers,
+			'status' => $response->getStatus(),
+		];
+
+		$this->assertEquals($expected, $actual);
+
+		// @TODO: Move $location assert to a separate test
+		$url = parse_url($location);
+
+		parse_str($url['fragment'], $url['fragment']);
+
+		unset($url['fragment']['access_token'], $url['fragment']['id_token']);
+
+		$this->assertEquals([
+			'scheme' => 'https',
+			'host' => 'mock.client',
+			'path' => '/redirect',
+			'fragment' => [
+				'token_type'=>'Bearer',
+				'expires_in'=>'3600',
+			],
+		], $url);
+	}
+
+	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+	public function createMockConfig($clientData): IConfig|MockObject
+	{
+		$this->mockConfig = $this->createMock(IConfig::class);
+
+		$this->mockConfig->method('getAppValue')->willReturnMap([
+			[Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID, '{}', 'return' => $clientData],
+			[Application::APP_ID, 'client-d6d7896757f61ac4c397d914053180ff', '{}', 'return' => $clientData],
+			[Application::APP_ID, 'client-', '{}', 'return' => $clientData],
 			[Application::APP_ID, 'profileData', '', 'return' => ''],
 			[Application::APP_ID, 'encryptionKey', '', 'return' => 'mock encryption key'],
 			[Application::APP_ID, 'privateKey', '', 'return' => self::$privateKey],
 		]);
 
+		return $this->mockConfig;
+	}
+	public function createMockConstructorParameters($clientData = '{}'): array
+	{
 		$parameters = [
 			'mock appname',
 			$this->createMock(IRequest::class),
 			$this->createMock(ISession::class),
-			$this->createMock(IUserManager::class),
+			$this->createMockUserManager(),
 			$this->createMock(IURLGenerator::class),
-			'mock user id',
-			$configMock,
+			self::MOCK_USER_ID,
+			$this->createMockConfig($clientData),
 			$this->createMock(UserService::class),
 			$this->createMock(IDBConnection::class),
 		];
 
-		$controller = new ServerController(...$parameters);
+		return $parameters;
+	}
 
-		$this->assertInstanceOf(ServerController::class, $controller);
+	public function createMockUserManager(): IUserManager|MockObject
+	{
+		$this->mockUserManager = $this->createMock(IUserManager::class);
+
+		return $this->mockUserManager;
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
