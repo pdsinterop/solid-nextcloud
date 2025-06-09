@@ -220,6 +220,26 @@ class ServerController extends Controller
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
+		if (isset($getVars['redirect_uri'])) {
+			$redirectUri = $getVars['redirect_uri'];
+			if (! isset($clientRegistration['redirect_uris']) || ! is_array($clientRegistration['redirect_uris'])) {
+				return new JSONResponse('Invalid client registration, no redirect URIs found', Http::STATUS_BAD_REQUEST);
+			}
+
+			$redirectUris = $clientRegistration['redirect_uris'];
+
+			$validRedirectUris = array_filter($redirectUris, function ($uri) use ($redirectUri) {
+				// @CHECKME: Does either URI need to be normalized when it is a URL?
+				//           For instance, anchors `#` or query parameters `?`
+				return $uri === $redirectUri;
+			});
+
+			if (count($validRedirectUris) === 0) {
+				return new JSONResponse('Provided redirect URI does not match any registered URIs', Http::STATUS_BAD_REQUEST);
+			}
+		}
+
+		// @CHECKME: Can more than one redirect_uri could be provided for custom schemes?
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
 		if (
 			$parsedOrigin['scheme'] != "https" &&

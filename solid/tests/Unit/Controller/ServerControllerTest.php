@@ -171,19 +171,14 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
-	 * @testdox ServerController should return a 302 redirect when asked to authorize client that has been approved
+	 * @testdox ServerController should return a 400 when asked to authorize a client that sends an incorrect redirect URI
 	 *
 	 * @covers ::authorize
 	 */
-	public function testAuthorizeWithApprovedClient()
+	public function testAuthorizeWithInvalidRedirectUri()
 	{
 		$_GET['client_id'] = self::MOCK_CLIENT_ID;
-		$_GET['nonce'] = 'mock-nonce';
-		// JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
-		$_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
-		$_GET['response_type'] = 'mock-response-type';
-
-		$_SERVER['REQUEST_URI'] = 'https://mock.server';
+        $_GET['redirect_uri'] = 'https://some.other.client/redirect';
 
 		$clientData = json_encode(['client_name' => 'Mock Client', 'redirect_uris' => ['https://mock.client/redirect']]);
 
@@ -200,7 +195,7 @@ class ServerControllerTest extends TestCase
 		$response = $controller->authorize();
 
 		$expected = [
-			'data' => 'ok',
+			'data' => 'Provided redirect URI does not match any registered URIs',
 			'headers' => [
 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
 				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
@@ -208,7 +203,7 @@ class ServerControllerTest extends TestCase
 				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
 				'X-Robots-Tag' => 'noindex, nofollow',
 			],
-			'status' => Http::STATUS_FOUND,
+			'status' => Http::STATUS_BAD_REQUEST,
 		];
 
 		$actual = [
@@ -217,32 +212,87 @@ class ServerControllerTest extends TestCase
 			'status' => $response->getStatus(),
 		];
 
-		$location = $actual['headers']['Location'];
-
 		// Not comparing time-sensitive data
-		unset($actual['headers']['X-Request-Id'], $actual['headers']['Location']);
+		unset($actual['headers']['X-Request-Id']);
 
 		$this->assertEquals($expected, $actual);
-
-		// @TODO: Move $location assert to a separate test
-		$url = parse_url($location);
-
-		parse_str($url['fragment'], $url['fragment']);
-
-		unset($url['fragment']['access_token'], $url['fragment']['id_token']);
-
-		$this->assertEquals([
-			'scheme' => 'https',
-			'host' => 'mock.client',
-			'path' => '/redirect',
-			'fragment' => [
-				'token_type' => 'Bearer',
-				'expires_in' => '3600',
-			],
-		], $url);
 	}
 
-	/**
+    /**
+     * @testdox ServerController should return a 302 redirect when asked to authorize client that has been approved
+     *
+     * @covers ::authorize
+     */
+    public function testAuthorize()
+    {
+        $_GET['client_id'] = self::MOCK_CLIENT_ID;
+        $_GET['nonce'] = 'mock-nonce';
+        // JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
+        $_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
+        $_GET['response_type'] = 'mock-response-type';
+        $_GET['redirect_uri'] = 'https://mock.client/redirect';
+
+        $_SERVER['REQUEST_URI'] = 'https://mock.server';
+        $_SERVER['REQUEST_URI'];
+
+        $clientData = json_encode(['client_name' => 'Mock Client', 'redirect_uris' => ['https://mock.client/redirect']]);
+
+        $parameters = $this->createMockConstructorParameters($clientData);
+
+        $this->mockConfig->method('getUserValue')
+            ->with(self::MOCK_USER_ID, Application::APP_ID, 'allowedClients', '[]')
+            ->willReturn(json_encode([self::MOCK_CLIENT_ID]));
+
+        $this->mockUserManager->method('userExists')->willReturn(true);
+
+        $controller = new ServerController(...$parameters);
+
+        $response = $controller->authorize();
+
+        $expected = [
+            'data' => 'ok',
+            'headers' => [
+                'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
+                'X-Robots-Tag' => 'noindex, nofollow',
+            ],
+            'status' => Http::STATUS_FOUND,
+        ];
+
+        $actual = [
+            'data' => $response->getData(),
+            'headers' => $response->getHeaders(),
+            'status' => $response->getStatus(),
+        ];
+
+        $location = $actual['headers']['Location'] ?? '';
+
+        // Not comparing time-sensitive data
+        unset($actual['headers']['X-Request-Id'], $actual['headers']['Location']);
+
+        $this->assertEquals($expected, $actual);
+
+        // @TODO: Move $location assert to a separate test
+        $url = parse_url($location);
+
+        parse_str($url['fragment'], $url['fragment']);
+
+        unset($url['fragment']['access_token'], $url['fragment']['id_token']);
+
+        $this->assertEquals([
+            'scheme' => 'https',
+            'host' => 'mock.client',
+            'path' => '/redirect',
+            'fragment' => [
+                'token_type' => 'Bearer',
+                'expires_in' => '3600',
+            ],
+        ], $url);
+    }
+
+    /**
 	 * @testdox ServerController should return a 400 when asked to register without valid client data
 	 *
 	 * @covers ::register
