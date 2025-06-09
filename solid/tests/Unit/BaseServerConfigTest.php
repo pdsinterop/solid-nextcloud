@@ -3,7 +3,6 @@
 namespace OCA\Solid;
 
 use OCA\Solid\AppInfo\Application;
-use OCA\Solid\BaseServerConfig;
 use OCP\IConfig;
 use PHPUnit\Framework\TestCase;
 use TypeError;
@@ -20,12 +19,14 @@ function random_bytes()
  */
 class BaseServerConfigTest extends TestCase
 {
-	/////////////////////////////////// TESTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	////////////////////////////////// FIXTURES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	public const MOCK_RANDOM_BYTES = 'mock random bytes';
-	const MOCK_REDIRECT_URI = 'mock redirect uri';
+	private const MOCK_REDIRECT_URI = 'mock redirect uri';
 	private const MOCK_CLIENT_ID = 'mock-client-id';
 	private const MOCK_ORIGIN = 'mock origin';
+
+	/////////////////////////////////// TESTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	/**
 	 * @testdox BaseServerConfig should complain when called before given a Configuration

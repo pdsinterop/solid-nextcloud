@@ -113,7 +113,7 @@ class ServerControllerTest extends TestCase
 
 		$controller = new ServerController(...$parameters);
 
-		$expected = new JSONResponse('Authorization required', 401);
+		$expected = new JSONResponse('Authorization required', Http::STATUS_UNAUTHORIZED);
 		$actual = $controller->authorize();
 
 		$this->assertEquals($expected, $actual);
@@ -135,7 +135,7 @@ class ServerControllerTest extends TestCase
 		$controller = new ServerController(...$parameters);
 
 		$actual = $controller->authorize();
-		$expected = new JSONResponse('Bad request, does not contain valid token', 400);
+		$expected = new JSONResponse('Bad request, does not contain valid token', Http::STATUS_BAD_REQUEST);
 
 		$this->assertEquals($expected, $actual);
 	}
@@ -164,7 +164,7 @@ class ServerControllerTest extends TestCase
 		$controller = new ServerController(...$parameters);
 
 		$actual = $controller->authorize();
-		$expected = new JSONResponse('Approval required', 302, ['Location' => '']);
+		$expected = new JSONResponse('Approval required', Http::STATUS_FOUND, ['Location' => '']);
 
 		$this->assertEquals($expected, $actual);
 	}
@@ -203,24 +203,23 @@ class ServerControllerTest extends TestCase
 			'headers' => [
 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
 				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+				'Content-Type' => 'application/json; charset=utf-8',
 				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
 				'X-Robots-Tag' => 'noindex, nofollow',
-				'Content-Type' => 'application/json; charset=utf-8',
-
 			],
-			'status' => 302,
+			'status' => Http::STATUS_FOUND,
 		];
-
-		$headers = $response->getHeaders();
-		$location = $headers['Location'];
-		// Not comparing time-sensitive data
-		unset($headers['X-Request-Id'], $headers['Location']);
 
 		$actual = [
 			'data' => $response->getData(),
-			'headers' => $headers,
+			'headers' => $response->getHeaders(),
 			'status' => $response->getStatus(),
 		];
+
+		$location = $actual['headers']['Location'];
+
+		// Not comparing time-sensitive data
+		unset($actual['headers']['X-Request-Id'], $actual['headers']['Location']);
 
 		$this->assertEquals($expected, $actual);
 
@@ -236,8 +235,8 @@ class ServerControllerTest extends TestCase
 			'host' => 'mock.client',
 			'path' => '/redirect',
 			'fragment' => [
-				'token_type'=>'Bearer',
-				'expires_in'=>'3600',
+				'token_type' => 'Bearer',
+				'expires_in' => '3600',
 			],
 		], $url);
 	}
