@@ -46,12 +46,13 @@ class BaseServerConfigTest extends TestCase
 	/**
 	 * @testdox BaseServerConfig should return a boolean when asked whether UserSubDomains are Enabled
 	 * @covers ::getUserSubDomainsEnabled
+	 * @covers ::castToBool
 	 * @dataProvider provideBooleans
 	 */
-	public function testGetUserSubDomainsEnabled($expected)
+	public function testGetUserSubDomainsEnabled($value, $expected)
 	{
 		$configMock = $this->createMock(IConfig::class);
-		$configMock->method('getAppValue')->willReturn($expected);
+		$configMock->method('getAppValue')->willReturn($value);
 
 		$baseServerConfig = new BaseServerConfig($configMock);
 		$actual = $baseServerConfig->getUserSubDomainsEnabled();
@@ -80,10 +81,11 @@ class BaseServerConfigTest extends TestCase
 	/**
 	 * @testdox BaseServerConfig should set value in AppConfig when asked to set UserSubDomainsEnabled
 	 * @covers ::setUserSubDomainsEnabled
+	 * @covers ::castToBool
 	 *
 	 * @dataProvider provideBooleans
 	 */
-	public function testSetUserSubDomainsEnabled($expected)
+	public function testSetUserSubDomainsEnabled($value, $expected)
 	{
 		$configMock = $this->createMock(IConfig::class);
 		$configMock->expects($this->atLeast(1))
@@ -92,7 +94,7 @@ class BaseServerConfigTest extends TestCase
 		;
 
 		$baseServerConfig = new BaseServerConfig($configMock);
-		$baseServerConfig->setUserSubDomainsEnabled($expected);
+		$baseServerConfig->setUserSubDomainsEnabled($value);
 	}
 
 	/**
@@ -142,8 +144,32 @@ class BaseServerConfigTest extends TestCase
 	public function provideBooleans()
 	{
 		return [
-			'false' => [false],
-			'true' => [true],
+			// Only 'boolean', 'NULL', 'integer', 'string' are allowed
+			// @TODO: Add test for type that trigger a TypeError:
+			// - array
+			// - callable
+			// - float
+			// - object
+			// - resource
+			// @TODO: Add test for values that trigger a TypeError
+			// 'integer:-1' => ['value'=> -1],
+			// 'integer:2' => ['value'=> 2],
+			// 'string:-1' => ['value'=> '-1'],
+			// 'string:2' => ['value'=> '2'],
+			// 'string:foo' => ['value'=> 'foo'],
+			// 'string:NULL' => ['value'=> 'NULL'],
+			'boolean:false' => ['value'=> false, 'expected' => false],
+			'boolean:true' => ['value'=> true, 'expected' => true],
+			'integer:0' => ['value'=> 0, 'expected' => false],
+			'integer:1' => ['value'=> 1, 'expected' => true],
+			'NULL' => ['value'=> null, 'expected' => false],
+			'string:0' => ['value'=> '0', 'expected' => false],
+			'string:1' => ['value'=> '1', 'expected' => true],
+			'string:empty' => ['value'=> '', 'expected' => false],
+			'string:false' => ['value'=> 'false', 'expected' => false],
+			'string:FALSE' => ['value'=> 'FALSE', 'expected' => false],
+			'string:true' => ['value'=> 'true', 'expected' => true],
+			'string:TRUE' => ['value'=> 'TRUE', 'expected' => true],
 		];
 	}
 }
