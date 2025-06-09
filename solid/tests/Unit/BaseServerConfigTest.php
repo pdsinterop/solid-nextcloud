@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace OCA\Solid;
 
 use OCA\Solid\AppInfo\Application;
 use OCA\Solid\BaseServerConfig;
@@ -8,15 +8,24 @@ use OCP\IConfig;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
+function random_bytes()
+{
+	return BaseServerConfigTest::MOCK_RANDOM_BYTES;
+}
+
 /**
  * @coversDefaultClass \OCA\Solid\BaseServerConfig
+ * @uses \OCA\Solid\BaseServerConfig
  * @covers ::__construct
  */
 class BaseServerConfigTest extends TestCase
 {
 	/////////////////////////////////// TESTS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
+	public const MOCK_RANDOM_BYTES = 'mock random bytes';
+	const MOCK_REDIRECT_URI = 'mock redirect uri';
 	private const MOCK_CLIENT_ID = 'mock-client-id';
+	private const MOCK_ORIGIN = 'mock origin';
 
 	/**
 	 * @testdox BaseServerConfig should complain when called before given a Configuration
@@ -137,6 +146,196 @@ class BaseServerConfigTest extends TestCase
 		$actual = $baseServerConfig->getClientRegistration(self::MOCK_CLIENT_ID);
 
 		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should complain when asked to save ClientRegistration without origin
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationWithoutOrigin()
+	{
+		$this->expectException(TypeError::class);
+		$this->expectExceptionMessage('Too few arguments to function');
+
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$baseServerConfig->saveClientRegistration();
+	}
+
+	/**
+	 * @testdox BaseServerConfig should complain when asked to save ClientRegistration without client data
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationWithoutClientData()
+	{
+		$this->expectException(TypeError::class);
+		$this->expectExceptionMessage('Too few arguments to function');
+
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$baseServerConfig->saveClientRegistration(self::MOCK_ORIGIN);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should save ClientRegistration when asked to save ClientRegistration for new client
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationForNewClient()
+	{
+		$configMock = $this->createMock(IConfig::class);
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN))
+			->willReturnArgument(2);
+
+		$expected = [
+			'client_id' => md5(self::MOCK_ORIGIN),
+			'client_name' => self::MOCK_ORIGIN,
+			'client_secret' => md5(self::MOCK_RANDOM_BYTES),
+		];
+
+		$configMock->expects($this->exactly(2))
+			->method('setAppValue')
+			->willReturnMap([
+				// Using willReturnMap as withConsecutive is removed since PHPUnit 10
+				[Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN), json_encode($expected)],
+				[Application::APP_ID, 'client-' . self::MOCK_ORIGIN, json_encode($expected)]
+			]);
+
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$actual = $baseServerConfig->saveClientRegistration(self::MOCK_ORIGIN, []);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should save ClientRegistration when asked to save ClientRegistration for existing client
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationForExistingClient()
+	{
+		$configMock = $this->createMock(IConfig::class);
+
+		$expected = [
+			'client_id' => md5(self::MOCK_ORIGIN),
+			'client_name' => self::MOCK_ORIGIN,
+			'client_secret' => md5(self::MOCK_RANDOM_BYTES),
+			'redirect_uris' => [self::MOCK_REDIRECT_URI],
+		];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN))
+			->willReturn(json_encode($expected));
+
+		$configMock->expects($this->exactly(2))
+			->method('setAppValue')
+			->willReturnMap([
+				// Using willReturnMap as withConsecutive is deprecated since PHPUnit 10
+				[Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN), json_encode($expected)],
+				[Application::APP_ID, 'client-' . self::MOCK_ORIGIN, json_encode($expected)]
+			]);
+
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$actual = $baseServerConfig->saveClientRegistration(self::MOCK_ORIGIN, []);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should save ClientRegistration when asked to save ClientRegistration for blocked client
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationForBlockedClient()
+	{
+		$configMock = $this->createMock(IConfig::class);
+
+		$expected = [
+			'client_id' => md5(self::MOCK_ORIGIN),
+			'client_name' => self::MOCK_ORIGIN,
+			'client_secret' => md5(self::MOCK_RANDOM_BYTES),
+			'redirect_uris' => [self::MOCK_REDIRECT_URI],
+			'blocked' => true,
+		];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN))
+			->willReturn(json_encode($expected));
+
+		$configMock->expects($this->exactly(2))
+			->method('setAppValue')
+			->willReturnMap([
+				// Using willReturnMap as withConsecutive is deprecated since PHPUnit 10
+				[Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN), json_encode($expected)],
+				[Application::APP_ID, 'client-' . self::MOCK_ORIGIN, json_encode($expected)]
+			]);
+
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$actual = $baseServerConfig->saveClientRegistration(self::MOCK_ORIGIN, $expected);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should always "blocked" to existing value when asked to save ClientRegistration for blocked client
+	 * @covers ::saveClientRegistration
+	 */
+	public function testSaveClientRegistrationSetsBlocked()
+	{
+		$configMock = $this->createMock(IConfig::class);
+
+		$expected = [
+			'client_id' => md5(self::MOCK_ORIGIN),
+			'client_name' => self::MOCK_ORIGIN,
+			'client_secret' => md5(self::MOCK_RANDOM_BYTES),
+			'redirect_uris' => [self::MOCK_REDIRECT_URI],
+			'blocked' => true,
+		];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN))
+			->willReturn(json_encode($expected));
+
+		$clientData = $expected;
+		$clientData['blocked'] = false;
+
+		$configMock->expects($this->exactly(2))
+			->method('setAppValue')
+			->willReturnMap([
+				// Using willReturnMap as withConsecutive is deprecated since PHPUnit 10
+				[Application::APP_ID, 'client-' . md5(self::MOCK_ORIGIN), json_encode($expected)],
+				[Application::APP_ID, 'client-' . self::MOCK_ORIGIN, json_encode($expected)]
+			]);
+
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$actual = $baseServerConfig->saveClientRegistration(self::MOCK_ORIGIN, $clientData);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
+	 * @testdox BaseServerConfig should remove ClientRegistration when asked to remove ClientRegistration
+	 * @covers ::removeClientRegistration
+	 */
+	public function testRemoveClientRegistration()
+	{
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$configMock->expects($this->once())
+			->method('deleteAppValue')
+			->with(Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID);
+
+		$baseServerConfig->removeClientRegistration(self::MOCK_CLIENT_ID);
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
