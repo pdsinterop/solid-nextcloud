@@ -1,9 +1,9 @@
 <?php
 
-namespace OCA\Solid\Controller\ServerController;
+namespace OCA\Solid\Controller;
 
+use OC\AppFramework\Http;
 use OCA\Solid\AppInfo\Application;
-use OCA\Solid\Controller\ServerController;
 use OCA\Solid\Service\UserService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IConfig;
@@ -14,6 +14,16 @@ use OCP\IURLGenerator;
 use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
+
+function file_get_contents($filename)
+{
+	if ($filename === 'php://input') {
+		return ServerControllerTest::$clientData;
+	}
+
+	return \file_get_contents($filename);
+}
 
 /**
  * @coversDefaultClass \OCA\Solid\Controller\ServerController
@@ -31,11 +41,12 @@ class ServerControllerTest extends TestCase
 	private const MOCK_CLIENT_ID = 'mock-client-id';
 	private const MOCK_USER_ID = 'mock user id';
 
+	public static string $clientData = '';
 	private static string $privateKey;
 
 	private IConfig|MockObject $mockConfig;
+	private IURLGenerator|MockObject $mockURLGenerator;
 	private IUserManager|MockObject $mockUserManager;
-
 
 	public static function setUpBeforeClass(): void
 	{
@@ -231,6 +242,75 @@ class ServerControllerTest extends TestCase
 		], $url);
 	}
 
+	/**
+	 * @testdox ServerController should return a 400 when asked to register without valid client data
+	 *
+	 * @covers ::register
+	 */
+	public function testRegisterWithoutRedirectUris()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...$parameters);
+
+		$actual = $controller->register();
+
+		$this->assertEquals(
+			new JSONResponse('Missing redirect URIs', Http::STATUS_BAD_REQUEST),
+			$actual
+		);
+	}
+
+	/**
+	 * @testdox ServerController should return a 200 with client data when asked to register with valid redirect URIs
+	 *
+	 * @covers ::register
+	 */
+	public function testRegisterWithRedirectUris()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$this->mockURLGenerator->method('getBaseUrl')
+			->willReturn('https://mock.server');
+
+		$controller = new ServerController(...$parameters);
+
+		self::$clientData = json_encode(['redirect_uris' => ['https://mock.client/redirect']]);
+
+		$response = $controller->register();
+
+		$actual = [
+			'data' => $response->getData(),
+			'headers' => $response->getHeaders(),
+			'status' => $response->getStatus(),
+		];
+
+		// Not comparing time-sensitive data
+		unset($actual['data']['client_id_issued_at'], $actual['headers']['X-Request-Id']);
+
+		$this->assertEquals([
+			'data' => [
+				'application_type' => 'web',
+				'client_id' => 'f4a2d00f7602948a97ff409d7a581ec2',
+				'grant_types' => ['implicit'],
+				'id_token_signed_response_alg' => 'RS256',
+				'redirect_uris' => ['https://mock.client/redirect'],
+				'registration_access_token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21vY2suc2VydmVyIiwiYXVkIjoiZjRhMmQwMGY3NjAyOTQ4YTk3ZmY0MDlkN2E1ODFlYzIiLCJzdWIiOiJmNGEyZDAwZjc2MDI5NDhhOTdmZjQwOWQ3YTU4MWVjMiJ9.AfOi9YW70rL0EKn4_dvhkyu02iI4yGYV-Xh8hQ9RbHBUnvcXROFfQzn-OL-R3kV3nn8tknmpG-r_8Ouoo7O_Sjo8Hx1QSFfeqjJGOgB8HbXV7WN2spOMicSB-68EyftqfTGH0ksyPyJaNSTbkdIqtawsDaSKUVqTmziEo4IrE5anwDLZrtSUcS0A4KVrOAkJmgYGiC4MC0NMYXeBRxgkr1_h7GN4hekAXs9-5XwRH1mwswUVRL-6prx0IYpPNURFNqkS2NU83xNf-vONThOdLVkADVy-l3PCHT3E1sRdkklCHLjhWiZo7NcMlB0WdS-APnZYCi5hLEr5-jwNI2sxoA',
+				'registration_client_uri' => '',
+				'response_types' => ['id_token token'],
+				'token_endpoint_auth_method' => 'client_secret_basic',
+			],
+			'headers' => [
+				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
+				'X-Robots-Tag' => 'noindex, nofollow',
+				'Content-Type' => 'application/json; charset=utf-8',
+			],
+			'status' => Http::STATUS_OK,
+		], $actual);
+	}
+
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	public function createMockConfig($clientData): IConfig|MockObject
@@ -244,10 +324,13 @@ class ServerControllerTest extends TestCase
 			[Application::APP_ID, 'profileData', '', 'return' => ''],
 			[Application::APP_ID, 'encryptionKey', '', 'return' => 'mock encryption key'],
 			[Application::APP_ID, 'privateKey', '', 'return' => self::$privateKey],
+			// Client ID from register() with https://mock.client
+			[Application::APP_ID, 'client-f4a2d00f7602948a97ff409d7a581ec2', '{}', 'return' => $clientData],
 		]);
 
 		return $this->mockConfig;
 	}
+
 	public function createMockConstructorParameters($clientData = '{}'): array
 	{
 		$parameters = [
@@ -255,7 +338,7 @@ class ServerControllerTest extends TestCase
 			$this->createMock(IRequest::class),
 			$this->createMock(ISession::class),
 			$this->createMockUserManager(),
-			$this->createMock(IURLGenerator::class),
+			$this->createMockUrlGenerator(),
 			self::MOCK_USER_ID,
 			$this->createMockConfig($clientData),
 			$this->createMock(UserService::class),
@@ -263,6 +346,13 @@ class ServerControllerTest extends TestCase
 		];
 
 		return $parameters;
+	}
+
+	public function createMockUrlGenerator(): IURLGenerator|MockObject
+	{
+		$this->mockURLGenerator = $this->createMock(IURLGenerator::class);
+
+		return $this->mockURLGenerator;
 	}
 
 	public function createMockUserManager(): IUserManager|MockObject
