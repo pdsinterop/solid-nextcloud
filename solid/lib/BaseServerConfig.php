@@ -202,7 +202,7 @@
 
 		////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-		private function castToBool(string $mixedValue): bool
+		private function castToBool(?string $mixedValue): bool
 		{
 			$type = gettype($mixedValue);
 
