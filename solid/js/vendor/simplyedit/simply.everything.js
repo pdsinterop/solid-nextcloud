@@ -556,38 +556,6 @@ properties for a given parent, keep seperate index for this?
         }
     }
 
-    var linkHandler = function(evt) {
-        if (evt.ctrlKey) {
-            return;
-        }
-        if (evt.which != 1) {
-            return; // not a 'left' mouse click
-        }
-        var link = evt.target;
-        while (link && link.tagName!='A') {
-            link = link.parentElement;
-        }
-        if (link 
-            && link.pathname 
-            && link.hostname==global.location.hostname 
-            && !link.link
-            && !link.dataset.simplyCommand
-        ) {
-            let path = getPath(link.pathname+link.hash);
-            if ( !route.has(path) ) {
-                path = getPath(link.pathname);
-            }
-            if ( route.has(path) ) {
-                let params = runListeners('goto', { path: path});
-                if (params.path) {
-                    route.goto(params.path);
-                }
-                evt.preventDefault();
-                return false;
-            }
-        }
-    };
-
     var options = {
         root: '/'
     };
@@ -642,7 +610,6 @@ properties for a given parent, keep seperate index for this?
                     route.match(getPath(document.location.pathname));
                 }
             });
-            global.document.addEventListener('click', linkHandler);
         },
         load: function(routes) {
             parseRoutes(routes);
