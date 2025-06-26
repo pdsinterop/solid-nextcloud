@@ -195,7 +195,7 @@ class ServerControllerTest extends TestCase
 		$response = $controller->authorize();
 
 		$expected = [
-			'data' => 'Provided redirect URI does not match any registered URIs',
+			'data' => vsprintf($controller::ERROR_UNREGISTERED_URI, [$_GET['redirect_uri']]),
 			'headers' => [
 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
 				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",

@@ -23,6 +23,7 @@ class ServerController extends Controller
 {
 	use DpopFactoryTrait;
 
+	public const ERROR_UNREGISTERED_URI = 'Provided redirect URI "%s" does not match any registered URIs';
 	private $userId;
 
 	/* @var IUserManager */
@@ -229,13 +230,12 @@ class ServerController extends Controller
 			$redirectUris = $clientRegistration['redirect_uris'];
 
 			$validRedirectUris = array_filter($redirectUris, function ($uri) use ($redirectUri) {
-				// @CHECKME: Does either URI need to be normalized when it is a URL?
-				//           For instance, anchors `#` or query parameters `?`
 				return $uri === $redirectUri;
 			});
 
 			if (count($validRedirectUris) === 0) {
-				return new JSONResponse('Provided redirect URI does not match any registered URIs', Http::STATUS_BAD_REQUEST);
+				$message = vsprintf(self::ERROR_UNREGISTERED_URI, [$redirectUri]);
+				return new JSONResponse($message, Http::STATUS_BAD_REQUEST);
 			}
 		}
 
