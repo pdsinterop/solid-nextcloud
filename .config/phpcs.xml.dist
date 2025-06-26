@@ -21,8 +21,8 @@
     <config name="testVersion" value="8.0-"/>
 
     <!-- Set indent for `break` to 0 so it aligns with `case` and `default` -->
-    <rule ref="PSR2.ControlStructures.SwitchDeclaration">
-        <properties><property name="indent" value="0" /></properties>
+    <rule ref="PSR2">
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
         <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed"/>
     </rule>
 
