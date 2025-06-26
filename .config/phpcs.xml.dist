@@ -23,6 +23,7 @@
     <!-- Set indent for `break` to 0 so it aligns with `case` and `default` -->
     <rule ref="PSR2.ControlStructures.SwitchDeclaration">
         <properties><property name="indent" value="0" /></properties>
+        <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed"/>
     </rule>
 
     <!-- Include the whole PSR-12 standard -->
