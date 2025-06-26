@@ -385,7 +385,7 @@ class ServerController extends Controller
 				//	($request->getRawPathInfo() !== '/apps/oauth2/api/v1/token') &&
 				//	($request->getRawPathInfo() !== '/apps/solid/token')
 			*/
-			'client_secret' => $clientData['client_secret'], // FIXME: Returning this means we need to patch Nextcloud to accept tokens on calls to
+			// 'client_secret' => $clientData['client_secret'], // FIXME: Returning this means we need to patch Nextcloud to accept tokens on calls to
 
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
