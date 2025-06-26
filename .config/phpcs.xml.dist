@@ -24,6 +24,7 @@
     <rule ref="PSR2">
         <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
         <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed"/>
+        <exclude name="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace"/>
     </rule>
 
     <!-- Include the whole PSR-12 standard -->
