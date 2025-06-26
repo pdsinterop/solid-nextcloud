@@ -348,8 +348,8 @@ class ServerController extends Controller
 	public function register() {
 		$clientData = file_get_contents('php://input');
 		$clientData = json_decode($clientData, true);
-		if (!$clientData['redirect_uris']) {
-			return new JSONResponse("Missing redirect URIs");
+		if (! isset($clientData['redirect_uris'])) {
+			return new JSONResponse("Missing redirect URIs", Http::STATUS_BAD_REQUEST);
 		}
 		$clientData['client_id_issued_at'] = time();
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
