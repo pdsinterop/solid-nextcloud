@@ -104,8 +104,12 @@ class ServerController extends Controller
 	}
 
 	private function createAuthServerConfig() {
-		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$clientId = $request->getParsedBody()['client_id'];
+                $clientId = null;
+                if (isset($_GET['client_id'])) {
+                        $clientId = $_GET['client_id'];
+                } else if (isset($_POST['client_id'])) {
+                        $clientId = $_POST['client_id'];
+                }
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
 		try {
