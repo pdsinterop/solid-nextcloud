@@ -276,10 +276,10 @@ class ServerController extends Controller
 		foreach ($responseTypes as $responseType) {
 			switch ($responseType) {
 				case "token":
-				return "token";
+					return "token";
 				break;
 				case "code":
-				return "code";
+					return "code";
 				break;
 			}
 		}
