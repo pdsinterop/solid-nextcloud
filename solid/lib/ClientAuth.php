@@ -10,8 +10,11 @@
 		where the actual authorization happens.
 
 		The security for this user backend lies in the fact that it
-		is only activated for the token endpoint in the Solid app.
-		
+		is only activated for the token endpoint in the Solid app. 
+
+		In /lib/AppInfo/Application.php there is a check for the
+		token endpoint before this thing activates.
+				
 		It is completely unsuitable as an actual user backend in the
 		normal sense of the word.
 		
