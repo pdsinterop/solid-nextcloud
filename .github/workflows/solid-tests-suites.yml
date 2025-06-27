@@ -105,6 +105,83 @@ jobs:
           mkdir -p cache/solid-nextcloud
           docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
 
+  pull-docker-cookie:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-cookie
+        with:
+          path: cache/
+          key: ${{ needs.docker-images.outputs.COOKIE_KEY }}
+      - if: steps.cache-docker-cookie.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/
+          docker pull ${{ needs.docker-images.outputs.COOKIE_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.COOKIE_IMAGE }} \
+            --output ./cache/${{ needs.docker-images.outputs.COOKIE_KEY }}.tar
+  pull-docker-pubsub:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-pubsub
+        with:
+          path: cache/
+          key: ${{ needs.docker-images.outputs.PUBSUB_KEY }}
+      - if: steps.cache-docker-pubsub.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/
+          docker pull ${{ needs.docker-images.outputs.PUBSUB_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.PUBSUB_IMAGE }} \
+            --output ./cache/${{ needs.docker-images.outputs.PUBSUB_KEY }}.tar
+
+  pull-docker-solid-crud-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-solid-crud-tests
+        with:
+          path: cache/
+          key: ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}
+      - if: steps.cache-docker-solid-crud-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/
+          docker pull ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }} \
+            --output ./cache/${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}.tar
+  pull-docker-web-access-control-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-web-access-control-tests
+        with:
+          path: cache/
+          key: ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}
+      - if: steps.cache-docker-web-access-control-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/
+          docker pull ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }} \
+            --output ./cache/${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}.tar
+  pull-docker-webid-provider-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-webid-provider-tests
+        with:
+          path: cache/
+          key: ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}
+      - if: steps.cache-docker-webid-provider-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/
+          docker pull ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }} \
+            --output ./cache/${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}.tar
+
   solid-testsuite:
     timeout-minutes: 30
     needs:
