@@ -22,6 +22,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  docker-images:
+    outputs:
+      COOKIE_IMAGE: ${{ steps.images.outputs.COOKIE_IMAGE}}
+      COOKIE_KEY: ${{ steps.keys.outputs.COOKIE_KEY }}'"
+      PUBSUB_IMAGE: ${{ steps.images.outputs.PUBSUB_IMAGE }}
+      PUBSUB_KEY: ${{ steps.keys.outputs.PUBSUB_KEY }}'"
+      SOLID_CRUD_TESTS_IMAGE: ${{steps.images.outputs.SOLID_CRUD_TESTS_IMAGE}}
+      SOLID_CRUD_TESTS_KEY: ${{ steps.keys.outputs.SOLID_CRUD_TESTS_KEY }}'"
+      WEB_ACCESS_CONTROL_TESTS_IMAGE: ${{steps.images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE}}
+      WEB_ACCESS_CONTROL_TESTS_KEY: ${{ steps.keys.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}'"
+      WEBID_PROVIDER_TESTS_IMAGE: ${{steps.images.outputs.WEBID_PROVIDER_TESTS_IMAGE}}
+      WEBID_PROVIDER_TESTS_KEY: ${{ steps.keys.outputs.WEBID_PROVIDER_TESTS_KEY }}'"
+    runs-on: ubuntu-latest
+    steps:
+      - id: images
+        run: >-
+          echo "COOKIE_IMAGE='michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}'" >> "${GITHUB_OUTPUT}";
+          echo "PUBSUB_IMAGE='ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}'" >> "${GITHUB_OUTPUT}";
+          echo "SOLID_CRUD_TESTS_IMAGE='solidtestsuite/solid-crud-tests:v7.0.5'" >> "${GITHUB_OUTPUT}";
+          echo "WEB_ACCESS_CONTROL_TESTS_IMAGE='solidtestsuite/web-access-control-tests:v7.1.0'" >> "${GITHUB_OUTPUT}";
+          echo "WEBID_PROVIDER_TESTS_IMAGE='solidtestsuite/webid-provider-tests:v2.1.1'" >> "${GITHUB_OUTPUT}";
+      - id: keys
+        run: >-
+          echo "COOKIE_KEY='${{ steps.outputs.COOKIE_IMAGE }}'"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+          echo "PUBSUB_KEY='${{ steps.outputs.PUBSUB_IMAGE }}'"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+          echo "SOLID_CRUD_TESTS_KEY='${{ steps.outputs.SOLID_CRUD_TESTS_IMAGE }}'"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+          echo "WEB_ACCESS_CONTROL_TESTS_KEY='${{ steps.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}'"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+          echo "WEBID_PROVIDER_TESTS_KEY='${{ steps.outputs.WEBID_PROVIDER_TESTS_IMAGE }}'"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+
   # @TODO: Instead of building the docker image here, take a pre-build image and mount the code?
   #        (only build when the Dockerfile changes) Or only push when tagged/main?
   build-docker-nextcloud:
