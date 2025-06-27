@@ -239,11 +239,10 @@ class ServerController extends Controller
 			}
 		}
 
-		// @CHECKME: Can more than one redirect_uri could be provided for custom schemes?
-		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		$parsedOrigin = parse_url($redirectUri);
 		if (
-			$parsedOrigin['scheme'] != "https" &&
-			$parsedOrigin['scheme'] != "http" &&
+			$parsedOrigin['scheme'] !== "https" &&
+			$parsedOrigin['scheme'] !== "http" &&
 			!isset($_GET['customscheme'])
 		) {
 			$result = new JSONResponse('Custom schema');
