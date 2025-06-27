@@ -385,14 +385,7 @@ class ServerController extends Controller
 		$clientData = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
 			'client_id' => $clientData['client_id'],
-			/*
-				 FIXME: returning client_secret will trigger calls with basic auth to us. To get this to work, we need this patch:
-				// File /var/www/vhosts/solid-nextcloud/site/www/lib/base.php not changed so no update needed
-				//	($request->getRawPathInfo() !== '/apps/oauth2/api/v1/token') &&
-				//	($request->getRawPathInfo() !== '/apps/solid/token')
-			*/
-			// 'client_secret' => $clientData['client_secret'], // FIXME: Returning this means we need to patch Nextcloud to accept tokens on calls to
-
+			'client_secret' => $clientData['client_secret'],
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
