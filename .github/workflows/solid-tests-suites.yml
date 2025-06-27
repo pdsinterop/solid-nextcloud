@@ -186,6 +186,12 @@ jobs:
     timeout-minutes: 30
     needs:
       - build-docker-nextcloud
+      - docker-images
+      - pull-docker-cookie
+      - pull-docker-pubsub
+      - pull-docker-solid-crud-tests
+      - pull-docker-web-access-control-tests
+      - pull-docker-webid-provider-tests
 
     runs-on: ubuntu-latest
 
@@ -226,13 +232,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # FIXME: The `docker pull` should be moved to a previous step and cached
-      - name: Pull docker Images
+      - name: Load docker Images
         run: |
           docker image load --input ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
-          docker pull michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}
-          docker pull ${{ matrix.test }}
-          docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}
+          docker image load --input ./cache/${{ needs.docker-images.outputs.COOKIE_IMAGE }}.tar
+          docker image load --input ./cache/${{ matrix.test }}.tar
+          docker image load --input ./cache/${{ needs.docker-images.outputs.PUBSUB_TAG }}.tar
 
       - name: Start Docker Containers
         run: |
