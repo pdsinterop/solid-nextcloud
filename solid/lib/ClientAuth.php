@@ -1,4 +1,24 @@
 <?php
+	/* 
+		IMPORTANT WARNING!
+
+		This class is a user backend that accepts 'all'.
+		Any user, and password is currently accepted as true.
+		
+		The reason this is here is that Solid clients will use basic
+		authentication to do a POST request to the token endpoint,
+		where the actual authorization happens.
+
+		The security for this user backend lies in the fact that it
+		is only activated for the token endpoint in the Solid app.
+		
+		It is completely unsuitable as an actual user backend in the
+		normal sense of the word.
+		
+		It is here to allow the token requests with basic
+		authentication requests to pass to us.
+	*/
+
 	namespace OCA\Solid;
 
 	use OCP\User\Backend\ABackend;
@@ -9,40 +29,31 @@
 	 */
 	class ClientAuth extends ABackend implements ICheckPasswordBackend {
 		public function __construct() {
-			error_log("SO Constructed solid client auth backend");
 		}
 
 		public function checkPassword(string $username, string $password) {
-			error_log("SO checking password for $username");
 			return true;
 		}
 
 		public function getBackendName() {
-			error_log("SO getBackendName");
 			return "Solid";
 		}
 		public function deleteUser($uid) {
-			error_log("SO deleteUser");
 			return false;
 		}
 		public function getUsers($search = "", $limit = null, $offset = null, $callback = null) {
-			error_log("SO getUsers");
 			return [];
 		}
 		public function userExists($uid) {
-			error_log("SO User exists");
 			return true;
 		}
 		public function getDisplayName($uid) {
-			error_log("SO getDisplayName");
 			return "Solid client";
 		}
 		public function getDisplayNames($search = "", $limit = null, $offset = null) {
-			error_log("SO getDisplayNames");
 			return [];
 		}
 		public function hasUserListings() {
-			error_log("SO hasUserListings");
 			return false;
 		}
     	}
