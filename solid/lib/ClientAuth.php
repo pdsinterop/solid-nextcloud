@@ -59,4 +59,4 @@
 		public function hasUserListings() {
 			return false;
 		}
-    	}
+	}
