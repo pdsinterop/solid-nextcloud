@@ -16,7 +16,6 @@ use OCP\IUserManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-
 function file_get_contents($filename)
 {
 	if ($filename === 'php://input') {
