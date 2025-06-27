@@ -26,6 +26,9 @@ class Application extends App implements IBootstrap {
      * @param array $urlParams
      */
     public function __construct(array $urlParams = []) {
+        $backend = new \OCA\Solid\ClientAuth();
+        \OC::$server->getUserManager()->registerBackend($backend);
+
         parent::__construct(self::APP_ID, $urlParams);
     }
 
@@ -68,7 +71,6 @@ class Application extends App implements IBootstrap {
     }
 
     public function boot(IBootContext $context): void {
-        \OC::$server->getUserManager()->registerBackend(new \OCA\Solid\ClientAuth());
         self::$userSubDomainsEnabled = OC::$server->get(AppConfig::class)->getValueBool(self::APP_ID, 'userSubDomainsEnabled');
         require_once(__DIR__.'/../../vendor/autoload.php');
     }
