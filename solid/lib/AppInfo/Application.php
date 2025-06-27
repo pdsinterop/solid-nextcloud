@@ -30,7 +30,6 @@ class Application extends App implements IBootstrap {
     public function __construct(array $urlParams = []) {
         $request = \OCP\Server::get(\OCP\IRequest::class);
         $rawPathInfo = $request->getRawPathInfo();
-        error_log($rawPathInfo);
 
         if ($rawPathInfo == '/apps/solid/token') {
             $backend = new \OCA\Solid\ClientAuth();
