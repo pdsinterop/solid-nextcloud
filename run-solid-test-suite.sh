@@ -2,6 +2,8 @@
 
 set -e
 
+: "${COOKIE_TAG:=latest@sha256:b2815496a1291a8f0f8bf2524c42d6000a4a1d6a202b319fe01e1afacf1cec7d}"
+
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
 function setup {
@@ -10,7 +12,7 @@ function setup {
 
   docker network create testnet
 
-  docker pull michielbdejong/nextcloud-cookie
+  docker pull "michielbdejong/nextcloud-cookie:${COOKIE_TAG}"
   docker pull solidtestsuite/solid-crud-tests:v7.0.5
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
   docker pull solidtestsuite/webid-provider-tests:v2.1.1
@@ -46,7 +48,12 @@ function startSolidNextcloud {
   docker exec -u www-data -i -e SERVER_ROOT="https://$1" "$1" sh /init.sh
   docker exec -u root -i "$1" service apache2 reload
   echo Getting cookie for "$1"...
-  export COOKIE_$1="$(docker run --cap-add=SYS_ADMIN --network=testnet --env-file "./env-vars-$1.list" michielbdejong/nextcloud-cookie)"
+  export COOKIE_$1="$(docker run \
+        --cap-add=SYS_ADMIN \
+        --network=testnet \
+        --env-file "./env-vars-$1.list" \
+        "michielbdejong/nextcloud-cookie:${COOKIE_TAG}"
+    )"
 }
 
 function runTests {
