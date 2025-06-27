@@ -17,18 +17,25 @@ use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\Server;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'solid';
-	public static $userSubDomainsEnabled;
+    public static $userSubDomainsEnabled;
 
     /**
      * @param array $urlParams
      */
     public function __construct(array $urlParams = []) {
-        $backend = new \OCA\Solid\ClientAuth();
-        \OC::$server->getUserManager()->registerBackend($backend);
+        $request = \OCP\Server::get(\OCP\IRequest::class);
+        $rawPathInfo = $request->getRawPathInfo();
+        error_log($rawPathInfo);
 
+        if ($rawPathInfo == '/apps/solid/token') {
+            $backend = new \OCA\Solid\ClientAuth();
+            \OC::$server->getUserManager()->registerBackend($backend);
+        }
         parent::__construct(self::APP_ID, $urlParams);
     }
 
