@@ -9,3 +9,4 @@ php console.php config:system:set trusted_domains 3 --value=thirdparty
 # set 'tester' and 'https://tester' as allowed clients for the test suite to run
 php console.php user:setting alice solid allowedClients '["f5d1278e8109edd94e1e4197e04873b9", "2e5cddcf0f663544e98982931e6cc5a6"]'
 echo configured
+mkdir -p /var/www/html/data/files_trashbin/versions

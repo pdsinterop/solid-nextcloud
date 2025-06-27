@@ -20,6 +20,13 @@
     <rule ref="PHPCompatibility"/>
     <config name="testVersion" value="8.0-"/>
 
+    <!-- Set indent for `break` to 0 so it aligns with `case` and `default` -->
+    <rule ref="PSR2">
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
+        <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed"/>
+        <exclude name="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace"/>
+    </rule>
+
     <!-- Include the whole PSR-12 standard -->
     <rule ref="PSR12">
         <!-- Until things have been cleaned up a bit, these violations are allowed -->

@@ -16,6 +16,9 @@ When you do this, the Solid App can store data in your Nextcloud account through
     <author mail="auke@muze.nl" >Auke van Slooten</author>
     <namespace>Solid</namespace>
     <category>integration</category>
+    <types>
+        <authentication/>
+    </types>
     <bugs>https://github.com/pdsinterop/solid-nextcloud/issues</bugs>
     <dependencies>
         <nextcloud min-version="28" max-version="30"/>

@@ -5,7 +5,6 @@ namespace OCA\PDSInterop\Tests\Integration\Controller;
 use OCP\AppFramework\App;
 use Test\TestCase;
 
-
 /**
  * This test shows how to make a small Integration Test. Query your class
  * directly from the container, only pass in mocks if needed and run your tests

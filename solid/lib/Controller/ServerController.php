@@ -105,7 +105,14 @@ class ServerController extends Controller
 	}
 
 	private function createAuthServerConfig() {
-		$clientId = isset($_GET['client_id']) ? $_GET['client_id'] : null;
+		$clientId = null;
+		if (isset($_GET['client_id'])) {
+			$clientId = $_GET['client_id'];
+		} else if (isset($_POST['client_id'])) {
+			if (isset($_POST['refresh_token'])) { // FIXME: Why does the test suite break without this?
+				$clientId = $_POST['client_id'];
+			}
+		}
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
 		try {
@@ -316,7 +323,25 @@ class ServerController extends Controller
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$code = $request->getParsedBody()['code'];
+		$grantType = $request->getParsedBody()['grant_type'];
+		switch ($grantType) {
+			case "authorization_code":
+				$code = $request->getParsedBody()['code'];
+				// FIXME: not sure if decoding this here is the way to go.
+				// FIXME: because this is a public page, the nonce from the session is not available here.
+				$codeInfo = $this->tokenGenerator->getCodeInfo($code);
+				$userId = $codeInfo['user_id'];
+			break;
+			case "refresh_token":
+				$refreshToken = $request->getParsedBody()['refresh_token'];
+				$tokenInfo = $this->tokenGenerator->getCodeInfo($refreshToken); // FIXME: getCodeInfo should be named 'decrypt' or 'getInfo'?
+				$userId = $tokenInfo['user_id'];
+			break;
+			default:
+				$userId = false;
+			break;
+		}
+
 		$clientId = $request->getParsedBody()['client_id'];
 
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
@@ -325,17 +350,16 @@ class ServerController extends Controller
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 		$response = $server->respondToAccessTokenRequest($request);
 
-		// FIXME: not sure if decoding this here is the way to go.
-		// FIXME: because this is a public page, the nonce from the session is not available here.
-		$codeInfo = $this->tokenGenerator->getCodeInfo($code);
-		$response = $this->tokenGenerator->addIdTokenToResponse(
-            $response,
-			$clientId,
-			$codeInfo['user_id'],
-			($_SESSION['nonce'] ?? ''),
-			$this->config->getPrivateKey(),
-			$httpDpop
-		);
+		if ($userId) {
+			$response = $this->tokenGenerator->addIdTokenToResponse(
+				$response,
+				$clientId,
+				$userId,
+				($_SESSION['nonce'] ?? ''),
+				$this->config->getPrivateKey(),
+				$httpDpop
+			);
+		}
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
@@ -380,14 +404,7 @@ class ServerController extends Controller
 		$clientData = $this->config->saveClientRegistration($origin, $clientData);
 		$registration = array(
 			'client_id' => $clientData['client_id'],
-			/*
-				 FIXME: returning client_secret will trigger calls with basic auth to us. To get this to work, we need this patch:
-				// File /var/www/vhosts/solid-nextcloud/site/www/lib/base.php not changed so no update needed
-				//	($request->getRawPathInfo() !== '/apps/oauth2/api/v1/token') &&
-				//	($request->getRawPathInfo() !== '/apps/solid/token')
-			*/
-			// 'client_secret' => $clientData['client_secret'], // FIXME: Returning this means we need to patch Nextcloud to accept tokens on calls to
-
+			'client_secret' => $clientData['client_secret'],
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],

@@ -10,21 +10,31 @@ use OC\AppConfig;
 use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\Db\SolidWebhookMapper;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
+use OCA\Solid\ClientAuth;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\IDBConnection;
+use OCP\IRequest;
+use OCP\Server;
 
 class Application extends App implements IBootstrap {
     public const APP_ID = 'solid';
-	public static $userSubDomainsEnabled;
+    public static $userSubDomainsEnabled;
 
     /**
      * @param array $urlParams
      */
     public function __construct(array $urlParams = []) {
+        $request = \OCP\Server::get(\OCP\IRequest::class);
+        $rawPathInfo = $request->getRawPathInfo();
+
+        if ($rawPathInfo == '/apps/solid/token') {
+            $backend = new \OCA\Solid\ClientAuth();
+            \OC::$server->getUserManager()->registerBackend($backend);
+        }
         parent::__construct(self::APP_ID, $urlParams);
     }
 
