@@ -144,11 +144,11 @@ jobs:
       - uses: actions/cache@v4
         id: cache-docker-solid-crud-tests
         with:
-          path: cache/tests/
+          path: cache/tests
           key: ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}
       - if: steps.cache-docker-solid-crud-tests.outputs.cache-hit != 'true'
         run: |
-          mkdir -p cache/tests/
+          mkdir -p cache/tests
           docker pull ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }}
           docker image save ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }} \
             --output ./cache/tests/${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}.tar
@@ -159,11 +159,11 @@ jobs:
       - uses: actions/cache@v4
         id: cache-docker-web-access-control-tests
         with:
-          path: cache/tests/
+          path: cache/tests
           key: ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}
       - if: steps.cache-docker-web-access-control-tests.outputs.cache-hit != 'true'
         run: |
-          mkdir -p cache/tests/
+          mkdir -p cache/tests
           docker pull ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}
           docker image save ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }} \
             --output ./cache/tests/${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}.tar
@@ -174,11 +174,11 @@ jobs:
       - uses: actions/cache@v4
         id: cache-docker-webid-provider-tests
         with:
-          path: cache/tests/
+          path: cache/tests
           key: ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}
       - if: steps.cache-docker-webid-provider-tests.outputs.cache-hit != 'true'
         run: |
-          mkdir -p cache/tests/
+          mkdir -p cache/tests
           docker pull ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }}
           docker image save ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }} \
             --output ./cache/tests/${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}.tar
