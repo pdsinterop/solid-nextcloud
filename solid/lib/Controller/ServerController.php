@@ -23,6 +23,7 @@ class ServerController extends Controller
 {
 	use DpopFactoryTrait;
 
+	public const ERROR_UNREGISTERED_URI = 'Provided redirect URI "%s" does not match any registered URIs';
 	private $userId;
 
 	/* @var IUserManager */
@@ -220,10 +221,28 @@ class ServerController extends Controller
 			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
-		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
+		if (isset($getVars['redirect_uri'])) {
+			$redirectUri = $getVars['redirect_uri'];
+			if (! isset($clientRegistration['redirect_uris']) || ! is_array($clientRegistration['redirect_uris'])) {
+				return new JSONResponse('Invalid client registration, no redirect URIs found', Http::STATUS_BAD_REQUEST);
+			}
+
+			$redirectUris = $clientRegistration['redirect_uris'];
+
+			$validRedirectUris = array_filter($redirectUris, function ($uri) use ($redirectUri) {
+				return $uri === $redirectUri;
+			});
+
+			if (count($validRedirectUris) === 0) {
+				$message = vsprintf(self::ERROR_UNREGISTERED_URI, [$redirectUri]);
+				return new JSONResponse($message, Http::STATUS_BAD_REQUEST);
+			}
+		}
+
+		$parsedOrigin = parse_url($redirectUri);
 		if (
-			$parsedOrigin['scheme'] != "https" &&
-			$parsedOrigin['scheme'] != "http" &&
+			$parsedOrigin['scheme'] !== "https" &&
+			$parsedOrigin['scheme'] !== "http" &&
 			!isset($_GET['customscheme'])
 		) {
 			$result = new JSONResponse('Custom schema');
