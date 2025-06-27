@@ -10,6 +10,7 @@ use OC\AppConfig;
 use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\Db\SolidWebhookMapper;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
+use OCA\Solid\ClientAuth;
 
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
@@ -67,6 +68,7 @@ class Application extends App implements IBootstrap {
     }
 
     public function boot(IBootContext $context): void {
+        \OC::$server->getUserManager()->registerBackend(new \OCA\Solid\ClientAuth());
         self::$userSubDomainsEnabled = OC::$server->get(AppConfig::class)->getValueBool(self::APP_ID, 'userSubDomainsEnabled');
         require_once(__DIR__.'/../../vendor/autoload.php');
     }
