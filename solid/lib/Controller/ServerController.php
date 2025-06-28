@@ -268,14 +268,15 @@ class ServerController extends Controller
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
+/*
 		$response = $this->tokenGenerator->addIdTokenToResponse(
 			$response,
 			$clientId,
 			$this->getProfilePage(),
-			$this->session->get("nonce"),
+			'', // $this->session->get("nonce"),
 			$this->config->getPrivateKey()
 		);
-
+*/
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
