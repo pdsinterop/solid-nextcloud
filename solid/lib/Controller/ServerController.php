@@ -410,9 +410,7 @@ class ServerController extends Controller
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration));
-//		->addHeader('Access-Control-Allow-Origin', $origin)
-//		->addHeader('Access-Control-Allow-Methods', 'POST');
+		return (new JSONResponse($registration, 201));
 	}
 
 	/**
