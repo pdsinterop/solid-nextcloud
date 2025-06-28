@@ -325,6 +325,7 @@ class ServerController extends Controller
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$grantType = $request->getParsedBody()['grant_type'];
+		$clientId = $request->getParsedBody()['client_id'];
 		switch ($grantType) {
 			case "authorization_code":
 				$code = $request->getParsedBody()['code'];
@@ -332,18 +333,22 @@ class ServerController extends Controller
 				// FIXME: because this is a public page, the nonce from the session is not available here.
 				$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 				$userId = $codeInfo['user_id'];
+				if (!$clientId) {
+					$clientId = $codeInfo['client_id'];
+				}
 			break;
 			case "refresh_token":
 				$refreshToken = $request->getParsedBody()['refresh_token'];
 				$tokenInfo = $this->tokenGenerator->getCodeInfo($refreshToken); // FIXME: getCodeInfo should be named 'decrypt' or 'getInfo'?
 				$userId = $tokenInfo['user_id'];
+				if (!$clientId) {
+					$clientId = $tokenInfo['client_id'];
+				}
 			break;
 			default:
 				$userId = false;
 			break;
 		}
-
-		$clientId = $request->getParsedBody()['client_id'];
 
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
 
