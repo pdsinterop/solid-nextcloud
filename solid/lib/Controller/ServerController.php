@@ -325,8 +325,8 @@ class ServerController extends Controller
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 		$requestBody = $request->getParsedBody();
-		$grantType = $requestBody['grant_type'] ? $requestBody['grant_type'] : null;
-		$clientId = $requestBody['client_id'] ? $requestBody['client_id'] : null;
+		$grantType = isset($requestBody['grant_type']) ? $requestBody['grant_type'] : null;
+		$clientId = isset($requestBody['client_id']) ? $requestBody['client_id'] : null;
 		switch ($grantType) {
 			case "authorization_code":
 				$code = $requestBody['code'];
