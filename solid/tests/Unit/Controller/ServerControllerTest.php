@@ -348,6 +348,7 @@ class ServerControllerTest extends TestCase
 				'registration_client_uri' => '',
 				'response_types' => ['id_token token'],
 				'token_endpoint_auth_method' => 'client_secret_basic',
+				'client_secret' => '3b5798fddd49e23662ee6fe801085100',
 			],
 			'headers' => [
 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
