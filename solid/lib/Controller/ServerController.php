@@ -268,14 +268,15 @@ class ServerController extends Controller
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
+/*
 		$response = $this->tokenGenerator->addIdTokenToResponse(
 			$response,
 			$clientId,
 			$this->getProfilePage(),
-			$this->session->get("nonce"),
+			'', // $this->session->get("nonce"),
 			$this->config->getPrivateKey()
 		);
-
+*/
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
@@ -323,26 +324,32 @@ class ServerController extends Controller
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$grantType = $request->getParsedBody()['grant_type'];
+		$requestBody = $request->getParsedBody();
+		$grantType = isset($requestBody['grant_type']) ? $requestBody['grant_type'] : null;
+		$clientId = isset($requestBody['client_id']) ? $requestBody['client_id'] : null;
 		switch ($grantType) {
 			case "authorization_code":
-				$code = $request->getParsedBody()['code'];
+				$code = $requestBody['code'];
 				// FIXME: not sure if decoding this here is the way to go.
 				// FIXME: because this is a public page, the nonce from the session is not available here.
 				$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 				$userId = $codeInfo['user_id'];
+				if (!$clientId) {
+					$clientId = $codeInfo['client_id'];
+				}
 			break;
 			case "refresh_token":
-				$refreshToken = $request->getParsedBody()['refresh_token'];
+				$refreshToken = $requestBody['refresh_token'];
 				$tokenInfo = $this->tokenGenerator->getCodeInfo($refreshToken); // FIXME: getCodeInfo should be named 'decrypt' or 'getInfo'?
 				$userId = $tokenInfo['user_id'];
+				if (!$clientId) {
+					$clientId = $tokenInfo['client_id'];
+				}
 			break;
 			default:
 				$userId = false;
 			break;
 		}
-
-		$clientId = $request->getParsedBody()['client_id'];
 
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
 
@@ -410,9 +417,7 @@ class ServerController extends Controller
 			'redirect_uris' => $clientData['redirect_uris'],
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration));
-//		->addHeader('Access-Control-Allow-Origin', $origin)
-//		->addHeader('Access-Control-Allow-Methods', 'POST');
+		return (new JSONResponse($registration, 201));
 	}
 
 	/**
