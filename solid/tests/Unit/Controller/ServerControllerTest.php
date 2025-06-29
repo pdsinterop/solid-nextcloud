@@ -370,6 +370,7 @@ class ServerControllerTest extends TestCase
 	{
 		$_POST['client_id'] = self::MOCK_CLIENT_ID;
 		$_POST['code'] = '';
+		$_POST['grant_type'] = 'authorization_code';
 		$_SERVER['HTTP_DPOP'] = 'mock dpop';
 		$_SESSION['nonce'] = 'mock nonce';
 
