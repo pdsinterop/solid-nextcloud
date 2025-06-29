@@ -109,9 +109,7 @@ class ServerController extends Controller
 		if (isset($_GET['client_id'])) {
 			$clientId = $_GET['client_id'];
 		} else if (isset($_POST['client_id'])) {
-			if (isset($_POST['refresh_token'])) { // FIXME: Why does the test suite break without this?
-				$clientId = $_POST['client_id'];
-			}
+			$clientId = $_POST['client_id'];
 		}
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
@@ -323,17 +321,19 @@ class ServerController extends Controller
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$grantType = $request->getParsedBody()['grant_type'];
+		$requestBody = $request->getParsedBody();
+		$grantType = isset($requestBody['grant_type']) ? $requestBody['grant_type'] : null;
+		$clientId = isset($requestBody['client_id']) ? $requestBody['client_id'] : null;
 		switch ($grantType) {
 			case "authorization_code":
-				$code = $request->getParsedBody()['code'];
+				$code = $requestBody['code'];
 				// FIXME: not sure if decoding this here is the way to go.
 				// FIXME: because this is a public page, the nonce from the session is not available here.
 				$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 				$userId = $codeInfo['user_id'];
 			break;
 			case "refresh_token":
-				$refreshToken = $request->getParsedBody()['refresh_token'];
+				$refreshToken = $requestBody['refresh_token'];
 				$tokenInfo = $this->tokenGenerator->getCodeInfo($refreshToken); // FIXME: getCodeInfo should be named 'decrypt' or 'getInfo'?
 				$userId = $tokenInfo['user_id'];
 			break;
