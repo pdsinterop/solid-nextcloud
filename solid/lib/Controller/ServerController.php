@@ -3,6 +3,7 @@ namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\ServerConfig;
+use OCA\Solid\Service\UserService;
 
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -47,6 +48,8 @@ class ServerController extends Controller
 	/* @var \Pdsinterop\Solid\Auth\TokenGenerator */
 	private $tokenGenerator;
 
+	private UserService $userService;
+
 	public function __construct(
 		$AppName,
 		IRequest $request,
@@ -55,7 +58,7 @@ class ServerController extends Controller
 		IURLGenerator $urlGenerator,
 		$userId,
 		IConfig $config,
-		\OCA\Solid\Service\UserService $UserService,
+		\OCA\Solid\Service\UserService $userService,
 		IDBConnection $connection,
 	) {
 		parent::__construct($AppName, $request);
@@ -66,6 +69,7 @@ class ServerController extends Controller
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 		$this->session = $session;
+		$this->userService = $userService;
 
 		$this->setJtiStorage($connection);
 
