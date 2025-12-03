@@ -154,11 +154,13 @@ class ServerController extends Controller
 	public function authorize() {
 		// Create a request
 		if (!$this->userManager->userExists($this->userId)) {
-			$result = new JSONResponse('Authorization required');
-			$result->setStatus(401);
-			return $result;
-//			return $result->addHeader('Access-Control-Allow-Origin', '*');
+			return new JSONResponse('Authorization required', 401);
 		}
+
+		if (! isset($_GET['client_id'])) {
+			return new JSONResponse('Bad request, missing client_id', 400);
+		}
+		$clientId = $_GET['client_id'];
 
 		if (isset($_GET['request'])) {
 			$jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));

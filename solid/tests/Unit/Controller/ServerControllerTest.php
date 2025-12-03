@@ -116,6 +116,25 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should return a 400 when asked to authorize with a user but without client_id
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutClientId()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$parameters['MockUserManager']->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->authorize();
+		$expected = new JSONResponse('Bad request, missing client_id', Http::STATUS_BAD_REQUEST);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
 	 * @testdox ServerController should return a 400 when asked to authorize with a user but without valid token
 	 *
 	 * @covers ::authorize
