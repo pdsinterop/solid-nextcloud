@@ -44,10 +44,6 @@ class ServerControllerTest extends TestCase
 	public static string $clientData = '';
 	private static string $privateKey;
 
-	private IConfig|MockObject $mockConfig;
-	private IURLGenerator|MockObject $mockURLGenerator;
-	private IUserManager|MockObject $mockUserManager;
-
 	public static function setUpBeforeClass(): void
 	{
 		$keyPath = __DIR__ . '/../../fixtures/keys';
@@ -85,7 +81,7 @@ class ServerControllerTest extends TestCase
 
 		$this->expectExceptionMessageMatches('/^' . $message . '$/');
 
-		new ServerController(...$parameters);
+		new ServerController(...array_values($parameters));
 	}
 
 	/**
@@ -97,7 +93,7 @@ class ServerControllerTest extends TestCase
 	{
 		$parameters = $this->createMockConstructorParameters();
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$this->assertInstanceOf(ServerController::class, $controller);
 	}
@@ -111,7 +107,7 @@ class ServerControllerTest extends TestCase
 	{
 		$parameters = $this->createMockConstructorParameters();
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$expected = new JSONResponse('Authorization required', Http::STATUS_UNAUTHORIZED);
 		$actual = $controller->authorize();
@@ -130,9 +126,9 @@ class ServerControllerTest extends TestCase
 
 		$parameters = $this->createMockConstructorParameters();
 
-		$this->mockUserManager->method('userExists')->willReturn(true);
+		$parameters['MockUserManager']->method('userExists')->willReturn(true);
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$actual = $controller->authorize();
 		$expected = new JSONResponse('Bad request, does not contain valid token', Http::STATUS_BAD_REQUEST);
@@ -157,11 +153,11 @@ class ServerControllerTest extends TestCase
 
 		$parameters = $this->createMockConstructorParameters();
 
-		$this->mockConfig->method('getUserValue')->willReturnArgument(3);
+		$parameters['MockConfig']->method('getUserValue')->willReturnArgument(3);
 
-		$this->mockUserManager->method('userExists')->willReturn(true);
+		$parameters['MockUserManager']->method('userExists')->willReturn(true);
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$actual = $controller->authorize();
 		$expected = new JSONResponse('Approval required', Http::STATUS_FOUND, ['Location' => '']);
@@ -183,13 +179,13 @@ class ServerControllerTest extends TestCase
 
 		$parameters = $this->createMockConstructorParameters($clientData);
 
-		$this->mockConfig->method('getUserValue')
+		$parameters['MockConfig']->method('getUserValue')
 			->with(self::MOCK_USER_ID, Application::APP_ID, 'allowedClients', '[]')
 			->willReturn(json_encode([self::MOCK_CLIENT_ID]));
 
-		$this->mockUserManager->method('userExists')->willReturn(true);
+		$parameters['MockUserManager']->method('userExists')->willReturn(true);
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$response = $controller->authorize();
 
@@ -238,13 +234,13 @@ class ServerControllerTest extends TestCase
 
         $parameters = $this->createMockConstructorParameters($clientData);
 
-        $this->mockConfig->method('getUserValue')
+        $parameters['MockConfig']->method('getUserValue')
             ->with(self::MOCK_USER_ID, Application::APP_ID, 'allowedClients', '[]')
             ->willReturn(json_encode([self::MOCK_CLIENT_ID]));
 
-        $this->mockUserManager->method('userExists')->willReturn(true);
+        $parameters['MockUserManager']->method('userExists')->willReturn(true);
 
-        $controller = new ServerController(...$parameters);
+        $controller = new ServerController(...array_values($parameters));
 
         $response = $controller->authorize();
 
@@ -300,7 +296,7 @@ class ServerControllerTest extends TestCase
 	{
 		$parameters = $this->createMockConstructorParameters();
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$actual = $controller->register();
 
@@ -319,10 +315,10 @@ class ServerControllerTest extends TestCase
 	{
 		$parameters = $this->createMockConstructorParameters();
 
-		$this->mockURLGenerator->method('getBaseUrl')
+		$parameters['MockURLGenerator']->method('getBaseUrl')
 			->willReturn('https://mock.server');
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		self::$clientData = json_encode(['redirect_uris' => ['https://mock.client/redirect']]);
 
@@ -393,7 +389,7 @@ class ServerControllerTest extends TestCase
 				'Content-Type' => 'mock application type'
 			]));
 
-		$controller = new ServerController(...$parameters);
+		$controller = new ServerController(...array_values($parameters));
 
 		$reflectionObject = new \ReflectionObject($controller);
 		$reflectionProperty = $reflectionObject->getProperty('tokenGenerator');
@@ -429,9 +425,9 @@ class ServerControllerTest extends TestCase
 
 	public function createMockConfig($clientData): IConfig|MockObject
 	{
-		$this->mockConfig = $this->createMock(IConfig::class);
+		$mockConfig = $this->createMock(IConfig::class);
 
-		$this->mockConfig->method('getAppValue')->willReturnMap([
+		$mockConfig->method('getAppValue')->willReturnMap([
 			[Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID, '{}', 'return' => $clientData],
 			[Application::APP_ID, 'client-d6d7896757f61ac4c397d914053180ff', '{}', 'return' => $clientData],
 			[Application::APP_ID, 'client-', '{}', 'return' => $clientData],
@@ -442,38 +438,24 @@ class ServerControllerTest extends TestCase
 			[Application::APP_ID, 'client-f4a2d00f7602948a97ff409d7a581ec2', '{}', 'return' => $clientData],
 		]);
 
-		return $this->mockConfig;
+		return $mockConfig;
 	}
 
 	public function createMockConstructorParameters($clientData = '{}'): array
 	{
 		$parameters = [
 			'mock appname',
-			$this->createMock(IRequest::class),
-			$this->createMock(ISession::class),
-			$this->createMockUserManager(),
-			$this->createMockUrlGenerator(),
-			self::MOCK_USER_ID,
-			$this->createMockConfig($clientData),
-			$this->createMock(UserService::class),
-			$this->createMock(IDBConnection::class),
+			'MockRequest' => $this->createMock(IRequest::class),
+			'MockSession' => $this->createMock(ISession::class),
+			'MockUserManager' => $this->createMock(IUserManager::class),
+			'MockURLGenerator' => $this->createMock(IURLGenerator::class),
+			'MOCK_USER_ID' => self::MOCK_USER_ID,
+			'MockConfig' => $this->createMockConfig($clientData),
+			'MockUserService' => $this->createMock(UserService::class),
+			'MockDBConnection' => $this->createMock(IDBConnection::class),
 		];
 
 		return $parameters;
-	}
-
-	public function createMockUrlGenerator(): IURLGenerator|MockObject
-	{
-		$this->mockURLGenerator = $this->createMock(IURLGenerator::class);
-
-		return $this->mockURLGenerator;
-	}
-
-	public function createMockUserManager(): IUserManager|MockObject
-	{
-		$this->mockUserManager = $this->createMock(IUserManager::class);
-
-		return $this->mockUserManager;
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
