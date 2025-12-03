@@ -292,11 +292,32 @@ class ServerControllerTest extends TestCase
 	 *
 	 * @covers ::register
 	 */
+	public function testRegisterWithoutClientData()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->register();
+
+		$this->assertEquals(
+			new JSONResponse('Missing client data', Http::STATUS_BAD_REQUEST),
+			$actual
+		);
+	}
+
+    /**
+	 * @testdox ServerController should return a 400 when asked to register without redirect URIs
+	 *
+	 * @covers ::register
+	 */
 	public function testRegisterWithoutRedirectUris()
 	{
 		$parameters = $this->createMockConstructorParameters();
 
 		$controller = new ServerController(...array_values($parameters));
+
+		self::$clientData = json_encode([]);
 
 		$actual = $controller->register();
 

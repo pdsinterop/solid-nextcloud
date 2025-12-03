@@ -393,11 +393,17 @@ class ServerController extends Controller
 	 * @NoCSRFRequired
 	 */
 	public function register() {
-		$clientData = file_get_contents('php://input');
-		$clientData = json_decode($clientData, true);
+		$postData = file_get_contents('php://input');
+		$clientData = json_decode($postData, true);
+
+		if (! isset($clientData)) {
+			return new JSONResponse('Missing client data', Http::STATUS_BAD_REQUEST);
+		}
+
 		if (! isset($clientData['redirect_uris'])) {
 			return new JSONResponse("Missing redirect URIs", Http::STATUS_BAD_REQUEST);
 		}
+
 		$clientData['client_id_issued_at'] = time();
 		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
 		$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
