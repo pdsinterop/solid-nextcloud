@@ -39,6 +39,8 @@ class ServerControllerTest extends TestCase
 	////////////////////////////////// FIXTURES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	private const MOCK_CLIENT_ID = 'mock-client-id';
+	private const MOCK_RESPONSE_TYPE = 'mock-response-type';
+	private const MOCK_URI = 'mock uri';
 	private const MOCK_USER_ID = 'mock user id';
 
 	public static string $clientData = '';
@@ -141,7 +143,12 @@ class ServerControllerTest extends TestCase
 	 */
 	public function testAuthorizeWithoutValidToken()
 	{
-		$_GET['response_type'] = 'mock-response-type';
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
+		$_GET['nonce'] = 'mock-nonce';
+		$_GET['request'] = 'mock request';
+		$_GET['response_type'] = self::MOCK_RESPONSE_TYPE;
+
+		$_SERVER['REQUEST_URI'] = self::MOCK_URI;
 
 		$parameters = $this->createMockConstructorParameters();
 
@@ -166,9 +173,9 @@ class ServerControllerTest extends TestCase
 		$_GET['nonce'] = 'mock-nonce';
 		// JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
 		$_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
-		$_GET['response_type'] = 'mock-response-type';
+		$_GET['response_type'] = self::MOCK_RESPONSE_TYPE;
 
-		$_SERVER['REQUEST_URI'] = 'mock uri';
+		$_SERVER['REQUEST_URI'] = self::MOCK_URI;
 
 		$parameters = $this->createMockConstructorParameters();
 
@@ -243,7 +250,7 @@ class ServerControllerTest extends TestCase
         $_GET['nonce'] = 'mock-nonce';
         // JWT with empty payload, HS256 encoded, created with `private.key` from fixtures
         $_GET['request'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.8VKCTiBegJPuPIZlp0wbV0Sbdn5BS6TE5DCx6oYNc5o';
-        $_GET['response_type'] = 'mock-response-type';
+        $_GET['response_type'] = self::MOCK_RESPONSE_TYPE;
         $_GET['redirect_uri'] = 'https://mock.client/redirect';
 
         $_SERVER['REQUEST_URI'] = 'https://mock.server';

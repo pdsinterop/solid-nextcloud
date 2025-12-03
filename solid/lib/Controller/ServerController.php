@@ -162,6 +162,7 @@ class ServerController extends Controller
 		}
 		$clientId = $_GET['client_id'];
 
+		$getVars = $_GET;
 		if (isset($_GET['request'])) {
 			$jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
 			try {
@@ -170,33 +171,32 @@ class ServerController extends Controller
 			} catch(\Exception $e) {
 				$this->session->set("nonce", $_GET['nonce']);
 			}
-		}
 
-		$getVars = $_GET;
-		if (!isset($getVars['grant_type'])) {
-			$getVars['grant_type'] = 'implicit';
-		}
-		$getVars['response_type'] = $this->getResponseType();
-		$getVars['scope'] = "openid" ;
-
-		if (!isset($getVars['redirect_uri'])) {
-			if (!isset($token)) {
-				$result = new JSONResponse('Bad request, does not contain valid token');
-				$result->setStatus(400);
-				return $result;
-//				return $result->addHeader('Access-Control-Allow-Origin', '*');
+			if (!isset($getVars['grant_type'])) {
+				$getVars['grant_type'] = 'implicit';
 			}
-			try {
-				$getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
-			} catch(\Exception $e) {
-				$result = new JSONResponse('Bad request, missing redirect uri');
-				$result->setStatus(400);
-				return $result;
-//				return $result->addHeader('Access-Control-Allow-Origin', '*');
+			$getVars['response_type'] = $this->getResponseType();
+			$getVars['scope'] = "openid";
+
+			if (!isset($getVars['redirect_uri'])) {
+				if (!isset($token)) {
+					return new JSONResponse('Bad request, does not contain valid token', 400);
+				}
+
+				try {
+					$getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
+				} catch(\Exception $e) {
+					return new JSONResponse('Bad request, missing redirect uri', 400);
+				}
 			}
 		}
 
-		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
+		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
+		$response = new \Laminas\Diactoros\Response();
+		$authServer = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+
+		// @FIXME: Check OIDC Spec for rules regarding Client updates
+		if (preg_match("/^http(s)?:/", $clientId)) {
 			$parsedOrigin = parse_url($getVars['redirect_uri']);
 			$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
 			if (isset($parsedOrigin['port'])) {
@@ -204,17 +204,18 @@ class ServerController extends Controller
 			}
 			$clientData = array(
 				"client_id_issued_at" => time(),
-				"client_name" => $getVars['client_id'],
+				"client_name" => $clientId,
 				"origin" => $origin,
 				"redirect_uris" => array(
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData)['client_id'];
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['client_id'];
+
+			$this->config->saveClientRegistration($origin, $clientData);
+			$clientId = $this->config->saveClientRegistration($clientId, $clientData)['client_id'];
+
 			$returnUrl = $getVars['redirect_uri'];
 		} else {
-			$clientId = $getVars['client_id'];
 			$returnUrl = $_SERVER['REQUEST_URI'];
 		}
 
@@ -231,7 +232,8 @@ class ServerController extends Controller
 			$result->setStatus(302);
 			$approvalUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.page.approval", array("clientId" => $clientId, "returnUrl" => $returnUrl)));
 			$result->addHeader("Location", $approvalUrl);
-			return $result; // ->addHeader('Access-Control-Allow-Origin', '*');
+
+			return $result;
 		}
 
 		if (isset($getVars['redirect_uri'])) {
@@ -266,23 +268,21 @@ class ServerController extends Controller
 			return $result;
 		}
 
+		$webId = $this->getProfilePage();
 		$user = new \Pdsinterop\Solid\Auth\Entity\User();
-		$user->setIdentifier($this->getProfilePage());
+		$user->setIdentifier($webId);
 
-		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
-		$response = new \Laminas\Diactoros\Response();
-		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+		$response = $authServer->respondToAuthorizationRequest($request, $user, $approval);
 
-		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
 		$response = $this->tokenGenerator->addIdTokenToResponse(
 			$response,
 			$clientId,
-			$this->getProfilePage(),
+			$webId,
 			$this->session->get("nonce"),
 			$this->config->getPrivateKey()
 		);
 
-		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response);
 	}
 
 	private function checkApproval($clientId) {
