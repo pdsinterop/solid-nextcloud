@@ -65,6 +65,14 @@ jobs:
         working-directory: "solid"
   # 02.test.php.test-unit.yml
   php-unittest:
+    container:
+      image: ghcr.io/${{ github.repository }}:main-${{ matrix.nextcloud_version }}
+      env:
+        NEXTCLOUD_PATH: /usr/src/nextcloud/apps
+        NEXTCLOUD_UPDATE: 1
+        XDEBUG_MODE: coverage
+      volumes:
+        - /usr/bin/composer:/usr/bin/composer
     name: PHP Unit Tests
     needs:
       - lint-php-syntax
@@ -78,27 +86,24 @@ jobs:
           - 29
           - 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          ini-values: error_reporting=E_ALL, display_errors=On
-          php-version: 8.3
+      - uses: actions/checkout@v5
+      - name: Setup Test Environment
+        run: |
+          git config --global --add safe.directory "${NEXTCLOUD_PATH}"
+          /entrypoint.sh "echo"
+          bash "${GITHUB_WORKSPACE}/init.sh"
+          rm -r "${NEXTCLOUD_PATH}/solid/"
+          cp --archive --verbose "${GITHUB_WORKSPACE}/." "${NEXTCLOUD_PATH}/"
       - name: Install and Cache Composer dependencies
-        uses: "ramsey/composer-install@v2"
+        uses: ramsey/composer-install@v3
         with:
-          working-directory: "solid"
+          working-directory: /usr/src/nextcloud/apps/solid
         env:
           COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ secrets.GITHUB_TOKEN }}"}}'
-      - run: |
-            docker run \
-            --env 'XDEBUG_MODE=coverage' \
-            --rm \
-            --volume="./solid:/var/www/html/apps/solid" \
-            ghcr.io/${{ github.repository }}:main-${{ matrix.nextcloud_version }} \
-            bash -c 'NEXTCLOUD_UPDATE=1 /entrypoint.sh "echo" \
-              && sudo -u www-data bash /init.sh \
-              && cd /var/www/html/apps/solid \
-              && bin/phpunit --configuration phpunit.xml'
+      - name: Run PHPUnit
+        run: |
+          "${NEXTCLOUD_PATH}/solid/bin/phpunit" \
+          --configuration "${NEXTCLOUD_PATH}/solid/phpunit.xml"
 
   # 03.quality.php.scan.dependencies-vulnerabilities.yml
   scan-dependencies-vulnerabilities:
