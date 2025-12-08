@@ -156,6 +156,10 @@ class ServerController extends Controller
 //			return $result->addHeader('Access-Control-Allow-Origin', '*');
 		}
 
+		if (! isset($_GET['client_id'])) {
+			return new JSONResponse('Bad request, missing client_id', 400);
+		}
+
 		if (isset($_GET['request'])) {
 			$jwtConfig = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText($this->config->getPrivateKey()));
 			try {
@@ -323,7 +327,9 @@ class ServerController extends Controller
 	 */
 	public function token() {
 		$request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$grantType = $request->getParsedBody()['grant_type'];
+
+		$grantType = $request->getParsedBody()['grant_type'] ?? null;
+
 		switch ($grantType) {
 			case "authorization_code":
 				$code = $request->getParsedBody()['code'];
@@ -342,9 +348,9 @@ class ServerController extends Controller
 			break;
 		}
 
-		$clientId = $request->getParsedBody()['client_id'];
+		$clientId = $request->getParsedBody()['client_id'] ?? null;
 
-		$httpDpop = $request->getServerParams()['HTTP_DPOP'];
+		$httpDpop = $request->getServerParams()['HTTP_DPOP'] ?? null;
 
 		$response = new \Laminas\Diactoros\Response();
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
@@ -361,7 +367,7 @@ class ServerController extends Controller
 			);
 		}
 
-		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
+		return $this->respond($response);
 	}
 
 	/**
@@ -389,8 +395,13 @@ class ServerController extends Controller
 	 * @NoCSRFRequired
 	 */
 	public function register() {
-		$clientData = file_get_contents('php://input');
-		$clientData = json_decode($clientData, true);
+		$postData = file_get_contents('php://input');
+		$clientData = json_decode($postData, true);
+
+		if (! isset($clientData)) {
+			return new JSONResponse("Missing client data", Http::STATUS_BAD_REQUEST);
+		}
+
 		if (! isset($clientData['redirect_uris'])) {
 			return new JSONResponse("Missing redirect URIs", Http::STATUS_BAD_REQUEST);
 		}

@@ -120,12 +120,32 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should return a 400 when asked to authorize with a user but without client_id
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutClientId()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->authorize();
+		$expected = new JSONResponse('Bad request, missing client_id', Http::STATUS_BAD_REQUEST);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
 	 * @testdox ServerController should return a 400 when asked to authorize with a user but without valid token
 	 *
 	 * @covers ::authorize
 	 */
 	public function testAuthorizeWithoutValidToken()
 	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
 		$_GET['response_type'] = 'mock-response-type';
 
 		$parameters = $this->createMockConstructorParameters();
@@ -277,11 +297,32 @@ class ServerControllerTest extends TestCase
 	 *
 	 * @covers ::register
 	 */
+	public function testRegisterWithoutClientData()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->register();
+
+		$this->assertEquals(
+			new JSONResponse('Missing client data', Http::STATUS_BAD_REQUEST),
+			$actual
+		);
+	}
+
+	/**
+	 * @testdox ServerController should return a 400 when asked to register without redirect URIs
+	 *
+	 * @covers ::register
+	 */
 	public function testRegisterWithoutRedirectUris()
 	{
 		$parameters = $this->createMockConstructorParameters();
 
 		$controller = new ServerController(...$parameters);
+
+		self::$clientData = json_encode([]);
 
 		$actual = $controller->register();
 
@@ -335,6 +376,26 @@ class ServerControllerTest extends TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	public function testTokenWithoutPostBody()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...$parameters);
+
+		$tokenResponse = $controller->token();
+
+		$expected = $this->createExpectedResponse(Http::STATUS_BAD_REQUEST, 'Bad Request');
+
+		$actual = [
+			'data' => $tokenResponse->getData(),
+			'headers' => $tokenResponse->getHeaders(),
+			'status' => $tokenResponse->getStatus(),
+		];
+		unset($actual['headers']['X-Request-Id']);
+
+		$this->assertEquals($expected, $actual);
+	}
+
 	/**
 	 * @testdox ServerController should consume Post, Server, and Session variables when generating a token
 	 *
@@ -344,6 +405,7 @@ class ServerControllerTest extends TestCase
 	{
 		$_POST['client_id'] = self::MOCK_CLIENT_ID;
 		$_POST['code'] = '';
+		$_POST['grant_type'] = 'authorization_code';
 		$_SERVER['HTTP_DPOP'] = 'mock dpop';
 		$_SESSION['nonce'] = 'mock nonce';
 
