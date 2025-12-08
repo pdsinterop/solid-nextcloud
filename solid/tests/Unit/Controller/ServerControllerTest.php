@@ -450,6 +450,29 @@ class ServerControllerTest extends TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	/**
+	 * @testdox ServerController should return an OK when asked to logout
+	 *
+	 * @covers ::logout
+	 */
+	public function testLogout() {
+		$parameters = $this->createMockConstructorParameters();
+		$index = self::provideConstructorParameterIndex();
+		$mockUserService = $parameters[$index['userService'][0]];
+
+		$mockUserService->expects($this->once())
+			->method('logout')
+			->willReturn(null)
+		;
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->logout();
+		$expected = new JSONResponse('ok', Http::STATUS_OK);
+
+		$this->assertEquals($expected, $actual);
+	}
+
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	public function createMockConfig($clientData): IConfig|MockObject
