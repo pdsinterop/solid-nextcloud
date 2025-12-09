@@ -352,20 +352,28 @@ class ServerControllerTest extends TestCase
 
 		$data = [
 			'application_type' => 'web',
-			'client_id' => 'f4a2d00f7602948a97ff409d7a581ec2',
-			'client_secret' => '3b5798fddd49e23662ee6fe801085100',
 			'grant_types' => ['implicit'],
 			'id_token_signed_response_alg' => 'RS256',
 			'redirect_uris' => ['https://mock.client/redirect'],
-			'registration_access_token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21vY2suc2VydmVyIiwiYXVkIjoiZjRhMmQwMGY3NjAyOTQ4YTk3ZmY0MDlkN2E1ODFlYzIiLCJzdWIiOiJmNGEyZDAwZjc2MDI5NDhhOTdmZjQwOWQ3YTU4MWVjMiJ9.AfOi9YW70rL0EKn4_dvhkyu02iI4yGYV-Xh8hQ9RbHBUnvcXROFfQzn-OL-R3kV3nn8tknmpG-r_8Ouoo7O_Sjo8Hx1QSFfeqjJGOgB8HbXV7WN2spOMicSB-68EyftqfTGH0ksyPyJaNSTbkdIqtawsDaSKUVqTmziEo4IrE5anwDLZrtSUcS0A4KVrOAkJmgYGiC4MC0NMYXeBRxgkr1_h7GN4hekAXs9-5XwRH1mwswUVRL-6prx0IYpPNURFNqkS2NU83xNf-vONThOdLVkADVy-l3PCHT3E1sRdkklCHLjhWiZo7NcMlB0WdS-APnZYCi5hLEr5-jwNI2sxoA',
 			'registration_client_uri' => '',
 			'response_types' => ['id_token token'],
 			'token_endpoint_auth_method' => 'client_secret_basic',
 		];
 		$expected = $this->createExpectedResponse(Http::STATUS_OK, $data);
 
+		$actualData = $response->getData();
+		$this->assertArrayHasKey('client_id', $actualData);
+		$this->assertArrayHasKey('client_secret', $actualData);
+		$this->assertArrayHasKey('registration_access_token', $actualData);
+
+		unset(
+			$actualData['client_id'],
+			$actualData['client_secret'],
+			$actualData['registration_access_token'],
+		);
+
 		$actual = [
-			'data' => $response->getData(),
+			'data' => $actualData,
 			'headers' => $response->getHeaders(),
 			'status' => $response->getStatus(),
 		];
@@ -458,13 +466,10 @@ class ServerControllerTest extends TestCase
 
 		$this->mockConfig->method('getAppValue')->willReturnMap([
 			[Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID, '{}', 'return' => $clientData],
-			[Application::APP_ID, 'client-d6d7896757f61ac4c397d914053180ff', '{}', 'return' => $clientData],
+			[Application::APP_ID, 'client-6d6f636b2072616e646f6d206279746573', '{}', 'return' => $clientData],
 			[Application::APP_ID, 'client-', '{}', 'return' => $clientData],
-			[Application::APP_ID, 'profileData', '', 'return' => ''],
 			[Application::APP_ID, 'encryptionKey', '', 'return' => 'mock encryption key'],
 			[Application::APP_ID, 'privateKey', '', 'return' => self::$privateKey],
-			// Client ID from register() with https://mock.client
-			[Application::APP_ID, 'client-f4a2d00f7602948a97ff409d7a581ec2', '{}', 'return' => $clientData],
 		]);
 
 		return $this->mockConfig;

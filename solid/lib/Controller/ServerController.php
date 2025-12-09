@@ -208,15 +208,18 @@ class ServerController extends Controller
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData)['client_id'];
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['client_id'];
+
+			$clientId = $this->config->saveClientRegistration($clientData)['client_id'];
 			$returnUrl = $getVars['redirect_uri'];
+			$clientRegistration = $this->config->getClientRegistration($clientId);
+			// @FIXME: Implement $clientRegistration = $this->fetchRemoteClientDocument($getVars['client_id'])
+			//        to replace this section of this `if` statement.
 		} else {
 			$clientId = $getVars['client_id'];
 			$returnUrl = $_SERVER['REQUEST_URI'];
+			$clientRegistration = $this->config->getClientRegistration($clientId);
 		}
 
-		$clientRegistration = $this->config->getClientRegistration($clientId);
 		if (isset($clientRegistration['blocked']) && ($clientRegistration['blocked'] === true)) {
 			$result = new JSONResponse('Unauthorized client');
 			$result->setStatus(403);
@@ -405,14 +408,11 @@ class ServerController extends Controller
 		if (! isset($clientData['redirect_uris'])) {
 			return new JSONResponse("Missing redirect URIs", Http::STATUS_BAD_REQUEST);
 		}
-		$clientData['client_id_issued_at'] = time();
-		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
-		$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
-		if (isset($parsedOrigin['port'])) {
-			$origin .= ":" . $parsedOrigin['port'];
-		}
 
-		$clientData = $this->config->saveClientRegistration($origin, $clientData);
+		$clientData['client_id_issued_at'] = time();
+
+		$clientData = $this->config->saveClientRegistration($clientData);
+
 		$registration = array(
 			'client_id' => $clientData['client_id'],
 			'client_secret' => $clientData['client_secret'],
