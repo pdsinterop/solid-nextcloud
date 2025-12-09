@@ -120,12 +120,32 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should return a 400 when asked to authorize with a user but without client_id
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithoutClientId()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->authorize();
+		$expected = new JSONResponse('Bad request, missing client_id', Http::STATUS_BAD_REQUEST);
+
+		$this->assertEquals($expected, $actual);
+	}
+
+	/**
 	 * @testdox ServerController should return a 400 when asked to authorize with a user but without valid token
 	 *
 	 * @covers ::authorize
 	 */
 	public function testAuthorizeWithoutValidToken()
 	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
 		$_GET['response_type'] = 'mock-response-type';
 
 		$parameters = $this->createMockConstructorParameters();
@@ -193,17 +213,8 @@ class ServerControllerTest extends TestCase
 
 		$response = $controller->authorize();
 
-		$expected = [
-			'data' => vsprintf($controller::ERROR_UNREGISTERED_URI, [$_GET['redirect_uri']]),
-			'headers' => [
-				'Cache-Control' => 'no-cache, no-store, must-revalidate',
-				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
-				'Content-Type' => 'application/json; charset=utf-8',
-				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
-				'X-Robots-Tag' => 'noindex, nofollow',
-			],
-			'status' => Http::STATUS_BAD_REQUEST,
-		];
+		$data = vsprintf($controller::ERROR_UNREGISTERED_URI, [$_GET['redirect_uri']]);
+		$expected = $this->createExpectedResponse(Http::STATUS_BAD_REQUEST, $data);
 
 		$actual = [
 			'data' => $response->getData(),
@@ -248,17 +259,7 @@ class ServerControllerTest extends TestCase
 
         $response = $controller->authorize();
 
-        $expected = [
-            'data' => 'ok',
-            'headers' => [
-                'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
-                'Content-Type' => 'application/json; charset=utf-8',
-                'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
-                'X-Robots-Tag' => 'noindex, nofollow',
-            ],
-            'status' => Http::STATUS_FOUND,
-        ];
+        $expected = $this->createExpectedResponse();
 
         $actual = [
             'data' => $response->getData(),
@@ -296,11 +297,32 @@ class ServerControllerTest extends TestCase
 	 *
 	 * @covers ::register
 	 */
+	public function testRegisterWithoutClientData()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...array_values($parameters));
+
+		$actual = $controller->register();
+
+		$this->assertEquals(
+			new JSONResponse('Missing client data', Http::STATUS_BAD_REQUEST),
+			$actual
+		);
+	}
+
+	/**
+	 * @testdox ServerController should return a 400 when asked to register without redirect URIs
+	 *
+	 * @covers ::register
+	 */
 	public function testRegisterWithoutRedirectUris()
 	{
 		$parameters = $this->createMockConstructorParameters();
 
 		$controller = new ServerController(...$parameters);
+
+		self::$clientData = json_encode([]);
 
 		$actual = $controller->register();
 
@@ -328,6 +350,20 @@ class ServerControllerTest extends TestCase
 
 		$response = $controller->register();
 
+		$data = [
+			'application_type' => 'web',
+			'client_id' => 'f4a2d00f7602948a97ff409d7a581ec2',
+			'client_secret' => '3b5798fddd49e23662ee6fe801085100',
+			'grant_types' => ['implicit'],
+			'id_token_signed_response_alg' => 'RS256',
+			'redirect_uris' => ['https://mock.client/redirect'],
+			'registration_access_token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21vY2suc2VydmVyIiwiYXVkIjoiZjRhMmQwMGY3NjAyOTQ4YTk3ZmY0MDlkN2E1ODFlYzIiLCJzdWIiOiJmNGEyZDAwZjc2MDI5NDhhOTdmZjQwOWQ3YTU4MWVjMiJ9.AfOi9YW70rL0EKn4_dvhkyu02iI4yGYV-Xh8hQ9RbHBUnvcXROFfQzn-OL-R3kV3nn8tknmpG-r_8Ouoo7O_Sjo8Hx1QSFfeqjJGOgB8HbXV7WN2spOMicSB-68EyftqfTGH0ksyPyJaNSTbkdIqtawsDaSKUVqTmziEo4IrE5anwDLZrtSUcS0A4KVrOAkJmgYGiC4MC0NMYXeBRxgkr1_h7GN4hekAXs9-5XwRH1mwswUVRL-6prx0IYpPNURFNqkS2NU83xNf-vONThOdLVkADVy-l3PCHT3E1sRdkklCHLjhWiZo7NcMlB0WdS-APnZYCi5hLEr5-jwNI2sxoA',
+			'registration_client_uri' => '',
+			'response_types' => ['id_token token'],
+			'token_endpoint_auth_method' => 'client_secret_basic',
+		];
+		$expected = $this->createExpectedResponse(Http::STATUS_OK, $data);
+
 		$actual = [
 			'data' => $response->getData(),
 			'headers' => $response->getHeaders(),
@@ -337,27 +373,27 @@ class ServerControllerTest extends TestCase
 		// Not comparing time-sensitive data
 		unset($actual['data']['client_id_issued_at'], $actual['headers']['X-Request-Id']);
 
-		$this->assertEquals([
-			'data' => [
-				'application_type' => 'web',
-				'client_id' => 'f4a2d00f7602948a97ff409d7a581ec2',
-				'grant_types' => ['implicit'],
-				'id_token_signed_response_alg' => 'RS256',
-				'redirect_uris' => ['https://mock.client/redirect'],
-				'registration_access_token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21vY2suc2VydmVyIiwiYXVkIjoiZjRhMmQwMGY3NjAyOTQ4YTk3ZmY0MDlkN2E1ODFlYzIiLCJzdWIiOiJmNGEyZDAwZjc2MDI5NDhhOTdmZjQwOWQ3YTU4MWVjMiJ9.AfOi9YW70rL0EKn4_dvhkyu02iI4yGYV-Xh8hQ9RbHBUnvcXROFfQzn-OL-R3kV3nn8tknmpG-r_8Ouoo7O_Sjo8Hx1QSFfeqjJGOgB8HbXV7WN2spOMicSB-68EyftqfTGH0ksyPyJaNSTbkdIqtawsDaSKUVqTmziEo4IrE5anwDLZrtSUcS0A4KVrOAkJmgYGiC4MC0NMYXeBRxgkr1_h7GN4hekAXs9-5XwRH1mwswUVRL-6prx0IYpPNURFNqkS2NU83xNf-vONThOdLVkADVy-l3PCHT3E1sRdkklCHLjhWiZo7NcMlB0WdS-APnZYCi5hLEr5-jwNI2sxoA',
-				'registration_client_uri' => '',
-				'response_types' => ['id_token token'],
-				'token_endpoint_auth_method' => 'client_secret_basic',
-			],
-			'headers' => [
-				'Cache-Control' => 'no-cache, no-store, must-revalidate',
-				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
-				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
-				'X-Robots-Tag' => 'noindex, nofollow',
-				'Content-Type' => 'application/json; charset=utf-8',
-			],
-			'status' => Http::STATUS_OK,
-		], $actual);
+		$this->assertEquals($expected, $actual);
+	}
+
+	public function testTokenWithoutPostBody()
+	{
+		$parameters = $this->createMockConstructorParameters();
+
+		$controller = new ServerController(...$parameters);
+
+		$tokenResponse = $controller->token();
+
+		$expected = $this->createExpectedResponse(Http::STATUS_BAD_REQUEST, 'Bad Request');
+
+		$actual = [
+			'data' => $tokenResponse->getData(),
+			'headers' => $tokenResponse->getHeaders(),
+			'status' => $tokenResponse->getStatus(),
+		];
+		unset($actual['headers']['X-Request-Id']);
+
+		$this->assertEquals($expected, $actual);
 	}
 
 	/**
@@ -369,6 +405,7 @@ class ServerControllerTest extends TestCase
 	{
 		$_POST['client_id'] = self::MOCK_CLIENT_ID;
 		$_POST['code'] = '';
+		$_POST['grant_type'] = 'authorization_code';
 		$_SERVER['HTTP_DPOP'] = 'mock dpop';
 		$_SESSION['nonce'] = 'mock nonce';
 
@@ -400,17 +437,7 @@ class ServerControllerTest extends TestCase
 
 		$tokenResponse = $controller->token();
 
-		$expected = [
-			'data' => "I'm a teapot",
-			'headers' => [
-				'Cache-Control' => 'no-cache, no-store, must-revalidate',
-				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
-				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
-				'X-Robots-Tag' => 'noindex, nofollow',
-				'Content-Type' => 'application/json; charset=utf-8',
-			],
-			'status' => Http::STATUS_IM_A_TEAPOT,
-		];
+		$expected = $this->createExpectedResponse(Http::STATUS_IM_A_TEAPOT, "I'm a teapot");
 
 		$actual = [
 			'data' => $tokenResponse->getData(),
@@ -472,6 +499,25 @@ class ServerControllerTest extends TestCase
 		$this->mockUserManager = $this->createMock(IUserManager::class);
 
 		return $this->mockUserManager;
+	}
+
+	public function createExpectedResponse($status = Http::STATUS_FOUND, $data = 'ok', $headers = []): array
+	{
+		if (empty($headers)) {
+			$headers = [
+				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+				'Content-Security-Policy' => "default-src 'none';base-uri 'none';manifest-src 'self';frame-ancestors 'none'",
+				'Content-Type' => 'application/json; charset=utf-8',
+				'Feature-Policy' => "autoplay 'none';camera 'none';fullscreen 'none';geolocation 'none';microphone 'none';payment 'none'",
+				'X-Robots-Tag' => 'noindex, nofollow',
+			];
+		}
+
+		return [
+			'data' => $data,
+			'headers' => $headers,
+			'status' => $status,
+		];
 	}
 
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
