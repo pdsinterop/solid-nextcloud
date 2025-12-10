@@ -18,6 +18,7 @@ use OCP\IUserManager;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Pdsinterop\Solid\Auth\Enum\Authorization;
 
 class ServerController extends Controller
 {
@@ -208,22 +209,25 @@ class ServerController extends Controller
 					$getVars['redirect_uri']
 				)
 			);
-			$clientId = $this->config->saveClientRegistration($origin, $clientData)['client_id'];
-			$clientId = $this->config->saveClientRegistration($getVars['client_id'], $clientData)['client_id'];
+
+			$clientId = $this->config->saveClientRegistration($clientData)['client_id'];
 			$returnUrl = $getVars['redirect_uri'];
+			$clientRegistration = $this->config->getClientRegistration($clientId);
+			// @FIXME: Implement $clientRegistration = $this->fetchRemoteClientDocument($getVars['client_id'])
+			//        to replace this section of this `if` statement.
 		} else {
 			$clientId = $getVars['client_id'];
 			$returnUrl = $_SERVER['REQUEST_URI'];
+			$clientRegistration = $this->config->getClientRegistration($clientId);
 		}
 
-		$clientRegistration = $this->config->getClientRegistration($clientId);
 		if (isset($clientRegistration['blocked']) && ($clientRegistration['blocked'] === true)) {
 			$result = new JSONResponse('Unauthorized client');
 			$result->setStatus(403);
 			return $result;
 		}
 
-		$approval = $this->checkApproval($clientId);
+		$approval = $this->checkApproval($clientId, $clientRegistration);
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
@@ -283,13 +287,23 @@ class ServerController extends Controller
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
-	private function checkApproval($clientId) {
+	private function checkApproval($clientId, $clientRegistration)
+	{
+		$approved = Authorization::DENIED;
+
 		$allowedClients = $this->config->getAllowedClients($this->userId);
 		if (in_array($clientId, $allowedClients)) {
-			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
-		} else {
-			return \Pdsinterop\Solid\Auth\Enum\Authorization::DENIED;
+			$approved = Authorization::APPROVED;
+		} elseif (isset($clientRegistration['origin'])) {
+			$origin = $clientRegistration['origin'];
+			$trustedApps = $this->config->getTrustedApps();
+
+			if (in_array($origin, $trustedApps)) {
+				$approved = Authorization::APPROVED;
+			}
 		}
+
+		return $approved;
 	}
 
 	private function getProfilePage() {
@@ -405,20 +419,24 @@ class ServerController extends Controller
 		if (! isset($clientData['redirect_uris'])) {
 			return new JSONResponse("Missing redirect URIs", Http::STATUS_BAD_REQUEST);
 		}
+
 		$clientData['client_id_issued_at'] = time();
-		$parsedOrigin = parse_url($clientData['redirect_uris'][0]);
+		$parsedOrigin = parse_url($clientData['redirect_uris'][0]); // FIXME: Should we have multiple origins?
 		$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
 		if (isset($parsedOrigin['port'])) {
 			$origin .= ":" . $parsedOrigin['port'];
 		}
+		$clientData['origin'] = $origin;
 
-		$clientData = $this->config->saveClientRegistration($origin, $clientData);
+		$clientData = $this->config->saveClientRegistration($clientData);
+
 		$registration = array(
 			'client_id' => $clientData['client_id'],
 			'client_secret' => $clientData['client_secret'],
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
+			'origin' => $clientData['origin'],
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		return (new JSONResponse($registration));

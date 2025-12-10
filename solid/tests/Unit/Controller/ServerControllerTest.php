@@ -190,6 +190,67 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithTrustedApp()
+	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
+		$_GET['redirect_uri'] = 'https://mock.client/redirect';
+
+		$origin = 'https://mock.client/';
+		$clientData = json_encode([
+			'client_name' => 'Mock Client',
+			'origin' => $origin,
+			'redirect_uris' => ['https://mock.client/redirect'],
+		], JSON_THROW_ON_ERROR);
+		$trustedApps = json_encode([$origin], JSON_THROW_ON_ERROR);
+
+		$parameters = $this->createMockConstructorParameters($clientData, $trustedApps);
+
+		$this->mockConfig->method('getUserValue')->willReturnArgument(3);
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		$response = $controller->authorize();
+
+		$expected = $this->createExpectedResponse();
+
+		$actual = [
+			'data' => $response->getData(),
+			'headers' => $response->getHeaders(),
+			'status' => $response->getStatus(),
+		];
+
+		$location = $actual['headers']['Location'] ?? '';
+
+		// Not comparing time-sensitive data
+		unset($actual['headers']['X-Request-Id'], $actual['headers']['Location']);
+
+		$this->assertEquals($expected, $actual);
+
+		// @TODO: Move $location assert to a separate test
+		$url = parse_url($location);
+
+		parse_str($url['fragment'], $url['fragment']);
+
+		unset($url['fragment']['access_token'], $url['fragment']['id_token']);
+
+		$this->assertEquals([
+			'scheme' => 'https',
+			'host' => 'mock.client',
+			'path' => '/redirect',
+			'fragment' => [
+				'token_type' => 'Bearer',
+				'expires_in' => '3600',
+			],
+		], $url);
+	}
+
+	/**
 	 * @testdox ServerController should return a 400 when asked to authorize a client that sends an incorrect redirect URI
 	 *
 	 * @covers ::authorize
@@ -352,20 +413,29 @@ class ServerControllerTest extends TestCase
 
 		$data = [
 			'application_type' => 'web',
-			'client_id' => 'f4a2d00f7602948a97ff409d7a581ec2',
-			'client_secret' => '3b5798fddd49e23662ee6fe801085100',
 			'grant_types' => ['implicit'],
 			'id_token_signed_response_alg' => 'RS256',
+			'origin' => 'https://mock.client',
 			'redirect_uris' => ['https://mock.client/redirect'],
-			'registration_access_token' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL21vY2suc2VydmVyIiwiYXVkIjoiZjRhMmQwMGY3NjAyOTQ4YTk3ZmY0MDlkN2E1ODFlYzIiLCJzdWIiOiJmNGEyZDAwZjc2MDI5NDhhOTdmZjQwOWQ3YTU4MWVjMiJ9.AfOi9YW70rL0EKn4_dvhkyu02iI4yGYV-Xh8hQ9RbHBUnvcXROFfQzn-OL-R3kV3nn8tknmpG-r_8Ouoo7O_Sjo8Hx1QSFfeqjJGOgB8HbXV7WN2spOMicSB-68EyftqfTGH0ksyPyJaNSTbkdIqtawsDaSKUVqTmziEo4IrE5anwDLZrtSUcS0A4KVrOAkJmgYGiC4MC0NMYXeBRxgkr1_h7GN4hekAXs9-5XwRH1mwswUVRL-6prx0IYpPNURFNqkS2NU83xNf-vONThOdLVkADVy-l3PCHT3E1sRdkklCHLjhWiZo7NcMlB0WdS-APnZYCi5hLEr5-jwNI2sxoA',
 			'registration_client_uri' => '',
 			'response_types' => ['id_token token'],
 			'token_endpoint_auth_method' => 'client_secret_basic',
 		];
 		$expected = $this->createExpectedResponse(Http::STATUS_OK, $data);
 
+		$actualData = $response->getData();
+		$this->assertArrayHasKey('client_id', $actualData);
+		$this->assertArrayHasKey('client_secret', $actualData);
+		$this->assertArrayHasKey('registration_access_token', $actualData);
+
+		unset(
+			$actualData['client_id'],
+			$actualData['client_secret'],
+			$actualData['registration_access_token'],
+		);
+
 		$actual = [
-			'data' => $response->getData(),
+			'data' => $actualData,
 			'headers' => $response->getHeaders(),
 			'status' => $response->getStatus(),
 		];
@@ -452,25 +522,23 @@ class ServerControllerTest extends TestCase
 
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	public function createMockConfig($clientData): IConfig|MockObject
+	public function createMockConfig($clientData, $trustedApps): IConfig|MockObject
 	{
 		$this->mockConfig = $this->createMock(IConfig::class);
 
 		$this->mockConfig->method('getAppValue')->willReturnMap([
 			[Application::APP_ID, 'client-' . self::MOCK_CLIENT_ID, '{}', 'return' => $clientData],
-			[Application::APP_ID, 'client-d6d7896757f61ac4c397d914053180ff', '{}', 'return' => $clientData],
+			[Application::APP_ID, 'client-6d6f636b2072616e646f6d206279746573', '{}', 'return' => $clientData],
 			[Application::APP_ID, 'client-', '{}', 'return' => $clientData],
-			[Application::APP_ID, 'profileData', '', 'return' => ''],
 			[Application::APP_ID, 'encryptionKey', '', 'return' => 'mock encryption key'],
 			[Application::APP_ID, 'privateKey', '', 'return' => self::$privateKey],
-			// Client ID from register() with https://mock.client
-			[Application::APP_ID, 'client-f4a2d00f7602948a97ff409d7a581ec2', '{}', 'return' => $clientData],
+			[Application::APP_ID, 'trustedApps', '[]', 'return' => $trustedApps],
 		]);
 
 		return $this->mockConfig;
 	}
 
-	public function createMockConstructorParameters($clientData = '{}'): array
+	public function createMockConstructorParameters($clientData = '{}', $trustedApps = '[]'): array
 	{
 		$parameters = [
 			'mock appname',
@@ -479,7 +547,7 @@ class ServerControllerTest extends TestCase
 			$this->createMockUserManager(),
 			$this->createMockUrlGenerator(),
 			self::MOCK_USER_ID,
-			$this->createMockConfig($clientData),
+			$this->createMockConfig($clientData, $trustedApps),
 			$this->createMock(UserService::class),
 			$this->createMock(IDBConnection::class),
 		];

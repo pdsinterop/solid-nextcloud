@@ -157,25 +157,35 @@
 			$this->config->setAppValue('solid', 'clientScopes', $scopes);
 		}
 
-		public function saveClientRegistration($origin, $clientData) {
-			$originHash = md5($origin);
-			$existingRegistration = $this->getClientRegistration($originHash);
-			if ($existingRegistration && isset($existingRegistration['redirect_uris'])) {
-				foreach ($existingRegistration['redirect_uris'] as $uri) {
-					$clientData['redirect_uris'][] = $uri;
-				}
-				$clientData['redirect_uris'] = array_unique($clientData['redirect_uris']);
-				if (isset($existingRegistration['blocked'])) {
-					$clientData['blocked'] = $existingRegistration['blocked'];
+		public function saveClientRegistration($clientData)
+		{
+			$generatedClientId = bin2hex(random_bytes(16)); // 32 chars for the client Id
+
+			// Avoid collision, give up after 5 tries.
+			for ($i = 0; $i < 5; $i++) {
+				$existingRegistration = $this->getClientRegistration($generatedClientId);
+				if ($existingRegistration['client_id'] ?? false) {
+					$generatedClientId = bin2hex(random_bytes(16));
+				} else {
+					break;
 				}
 			}
 
-			$clientData['client_id'] = $originHash;
-			$clientData['client_name'] = $origin;
-			$clientData['client_secret'] = md5(random_bytes(32));
-			$this->config->setAppValue('solid', "client-" . $originHash, json_encode($clientData));
+			if ($existingRegistration['client_id'] ?? false) {
+				throw new \Exception("Could not generate unique client ID");
+			}
 
-			$this->config->setAppValue('solid', "client-" . $origin, json_encode($clientData));
+			$generatedClientSecret = bin2hex(random_bytes(32)); // and 64 chars for the client secret
+
+			$clientData['client_id'] = $generatedClientId;
+			$clientData['client_secret'] = $generatedClientSecret;
+
+			if (!isset($clientData['client_name'])) {
+				$clientData['client_name'] = "Client $generatedClientId";
+			}
+
+			$this->config->setAppValue('solid', "client-" . $generatedClientId, json_encode($clientData));
+
 			return $clientData;
 		}
 
@@ -186,6 +196,13 @@
 		public function getClientRegistration($clientId) {
 			$data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
 			return json_decode($data, true);
+		}
+
+		public function getTrustedApps()
+		{
+			$appValue = $this->config->getAppValue('solid', 'trustedApps', '[]');
+
+			return json_decode($appValue, true, 512, JSON_THROW_ON_ERROR);
 		}
 
 		public function getUserSubDomainsEnabled() {
