@@ -227,7 +227,7 @@ class ServerController extends Controller
 			return $result;
 		}
 
-		$approval = $this->checkApproval($clientId);
+		$approval = $this->checkApproval($clientId, $clientRegistration);
 		if (!$approval) {
 			$result = new JSONResponse('Approval required');
 			$result->setStatus(302);
