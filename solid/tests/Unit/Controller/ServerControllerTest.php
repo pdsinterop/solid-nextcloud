@@ -190,6 +190,67 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithTrustedApp()
+	{
+		$_GET['client_id'] = self::MOCK_CLIENT_ID;
+		$_GET['redirect_uri'] = 'https://mock.client/redirect';
+
+		$origin = 'https://mock.client/';
+		$clientData = json_encode([
+			'client_name' => 'Mock Client',
+			'origin' => $origin,
+			'redirect_uris' => ['https://mock.client/redirect'],
+		], JSON_THROW_ON_ERROR);
+		$trustedApps = json_encode([$origin], JSON_THROW_ON_ERROR);
+
+		$parameters = $this->createMockConstructorParameters($clientData, $trustedApps);
+
+		$this->mockConfig->method('getUserValue')->willReturnArgument(3);
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		$response = $controller->authorize();
+
+		$expected = $this->createExpectedResponse();
+
+		$actual = [
+			'data' => $response->getData(),
+			'headers' => $response->getHeaders(),
+			'status' => $response->getStatus(),
+		];
+
+		$location = $actual['headers']['Location'] ?? '';
+
+		// Not comparing time-sensitive data
+		unset($actual['headers']['X-Request-Id'], $actual['headers']['Location']);
+
+		$this->assertEquals($expected, $actual);
+
+		// @TODO: Move $location assert to a separate test
+		$url = parse_url($location);
+
+		parse_str($url['fragment'], $url['fragment']);
+
+		unset($url['fragment']['access_token'], $url['fragment']['id_token']);
+
+		$this->assertEquals([
+			'scheme' => 'https',
+			'host' => 'mock.client',
+			'path' => '/redirect',
+			'fragment' => [
+				'token_type' => 'Bearer',
+				'expires_in' => '3600',
+			],
+		], $url);
+	}
+
+	/**
 	 * @testdox ServerController should return a 400 when asked to authorize a client that sends an incorrect redirect URI
 	 *
 	 * @covers ::authorize
@@ -460,7 +521,7 @@ class ServerControllerTest extends TestCase
 
 	////////////////////////////// MOCKS AND STUBS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-	public function createMockConfig($clientData): IConfig|MockObject
+	public function createMockConfig($clientData, $trustedApps): IConfig|MockObject
 	{
 		$this->mockConfig = $this->createMock(IConfig::class);
 
@@ -470,12 +531,13 @@ class ServerControllerTest extends TestCase
 			[Application::APP_ID, 'client-', '{}', 'return' => $clientData],
 			[Application::APP_ID, 'encryptionKey', '', 'return' => 'mock encryption key'],
 			[Application::APP_ID, 'privateKey', '', 'return' => self::$privateKey],
+			[Application::APP_ID, 'trustedApps', '[]', 'return' => $trustedApps],
 		]);
 
 		return $this->mockConfig;
 	}
 
-	public function createMockConstructorParameters($clientData = '{}'): array
+	public function createMockConstructorParameters($clientData = '{}', $trustedApps = '[]'): array
 	{
 		$parameters = [
 			'mock appname',
@@ -484,7 +546,7 @@ class ServerControllerTest extends TestCase
 			$this->createMockUserManager(),
 			$this->createMockUrlGenerator(),
 			self::MOCK_USER_ID,
-			$this->createMockConfig($clientData),
+			$this->createMockConfig($clientData, $trustedApps),
 			$this->createMock(UserService::class),
 			$this->createMock(IDBConnection::class),
 		];

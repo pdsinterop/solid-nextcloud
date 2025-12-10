@@ -208,6 +208,27 @@ class BaseServerConfigTest extends TestCase
 		$baseServerConfig->removeClientRegistration(self::MOCK_CLIENT_ID);
 	}
 
+	/**
+	 * @testdox BaseServerConfig should return decoded trusted apps when asked to GetTrustedApps
+	 * @covers ::getTrustedApps
+	 */
+	public function testGetTrustedApps()
+	{
+		$configMock = $this->createMock(IConfig::class);
+		$baseServerConfig = new BaseServerConfig($configMock);
+
+		$expected = [self::MOCK_ORIGIN];
+
+		$configMock->expects($this->once())
+			->method('getAppValue')
+			->with(Application::APP_ID, 'trustedApps', '[]')
+			->willReturn(json_encode($expected));
+
+		$actual = $baseServerConfig->getTrustedApps();
+
+		$this->assertEquals($expected, $actual);
+	}
+
 	/////////////////////////////// DATAPROVIDERS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 	public function provideBooleans()

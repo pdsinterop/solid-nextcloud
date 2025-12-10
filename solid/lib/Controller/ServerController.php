@@ -18,6 +18,7 @@ use OCP\IUserManager;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Pdsinterop\Solid\Auth\Enum\Authorization;
 
 class ServerController extends Controller
 {
@@ -286,13 +287,23 @@ class ServerController extends Controller
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
 
-	private function checkApproval($clientId) {
+	private function checkApproval($clientId, $clientRegistration)
+	{
+		$approved = Authorization::DENIED;
+
 		$allowedClients = $this->config->getAllowedClients($this->userId);
 		if (in_array($clientId, $allowedClients)) {
-			return \Pdsinterop\Solid\Auth\Enum\Authorization::APPROVED;
-		} else {
-			return \Pdsinterop\Solid\Auth\Enum\Authorization::DENIED;
+			$approved = Authorization::APPROVED;
+		} elseif (isset($clientRegistration['origin'])) {
+			$origin = $clientRegistration['origin'];
+			$trustedApps = $this->config->getTrustedApps();
+
+			if (in_array($origin, $trustedApps)) {
+				$approved = Authorization::APPROVED;
+			}
 		}
+
+		return $approved;
 	}
 
 	private function getProfilePage() {

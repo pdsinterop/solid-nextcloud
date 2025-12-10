@@ -198,6 +198,13 @@
 			return json_decode($data, true);
 		}
 
+		public function getTrustedApps()
+		{
+			$appValue = $this->config->getAppValue('solid', 'trustedApps', '[]');
+
+			return json_decode($appValue, true, 512, JSON_THROW_ON_ERROR);
+		}
+
 		public function getUserSubDomainsEnabled() {
 			$value = $this->config->getAppValue('solid', 'userSubDomainsEnabled', false);
 
