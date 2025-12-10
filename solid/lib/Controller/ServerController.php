@@ -421,6 +421,12 @@ class ServerController extends Controller
 		}
 
 		$clientData['client_id_issued_at'] = time();
+		$parsedOrigin = parse_url($clientData['redirect_uris'][0]); // FIXME: Should we have multiple origins?
+		$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
+		if (isset($parsedOrigin['port'])) {
+			$origin .= ":" . $parsedOrigin['port'];
+		}
+		$clientData['origin'] = $origin;
 
 		$clientData = $this->config->saveClientRegistration($clientData);
 
@@ -430,6 +436,7 @@ class ServerController extends Controller
 			'registration_client_uri' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.registeredClient", array("clientId" => $clientData['client_id']))),
 			'client_id_issued_at' => $clientData['client_id_issued_at'],
 			'redirect_uris' => $clientData['redirect_uris'],
+			'origin' => $clientData['origin'],
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
 		return (new JSONResponse($registration));
