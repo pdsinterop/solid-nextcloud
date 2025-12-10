@@ -415,6 +415,7 @@ class ServerControllerTest extends TestCase
 			'application_type' => 'web',
 			'grant_types' => ['implicit'],
 			'id_token_signed_response_alg' => 'RS256',
+			'origin' => 'https://mock.client',
 			'redirect_uris' => ['https://mock.client/redirect'],
 			'registration_client_uri' => '',
 			'response_types' => ['id_token token'],
