@@ -22,6 +22,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  docker-images:
+    outputs:
+      COOKIE_IMAGE: ${{ steps.images.outputs.COOKIE_IMAGE}}
+      COOKIE_KEY: ${{ steps.keys.outputs.COOKIE_KEY }}
+      PUBSUB_IMAGE: ${{ steps.images.outputs.PUBSUB_IMAGE }}
+      PUBSUB_KEY: ${{ steps.keys.outputs.PUBSUB_KEY }}
+      SOLID_CRUD_TESTS_IMAGE: ${{steps.images.outputs.SOLID_CRUD_TESTS_IMAGE}}
+      SOLID_CRUD_TESTS_KEY: ${{ steps.keys.outputs.SOLID_CRUD_TESTS_KEY }}
+      WEB_ACCESS_CONTROL_TESTS_IMAGE: ${{steps.images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE}}
+      WEB_ACCESS_CONTROL_TESTS_KEY: ${{ steps.keys.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}
+      WEBID_PROVIDER_TESTS_IMAGE: ${{steps.images.outputs.WEBID_PROVIDER_TESTS_IMAGE}}
+      WEBID_PROVIDER_TESTS_KEY: ${{ steps.keys.outputs.WEBID_PROVIDER_TESTS_KEY }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: images
+        run: |
+          echo "COOKIE_IMAGE='michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}'" >> "${GITHUB_OUTPUT}"
+          echo "PUBSUB_IMAGE='ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}'" >> "${GITHUB_OUTPUT}"
+          echo "SOLID_CRUD_TESTS_IMAGE=solidtestsuite/solid-crud-tests:v7.0.5" >> "${GITHUB_OUTPUT}"
+          echo "WEB_ACCESS_CONTROL_TESTS_IMAGE=solidtestsuite/web-access-control-tests:v7.1.0" >> "${GITHUB_OUTPUT}"
+          echo "WEBID_PROVIDER_TESTS_IMAGE=solidtestsuite/webid-provider-tests:v2.1.1" >> "${GITHUB_OUTPUT}"
+      - id: keys
+        run: |
+          echo "COOKIE_KEY=$(echo "${{ steps.images.outputs.COOKIE_IMAGE }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}"
+          echo "PUBSUB_KEY=$(echo "${{ steps.images.outputs.PUBSUB_IMAGE }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}"
+          echo "SOLID_CRUD_TESTS_KEY=$(echo "${{ steps.images.outputs.SOLID_CRUD_TESTS_IMAGE }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}"
+          echo "WEB_ACCESS_CONTROL_TESTS_KEY=$(echo "${{ steps.images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}"
+          echo "WEBID_PROVIDER_TESTS_KEY=$(echo "${{ steps.images.outputs.WEBID_PROVIDER_TESTS_IMAGE }}" \
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_OUTPUT}";
+
   # @TODO: Instead of building the docker image here, take a pre-build image and mount the code?
   #        (only build when the Dockerfile changes) Or only push when tagged/main?
   build-docker-nextcloud:
@@ -47,7 +81,7 @@ jobs:
             >> "${GITHUB_ENV}"
 
       - uses: actions/cache@v4
-        id: cache-solid-nextcloud-docker
+        id: cache-docker-solid-nextcloud
         with:
           path: cache/solid-nextcloud
           key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
@@ -69,12 +103,96 @@ jobs:
           .
           docker push "ghcr.io/${{ github.repository }}:${{ env.TAG }}"
           mkdir -p cache/solid-nextcloud
-          docker image save solid-nextcloud:${{ env.TAG }} --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
+          docker image save solid-nextcloud:${{ env.TAG }} \
+            --output ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
+
+  pull-docker-cookie:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-cookie
+        with:
+          path: cache/cookie
+          key: ${{ needs.docker-images.outputs.COOKIE_KEY }}
+      - if: steps.cache-docker-cookie.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/cookie/
+          docker pull ${{ needs.docker-images.outputs.COOKIE_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.COOKIE_IMAGE }} \
+            --output ./cache/cookie/${{ needs.docker-images.outputs.COOKIE_KEY }}.tar
+  pull-docker-pubsub:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-pubsub
+        with:
+          path: cache/pubsub
+          key: ${{ needs.docker-images.outputs.PUBSUB_KEY }}
+      - if: steps.cache-docker-pubsub.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/pubsub/
+          docker pull ${{ needs.docker-images.outputs.PUBSUB_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.PUBSUB_IMAGE }} \
+            --output ./cache/pubsub/${{ needs.docker-images.outputs.PUBSUB_KEY }}.tar
+
+  pull-docker-solid-crud-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-solid-crud-tests
+        with:
+          path: cache/tests
+          key: ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}
+      - if: steps.cache-docker-solid-crud-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/tests
+          docker pull ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }} \
+            --output ./cache/tests/${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}.tar
+  pull-docker-web-access-control-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-web-access-control-tests
+        with:
+          path: cache/tests
+          key: ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}
+      - if: steps.cache-docker-web-access-control-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/tests
+          docker pull ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }} \
+            --output ./cache/tests/${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}.tar
+  pull-docker-webid-provider-tests:
+    needs: docker-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/cache@v4
+        id: cache-docker-webid-provider-tests
+        with:
+          path: cache/tests
+          key: ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}
+      - if: steps.cache-docker-webid-provider-tests.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p cache/tests
+          docker pull ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }}
+          docker image save ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }} \
+            --output ./cache/tests/${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}.tar
 
   solid-testsuite:
     timeout-minutes: 30
     needs:
       - build-docker-nextcloud
+      - docker-images
+      - pull-docker-cookie
+      - pull-docker-pubsub
+      - pull-docker-solid-crud-tests
+      - pull-docker-web-access-control-tests
+      - pull-docker-webid-provider-tests
 
     runs-on: ubuntu-latest
 
@@ -86,9 +204,12 @@ jobs:
           - 29
           - 30
         test:
-          - 'solidtestsuite/solid-crud-tests:v7.0.5'
-          - 'solidtestsuite/web-access-control-tests:v7.1.0'
-          - 'solidtestsuite/webid-provider-tests:v2.1.1'
+          - image: ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_IMAGE }}
+            file: ${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}
+          - image: ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_IMAGE }}
+            file: ${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}
+          - image: ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_IMAGE }}
+            file: ${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}
 
     # Prevent EOL or non-stable versions of Nextcloud to fail the test-suite
     continue-on-error: ${{ contains(fromJson('[28,29,30]'), matrix.nextcloud_version) == false }}
@@ -98,16 +219,30 @@ jobs:
         # A tag name may only contain lower- and uppercase letters, digits, underscores, periods and dashes.
         run: |
           echo "TAG=$(echo -n "${{ github.ref_name }}-${{ matrix.nextcloud_version }}" \
-            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" \
-            >> "${GITHUB_ENV}"
+            | tr --complement --squeeze-repeats '[:alnum:]._-' '_')" >> "${GITHUB_ENV}"
 
       - uses: actions/checkout@v4
 
       - uses: actions/cache@v4
-        id: cache-solid-nextcloud-docker
+        id: cache-docker-solid-nextcloud
         with:
           path: cache/solid-nextcloud
           key: solid-nextcloud-docker-${{ matrix.nextcloud_version }}-${{ github.sha }}
+      - uses: actions/cache@v4
+        id: cache-docker-cookie
+        with: {path: cache/cookie, key: "${{ needs.docker-images.outputs.COOKIE_KEY }}"}
+      - uses: actions/cache@v4
+        id: cache-docker-pubsub
+        with: {path: cache/pubsub, key: "${{ needs.docker-images.outputs.PUBSUB_KEY }}"}
+      - uses: actions/cache@v4
+        id: cache-docker-solid-crud-tests
+        with: {path: cache/tests, key: "${{ needs.docker-images.outputs.SOLID_CRUD_TESTS_KEY }}"}
+      - uses: actions/cache@v4
+        id: cache-docker-web-access-control-tests
+        with: {path: cache/tests, key: "${{ needs.docker-images.outputs.WEB_ACCESS_CONTROL_TESTS_KEY }}"}
+      - uses: actions/cache@v4
+        id: cache-docker-webid-provider-tests
+        with: {path: cache/tests, key: "${{ needs.docker-images.outputs.WEBID_PROVIDER_TESTS_KEY }}"}
 
       - uses: docker/login-action@v3
         with:
@@ -115,13 +250,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # FIXME: The `docker pull` should be moved to a previous step and cached
-      - name: Pull docker Images
+      - name: Load docker Images
         run: |
+          docker image load --input ./cache/cookie/${{ needs.docker-images.outputs.COOKIE_KEY }}.tar
+          docker image load --input ./cache/pubsub/${{ needs.docker-images.outputs.PUBSUB_KEY }}.tar
           docker image load --input ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
-          docker pull michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}
-          docker pull ${{ matrix.test }}
-          docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}
+          docker image load --input ./cache/tests/${{ matrix.test.file }}.tar
 
       - name: Start Docker Containers
         run: |
@@ -131,16 +265,16 @@ jobs:
             --interactive \
             --name 'pubsub' \
             --network=testnet \
-            "ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}"
+            ${{ needs.docker-images.outputs.PUBSUB_IMAGE }}
 
           source ./run-solid-test-suite.sh
-          startSolidNextcloud 'server' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
-          startSolidNextcloud 'thirdparty' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test }}
+          startSolidNextcloud 'server' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test.image }}
+          startSolidNextcloud 'thirdparty' "solid-nextcloud:${{ env.TAG }}" ${{ matrix.test.image }}
 
           echo "COOKIE_server=${COOKIE_server}" >> "${GITHUB_ENV}"
           echo "COOKIE_thirdparty=${COOKIE_thirdparty}" >> "${GITHUB_ENV}"
 
-      - name: Run tests - ${{ matrix.test }}
+      - name: Run tests - ${{ matrix.test.image }}
         run: |
           export COOKIE_server="${{ env.COOKIE_server }}"
           export COOKIE_thirdparty="${{ env.COOKIE_thirdparty }}"
@@ -151,13 +285,13 @@ jobs:
             --env COOKIE_ALICE="$COOKIE_server" \
             --env COOKIE_BOB="$COOKIE_thirdparty" \
             --env-file ./env-vars-testers.list \
-            ${{ matrix.test }}
+            ${{ matrix.test.image }}
 
-#      - name: Setup tmate session - ${{ matrix.test }}
+#      - name: Setup tmate session - ${{ matrix.test.image }}
 #        if: failure()
 #        uses: mxschmitt/action-tmate@v3
 
-      - name: Show nextcloud logs - ${{ matrix.test }}
+      - name: Show nextcloud logs - ${{ matrix.test.image }}
         if: always()
         run: |
           docker exec -i server cat /var/www/html/data/nextcloud.log
