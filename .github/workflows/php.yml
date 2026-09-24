@@ -87,9 +87,9 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
-          - 28
-          - 29
-          - 30
+          - 33
+          - 34
+          - 35
     steps:
       - uses: actions/checkout@v5
       # @CHECKME: cp site.conf /etc/apache2/sites-enabled/000-default.conf (?)
