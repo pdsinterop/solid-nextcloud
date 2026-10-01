@@ -26,7 +26,7 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "sweetrdf/easyrdf": "1.15.0",
+        "sweetrdf/easyrdf": ">=1.15.0 <1.16.0",
         "laminas/laminas-diactoros": "^3",
         "lcobucci/jwt": "^4.1",
         "pdsinterop/flysystem-nextcloud": "dev-feature/flysystem-3",
