@@ -129,12 +129,8 @@ class SolidWebhookController extends Controller {
 			$serverUri
 		);
 
+		$this->adapter = $rdfAdapter;
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
-
-		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-
-		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
-		$filesystem->addPlugin($plugin);
 
 		return $filesystem;
 	}
@@ -190,7 +186,7 @@ class SolidWebhookController extends Controller {
 		$path = $target["path"];
 
 		$this->initializeStorage($userId);
-		$this->WAC = new WAC($this->filesystem);
+		$this->WAC = new WAC($this->filesystem, $this->adapter);
 
 		$baseUrl = $this->getStorageUrl($userId);
 		$this->WAC->setBaseUrl($baseUrl);
