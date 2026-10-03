@@ -18,6 +18,7 @@ use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\IDBConnection;
 use OCP\IRequest;
+use OCP\IUserManager;
 use OCP\Server;
 
 class Application extends App implements IBootstrap {
@@ -26,17 +27,14 @@ class Application extends App implements IBootstrap {
 
     /**
      * @param array $urlParams
-     * @param IRequest $request
-     * @param IUserManager $userManager
      */
-    public function __construct(
-        array $urlParams = [],
-        IRequest $request,
-        IUserManager $userManager,
-    ) {
+    public function __construct(array $urlParams = [])
+    {
+        $request = \OCP\Server::get(\OCP\IRequest::class);
         $rawPathInfo = $request->getRawPathInfo();
         if ($rawPathInfo == '/apps/solid/token') {
             $backend = new \OCA\Solid\ClientAuth();
+            $userManager = \OCP\Server::get(\OCP\IUserManager::class);
             $userManager->registerBackend($backend);
         }
         parent::__construct(self::APP_ID, $urlParams);
