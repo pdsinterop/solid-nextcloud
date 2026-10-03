@@ -2,7 +2,7 @@
 
 set -e
 
-: "${COOKIE_TAG:=latest@sha256:b2815496a1291a8f0f8bf2524c42d6000a4a1d6a202b319fe01e1afacf1cec7d}"
+: "${COOKIE_TAG:=rewrite_curl-based@sha256:76ed9dc006ee656fc6772e2fd4e5b2956416caef84adf9d2d2b2c02c9f47043b}"
 
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
@@ -12,7 +12,7 @@ function setup {
 
   docker network create testnet
 
-  docker pull "michielbdejong/nextcloud-cookie:${COOKIE_TAG}"
+  docker pull "ghcr.io/pdsinterop/docker-nextcloud-cookie:${COOKIE_TAG}"
   docker pull solidtestsuite/solid-crud-tests:v7.0.5
   docker pull solidtestsuite/web-access-control-tests:v7.1.0
   docker pull solidtestsuite/webid-provider-tests:v2.1.1
@@ -52,7 +52,7 @@ function startSolidNextcloud {
         --cap-add=SYS_ADMIN \
         --network=testnet \
         --env-file "./env-vars-$1.list" \
-        "michielbdejong/nextcloud-cookie:${COOKIE_TAG}"
+        "ghcr.io/pdsinterop/docker-nextcloud-cookie:${COOKIE_TAG}"
     )"
 }
 

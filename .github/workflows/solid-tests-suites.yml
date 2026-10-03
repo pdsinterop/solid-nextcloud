@@ -4,7 +4,7 @@ name: Solid Test Suites
 env:
   # Docker Hub digest (i.e. hash) of the used Docker Images that do not have a version tag.
   PUBSUB_TAG: latest@sha256:b73a2a5c98d2005bb667dfc69d1c859d704366024298b9caa24ea2e182c456c2
-  COOKIE_TAG: latest@sha256:b2815496a1291a8f0f8bf2524c42d6000a4a1d6a202b319fe01e1afacf1cec7d
+  COOKIE_TAG: rewrite_curl-based@sha256:76ed9dc006ee656fc6772e2fd4e5b2956416caef84adf9d2d2b2c02c9f47043b
 
 on:
   push:
@@ -119,7 +119,7 @@ jobs:
       - name: Pull docker Images
         run: |
           docker image load --input ./cache/solid-nextcloud/${{ github.sha }}-${{ matrix.nextcloud_version }}.tar
-          docker pull michielbdejong/nextcloud-cookie:${{ env.COOKIE_TAG }}
+          docker pull ghcr.io/pdsinterop/docker-nextcloud-cookie:${{ env.COOKIE_TAG }}
           docker pull ${{ matrix.test }}
           docker pull ghcr.io/pdsinterop/php-solid-pubsub-server:${{ env.PUBSUB_TAG }}
 
