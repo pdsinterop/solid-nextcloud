@@ -2,7 +2,7 @@
 
 set -e
 
-: "${COOKIE_TAG:=rewrite_curl-based@sha256:76ed9dc006ee656fc6772e2fd4e5b2956416caef84adf9d2d2b2c02c9f47043b}"
+: "${COOKIE_TAG:=rewrite_curl-based@sha256:24c8f184d5d71b9db0f9bdf41f1a10d6674d77eff13dc46cd144ea6a8bd4608d }"
 
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
