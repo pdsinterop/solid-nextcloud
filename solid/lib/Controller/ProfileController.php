@@ -80,13 +80,8 @@ class ProfileController extends Controller {
 			$formats,
 			$serverUri
 		);
-
+		$this->adapter = $rdfAdapter;
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
-
-		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-
-		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
-		$filesystem->addPlugin($plugin);
 
 		return $filesystem;
 	}
@@ -147,8 +142,8 @@ EOF;
 
 		$this->filesystem = $this->getFileSystem($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
-		$this->WAC = new WAC($this->filesystem);
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);
+		$this->WAC = new WAC($this->filesystem, $this->adapter);
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getProfileUrl($userId);

@@ -78,12 +78,8 @@ class StorageController extends Controller
 			$serverUri
 		);
 
+		$this->adapter = $rdfAdapter;
 		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
-
-		$filesystem->addPlugin(new \Pdsinterop\Rdf\Flysystem\Plugin\AsMime($formats));
-
-		$plugin = new \Pdsinterop\Rdf\Flysystem\Plugin\ReadRdf($graph);
-		$filesystem->addPlugin($plugin);
 
 		return $filesystem;
 	}
@@ -246,43 +242,43 @@ EOF;
 
 		// Make sure the root folder has an acl file, as is required by the spec;
 		// Generate a default file granting the owner full access if there is nothing there.
-		if (!$this->filesystem->has("/.acl")) {
+		if (!$this->filesystem->fileExists("/.acl")) {
 			$defaultAcl = $this->generateDefaultAcl($userId);
 			$this->filesystem->write("/.acl", $defaultAcl);
 		}
 
 		// Generate default folders and ACLs:
-		if (!$this->filesystem->has("/inbox")) {
-			$this->filesystem->createDir("/inbox");
+		if (!$this->filesystem->fileExists("/inbox")) {
+			$this->filesystem->createDirectory("/inbox");
 		}
-		if (!$this->filesystem->has("/inbox/.acl")) {
+		if (!$this->filesystem->fileExists("/inbox/.acl")) {
 			$inboxAcl = $this->generatePublicAppendAcl($userId);
 			$this->filesystem->write("/inbox/.acl", $inboxAcl);
 		}
-		if (!$this->filesystem->has("/settings")) {
-			$this->filesystem->createDir("/settings");
+		if (!$this->filesystem->fileExists("/settings")) {
+			$this->filesystem->createDirectory("/settings");
 		}
-		if (!$this->filesystem->has("/settings/privateTypeIndex.ttl")) {
+		if (!$this->filesystem->fileExists("/settings/privateTypeIndex.ttl")) {
 			$privateTypeIndex = $this->generateDefaultPrivateTypeIndex();
 			$this->filesystem->write("/settings/privateTypeIndex.ttl", $privateTypeIndex);
 		}
-		if (!$this->filesystem->has("/settings/publicTypeIndex.ttl")) {
+		if (!$this->filesystem->fileExists("/settings/publicTypeIndex.ttl")) {
 			$publicTypeIndex = $this->generateDefaultPublicTypeIndex();
 			$this->filesystem->write("/settings/publicTypeIndex.ttl", $publicTypeIndex);
 		}
-		if (!$this->filesystem->has("/settings/preferences.ttl")) {
+		if (!$this->filesystem->fileExists("/settings/preferences.ttl")) {
 			$preferences = $this->generateDefaultPreferences($userId);
 			$this->filesystem->write("/settings/preferences.ttl", $preferences);
 		}
-		if (!$this->filesystem->has("/public")) {
-			$this->filesystem->createDir("/public");
+		if (!$this->filesystem->fileExists("/public")) {
+			$this->filesystem->createDirectory("/public");
 		}
-		if (!$this->filesystem->has("/public/.acl")) {
+		if (!$this->filesystem->fileExists("/public/.acl")) {
 			$publicAcl = $this->generatePublicReadAcl($userId);
 			$this->filesystem->write("/public/.acl", $publicAcl);
 		}
-		if (!$this->filesystem->has("/private")) {
-			$this->filesystem->createDir("/private");
+		if (!$this->filesystem->fileExists("/private")) {
+			$this->filesystem->createDirectory("/private");
 		}
 	}
 	/**
@@ -296,8 +292,8 @@ EOF;
 
 		$this->initializeStorage($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->response);
-		$this->WAC = new WAC($this->filesystem);
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);
+		$this->WAC = new WAC($this->filesystem, $this->adapter);
 
 		$request = $this->rawRequest;
 		$baseUrl = $this->getStorageUrl($userId);
@@ -451,7 +447,7 @@ EOF;
 		$policy->addAllowedConnectDomain("*");
 		$policy->allowInlineStyle(true);
 		// $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
-		$policy->allowEvalScript(true);
+		// $policy->allowEvalScript(true); - removed, this function no longer exissts in NC34
 		$result->setContentSecurityPolicy($policy);
 
 		$result->setStatus($statusCode);

@@ -53,7 +53,7 @@ class JtiReplayDetector implements ReplayDetectorInterface
             ->andWhere(
                 $queryBuilder->expr()->gt('request_time', $queryBuilder->createParameter('notOlderThan'))
             )->setParameter('notOlderThan', $notOlderThan, 'datetime')
-            ->execute()
+            ->executeQuery()
         ;
 
         $row = $cursor->fetch();
