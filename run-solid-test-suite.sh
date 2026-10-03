@@ -2,13 +2,13 @@
 
 set -e
 
-: "${COOKIE_TAG:=rewrite_curl-based@sha256:05128fefb2a2090fe63918921dfe18b9eaf6fbedafcaae1895e1d51cca4fc763}"
+: "${COOKIE_TAG:=rewrite_curl-based@sha256:0d0a5a4d90651e2f38f2d881da6a5087e17aa3ca08c342b7af59a539726115f5}"
 
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
 function setup {
   docker build -t pubsub-server  https://github.com/pdsinterop/php-solid-pubsub-server.git#main
-  docker build -t solid-nextcloud --build-arg NEXTCLOUD_VERSION=25 .
+  docker build -t solid-nextcloud --build-arg NEXTCLOUD_VERSION=33 .
 
   docker network create testnet
 
