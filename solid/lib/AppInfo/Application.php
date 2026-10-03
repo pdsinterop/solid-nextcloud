@@ -26,14 +26,18 @@ class Application extends App implements IBootstrap {
 
     /**
      * @param array $urlParams
+     * @param IRequest $request
+     * @param IUserManager $userManager
      */
-    public function __construct(array $urlParams = []) {
-        $request = \OCP\Server::get(\OCP\IRequest::class);
+    public function __construct(
+        array $urlParams = [],
+        IRequest $request,
+        IUserManager $userManager,
+    ) {
         $rawPathInfo = $request->getRawPathInfo();
-
         if ($rawPathInfo == '/apps/solid/token') {
             $backend = new \OCA\Solid\ClientAuth();
-            \OC::$server->getUserManager()->registerBackend($backend);
+            $userManager->registerBackend($backend);
         }
         parent::__construct(self::APP_ID, $urlParams);
     }
