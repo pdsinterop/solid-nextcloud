@@ -87,6 +87,8 @@ jobs:
       fail-fast: false
       matrix:
         nextcloud_version:
+          - 31
+          - 32
           - 33
           - 34
           - 35
