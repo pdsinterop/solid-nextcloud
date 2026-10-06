@@ -2,7 +2,7 @@
 
 set -e
 
-: "${COOKIE_TAG:=v0.3.0"
+: "${COOKIE_TAG:=v0.3.0}"
 
 # Note that .github/workflows/solid-tests-suites.yml does not use this, this function is just for manual runs of this script.
 # You can pick different values for the NEXTCLOUD_VERSION build arg, as required:
