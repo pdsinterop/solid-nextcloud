@@ -27,12 +27,12 @@
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "sweetrdf/easyrdf": ">=1.15.0 <1.16.0",
-        "laminas/laminas-diactoros": "^3",
+        "laminas/laminas-diactoros": "^3.8",
         "lcobucci/jwt": "^4.1",
-        "pdsinterop/flysystem-nextcloud": "dev-feature/flysystem-3",
-        "pdsinterop/flysystem-rdf": "dev-main",
-        "pdsinterop/solid-auth": "dev-feature/flysystem-3",
-        "pdsinterop/solid-crud": "dev-feature/flysystem-3#3265bb8",
+        "pdsinterop/flysystem-nextcloud": "^0.4",
+        "pdsinterop/flysystem-rdf": "^0.7",
+        "pdsinterop/solid-auth": "^0.15",
+        "pdsinterop/solid-crud": "^0.9",
         "phrity/websocket": "^3.5"
     },
     "require-dev": {
