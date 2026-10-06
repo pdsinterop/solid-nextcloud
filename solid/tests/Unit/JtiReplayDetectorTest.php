@@ -48,7 +48,7 @@ class JtiReplayDetectorTest extends TestCase
 			->method('setParameter')
 			->willReturnSelf();
 		$mockQueryBuilder->expects($this->once())
-			->method('execute')
+			->method('executeQuery')
 			->willReturn($mockResult);
 		$mockResult->expects($this->once())
 			->method('fetch')
