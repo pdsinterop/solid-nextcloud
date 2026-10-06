@@ -30,8 +30,16 @@ class StorageController extends Controller
 	protected ServerConfig $config;
 	protected IURLGenerator $urlGenerator;
 
-	/* @var ISession */
-	private $session;
+	private ISession $session;
+	private IRootFolder $rootFolder;
+	private \League\Flysystem\Filesystem $filesystem;
+	private \Pdsinterop\Rdf\Flysystem\Adapter\Rdf $adapter;
+	private $solidFolder;
+	private $userFolder;
+	private \Laminas\Diactoros\Response $response;
+	private \Laminas\Diactoros\ServerRequest $rawRequest;
+	private ResourceServer $resourceServer;
+	private WAC $WAC;
 
 	public function __construct(
 		$AppName,
@@ -128,12 +136,12 @@ EOF;
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
 
 <#public>
-        a acl:Authorization;
-        acl:agentClass foaf:Agent;
-        acl:accessTo <./>;
-        acl:default <./>;
-        acl:mode
-				acl:Append.
+	a acl:Authorization;
+	acl:agentClass foaf:Agent;
+	acl:accessTo <./>;
+	acl:default <./>;
+	acl:mode
+		acl:Append.
 
 <#owner>
 	a acl:Authorization;
