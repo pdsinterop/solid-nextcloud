@@ -1,10 +1,12 @@
 <?php
 namespace OCA\Solid\Service;
 
-class UserService {
-    private $userSession;
+use OCP\IUserSession;
 
-    public function __construct($userSession){
+class UserService {
+    private IUserSession $userSession;
+
+    public function __construct(IUserSession $userSession){
         $this->userSession = $userSession;
     }
 
