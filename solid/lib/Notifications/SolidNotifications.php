@@ -26,6 +26,6 @@
         public function send($path, $type) {
             foreach ($this->notifications as $notification) {
                 $notification->send($path, $type);
-	        }
-	    }
+            }
+        }
     }

@@ -16,89 +16,89 @@ use PHPUnit\Framework\TestCase;
  */
 class JtiReplayDetectorTest extends TestCase
 {
-	private function createMocks($result)
-	{
-		$mockIDBConnection = $this->createMock(IDBConnection::class);
-		$mockQueryBuilder = $this->createMock(IQueryBuilder::class);
-		$mockExpr = $this->createMock(IExpressionBuilder::class);
-		$mockResult = $this->createMock(IResult::class);
+    private function createMocks($result)
+    {
+        $mockIDBConnection = $this->createMock(IDBConnection::class);
+        $mockQueryBuilder = $this->createMock(IQueryBuilder::class);
+        $mockExpr = $this->createMock(IExpressionBuilder::class);
+        $mockResult = $this->createMock(IResult::class);
 
-		$mockIDBConnection->expects($this->any())
-			->method('getQueryBuilder')
-			->willReturn($mockQueryBuilder);
-		$mockQueryBuilder->expects($this->once())
-			->method('select')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->any())
-			->method('expr')
-			->willReturn($mockExpr);
-		$mockExpr->expects($this->any())
-			->method('eq')
-			->willReturn('');
-		$mockQueryBuilder->expects($this->once())
-			->method('from')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->once())
-			->method('where')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->any())
-			->method('andWhere')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->once())
-			->method('setParameter')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->once())
-			->method('executeQuery')
-			->willReturn($mockResult);
-		$mockResult->expects($this->once())
-			->method('fetch')
-			->willReturn($result);
-		$mockResult->expects($this->once())
-			->method('closeCursor');
-		$mockQueryBuilder->expects($this->any())
-			->method('insert')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->any())
-			->method('values')
-			->willReturnSelf();
-		$mockQueryBuilder->expects($this->any())
-			->method('executeStatement');
+        $mockIDBConnection->expects($this->any())
+            ->method('getQueryBuilder')
+            ->willReturn($mockQueryBuilder);
+        $mockQueryBuilder->expects($this->once())
+            ->method('select')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->any())
+            ->method('expr')
+            ->willReturn($mockExpr);
+        $mockExpr->expects($this->any())
+            ->method('eq')
+            ->willReturn('');
+        $mockQueryBuilder->expects($this->once())
+            ->method('from')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->once())
+            ->method('where')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->any())
+            ->method('andWhere')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->once())
+            ->method('setParameter')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->once())
+            ->method('executeQuery')
+            ->willReturn($mockResult);
+        $mockResult->expects($this->once())
+            ->method('fetch')
+            ->willReturn($result);
+        $mockResult->expects($this->once())
+            ->method('closeCursor');
+        $mockQueryBuilder->expects($this->any())
+            ->method('insert')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->any())
+            ->method('values')
+            ->willReturnSelf();
+        $mockQueryBuilder->expects($this->any())
+            ->method('executeStatement');
 
-		return $mockIDBConnection;
-	}
+        return $mockIDBConnection;
+    }
 
-	/**
-	 * @covers ::detect
-	 */
-	public function testJtiDetected(): void
-	{
-		$dateInterval = new DateInterval('PT90S');
-		$mockIDBConnection = $this->createMocks(true);
+    /**
+     * @covers ::detect
+     */
+    public function testJtiDetected(): void
+    {
+        $dateInterval = new DateInterval('PT90S');
+        $mockIDBConnection = $this->createMocks(true);
 
-		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
+        $detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
 
-		$mockUUID = 'mockUUID-with-some-more-text';
-		$mockURI = 'mockURI';
-		$result = $detector->detect($mockUUID, $mockURI);
+        $mockUUID = 'mockUUID-with-some-more-text';
+        $mockURI = 'mockURI';
+        $result = $detector->detect($mockUUID, $mockURI);
 
-		$this->assertTrue($result);
-	}
+        $this->assertTrue($result);
+    }
 
-	/**
-	 * @covers ::detect
-	 */
-	public function testJtiNotDetected(): void
-	{
-		$dateInterval = new DateInterval('PT90S');
-		$mockIDBConnection = $this->createMocks(false);
+    /**
+     * @covers ::detect
+     */
+    public function testJtiNotDetected(): void
+    {
+        $dateInterval = new DateInterval('PT90S');
+        $mockIDBConnection = $this->createMocks(false);
 
-		$detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
+        $detector = new JtiReplayDetector($dateInterval, $mockIDBConnection);
 
-		$mockUUID = 'mockUUID-with-some-more-text';
-		$mockURI = 'mockURI';
-		$result = $detector->detect($mockUUID, $mockURI);
+        $mockUUID = 'mockUUID-with-some-more-text';
+        $mockURI = 'mockURI';
+        $result = $detector->detect($mockUUID, $mockURI);
 
-		$this->assertFalse($result);
-	}
+        $this->assertFalse($result);
+    }
 
 }
