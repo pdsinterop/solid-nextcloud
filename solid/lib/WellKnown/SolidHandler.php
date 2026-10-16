@@ -22,7 +22,7 @@ class SolidHandler implements IHandler {
         $this->urlGenerator = $urlGenerator;
     }
 
-        public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
+    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
         if ($service !== 'solid') {
                 return $previousResponse;
         }
@@ -60,5 +60,5 @@ class SolidHandler implements IHandler {
         $result->addHeader("Access-Control-Allow-Origin", "*");
         $result->setStatus(200);
         return new GenericResponse($result);
-        }
+    }
 }

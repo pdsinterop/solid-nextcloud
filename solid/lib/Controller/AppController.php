@@ -75,7 +75,7 @@ class AppController extends Controller {
     public function appLauncher() {
         $appsList = $this->getAppsList();
         if (!$appsList) {
-           return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+            return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
         }
         $appLauncherData = array(
             "appsListJson" => json_encode($appsList),

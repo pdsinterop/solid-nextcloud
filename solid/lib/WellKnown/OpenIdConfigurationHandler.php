@@ -81,7 +81,7 @@ class OpenIdConfigurationHandler implements IHandler {
         }
     }
 
-        public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
+    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
         if ($service !== 'openid-configuration') {
                 return $previousResponse;
         }
@@ -91,7 +91,7 @@ class OpenIdConfigurationHandler implements IHandler {
         $response = $server->respondToOpenIdMetadataRequest();
 
         return new GenericResponse($this->respond($response));
-        }
+    }
 
     private function respond($response) {
         $statusCode = $response->getStatusCode();

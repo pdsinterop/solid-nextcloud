@@ -316,7 +316,7 @@ EOF;
             return "";
         }
         ob_start();
-    ?>@prefix : <#>.
+        ?>@prefix : <#>.
     @prefix solid: <http://www.w3.org/ns/solid/terms#>.
     @prefix pro: <./>.
     @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -338,16 +338,16 @@ EOF;
         solid:privateTypeIndex <<?php echo $profile['privateTypeIndex']; ?>>;
         solid:publicTypeIndex <<?php echo $profile['publicTypeIndex']; ?>>;
         solid:oidcIssuer <<?php echo $profile['issuer']; ?>>;
-    <?php
-    foreach ($profile['friends'] as $key => $friend) {
+        <?php
+        foreach ($profile['friends'] as $key => $friend) {
             ?>
         foaf:knows <<?php echo $friend; ?>>;
             <?php
-    }
-    ?>
+        }
+        ?>
         foaf:name "<?php echo $profile['displayName']; ?>";
         <http://www.w3.org/2006/vcard/ns#fn> "<?php echo $profile['displayName']; ?>".
-    <?php
+        <?php
         $generatedProfile = ob_get_contents();
         ob_end_clean();
 

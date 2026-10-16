@@ -72,7 +72,7 @@ class PageController extends Controller {
         // header("Access-Control-Allow-Credentials: true");
         $profile = $this->getUserProfile($userId);
         if (!$profile) {
-           return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
+            return new JSONResponse(array(), Http::STATUS_NOT_FOUND);
         }
         $templateResponse = new TemplateResponse('solid', 'profile', $profile);
         $policy = new ContentSecurityPolicy();

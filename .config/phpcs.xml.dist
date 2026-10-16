@@ -32,8 +32,6 @@
         <!-- Until things have been cleaned up a bit, these violations are allowed -->
         <exclude name="Generic.Files.LineLength.TooLong"/>
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
         <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
         <exclude name="PSR12.Files.FileHeader.SpacingInsideBlock"/>
         <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
