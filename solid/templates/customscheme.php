@@ -1,2 +1,3 @@
 <?php
+
 script('solid', 'customscheme');

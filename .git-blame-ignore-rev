@@ -1,0 +1,78 @@
+# ==============================================================================
+# List of revisions that are hidden from git blame annotations.
+#
+# This concerns massive code re-formatting, renaming, large changes
+# that were later reverted, etc.
+#
+# Configure your git so that it always ignores the revisions listed
+# in this file:
+#
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# When adding a new revision to the list, please put its commit message
+# in a comment above it.
+# ------------------------------------------------------------------------------
+# Fix all PSR2.ControlStructures.ElseIfDeclaration.NotAllowed violations.
+8956994daf1c535c4a9f1f085c8faa6cddf1fb11
+
+# ------------------------------------------------------------------------------
+# Fix all PSR2.Classes.ClassDeclaration.OpenBraceNewLine violations.
+6a1db65cada1840ac599cc6b8f36c46fa6c648a6
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace violations.
+768286f9b02c984647445dcb0271af22166bcecf
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine violations.
+ae28289b51c266bf66cc26b3c5d348d4adc75065
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.Functions.FunctionDeclarationArgumentSpacing.Space violations.
+1f6b8d3e543ab5e33b6351f569c8d3618d3f369a
+
+# ------------------------------------------------------------------------------
+# Fix all PSR12.Files.FileHeader.Spacing violations.
+37ad495f3c9c9706ae153756c1b6e619fb2dc9ea
+
+# ------------------------------------------------------------------------------
+# Fix all Generic.WhiteSpace.ScopeIndent violations.
+30845c04408287ee1b6f032bb6bac994b476d31d
+
+# ------------------------------------------------------------------------------
+# Fix all PSR12.Operators.OperatorSpacing violations.
+3b4d8b9431b1e6eb8f1bb0b511c2bdb6d3eb8ad8
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword violations.
+af9a0b25de9340d326df980f2ae248d6e43dd4d2
+
+# ------------------------------------------------------------------------------
+# Fix all Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma violations.
+8eee00f5b99b84aebe8a5127ea5a66ec81ee10a9
+
+# ------------------------------------------------------------------------------
+# Fix all PSR2.Classes.ClassDeclaration.CloseBraceAfterBody violations.
+26b8a54f7def4769915ae129f21c4c1de0dfbec5
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.WhiteSpace.ScopeClosingBrace.Indent violations.
+29666236f71b16c451933c76397ae3bbde92a03f
+
+# ------------------------------------------------------------------------------
+# Fix all Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed violations.
+eed9d35f85ec0de812a04e69139eb9ca2467917e
+
+# ------------------------------------------------------------------------------
+# Fix all Generic.WhiteSpace.DisallowTabIndent.TabsUsed violations.
+5596a0c23187e24df7f97a23938f233374de9bb0
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction violations.
+c4776398d38dbfc4d7cfbda3c2fd31caec432d31
+
+# ------------------------------------------------------------------------------
+# Fix all Squiz.WhiteSpace.SuperfluousWhitespace.EndLine violations.
+ac5a3898e7115c01e5182f5da89bc503e456c0c8
+
+# ==============================================================================

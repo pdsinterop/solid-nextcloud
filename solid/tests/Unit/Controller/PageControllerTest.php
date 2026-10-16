@@ -15,37 +15,36 @@ use PHPUnit\Framework\TestCase;
  */
 class PageControllerTest extends TestCase
 {
-	private const MOCK_USER_ID = 'mock-user';
-	private $controller;
+    private const MOCK_USER_ID = 'mock-user';
+    private $controller;
 
-	public function setUp(): void
-	{
-		$mockConfig = $this->getMockBuilder(IConfig::class)->getMock();
-		$mockRequest = $this->getMockBuilder(IRequest::class)->getMock();
-		$mockUrlGenerator = $this->getMockBuilder(IURLGenerator::class)->getMock();
-		$mockUserManager = $this->getMockBuilder(IUserManager::class)->getMock();
+    public function setUp(): void
+    {
+        $mockConfig = $this->getMockBuilder(IConfig::class)->getMock();
+        $mockRequest = $this->getMockBuilder(IRequest::class)->getMock();
+        $mockUrlGenerator = $this->getMockBuilder(IURLGenerator::class)->getMock();
+        $mockUserManager = $this->getMockBuilder(IUserManager::class)->getMock();
 
-		$this->controller = new PageController(
-			'solid',
-			$mockRequest,
-			$mockConfig,
-			$mockUserManager,
-			$mockUrlGenerator,
-			self::MOCK_USER_ID
-		);
-	}
+        $this->controller = new PageController(
+            'solid',
+            $mockRequest,
+            $mockConfig,
+            $mockUserManager,
+            $mockUrlGenerator,
+            self::MOCK_USER_ID
+        );
+    }
 
-	/**
-	 * @covers ::index
-	 * @uses \OCA\Solid\BaseServerConfig::__construct
-	 * @uses \OCA\Solid\ServerConfig::__construct
-	 */
-	public function testIndex()
-	{
-		$result = $this->controller->index();
+    /**
+     * @covers ::index
+     * @uses \OCA\Solid\BaseServerConfig::__construct
+     * @uses \OCA\Solid\ServerConfig::__construct
+     */
+    public function testIndex()
+    {
+        $result = $this->controller->index();
 
-		$this->assertEquals('index', $result->getTemplateName());
-		$this->assertTrue($result instanceof TemplateResponse);
-	}
-
+        $this->assertEquals('index', $result->getTemplateName());
+        $this->assertTrue($result instanceof TemplateResponse);
+    }
 }

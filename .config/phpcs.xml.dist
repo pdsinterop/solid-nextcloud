@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <ruleset
-    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd"
+    xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     name="PDS Interop"
 >
     <description>PHP coding standards for PDS Interop projects</description>
 
-    <!-- Show sniff codes in all reports, and progress when running -->
+    <!-- Show sniff codes in all reports and progress when running -->
     <arg value="sp"/>
-    <!-- Strip the filepaths down to the relevant bit. -->
+    <!-- Strip the file paths down to the relevant bit. -->
     <arg name="basepath" value="../solid/"/>
     <arg name="extensions" value="php"/>
     <arg name="colors"/>
@@ -23,34 +23,15 @@
     <!-- Set indent for `break` to 0 so it aligns with `case` and `default` -->
     <rule ref="PSR2">
         <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
-        <exclude name="PSR2.ControlStructures.ElseIfDeclaration.NotAllowed"/>
         <exclude name="PSR2.ControlStructures.ControlStructureSpacing.SpacingAfterOpenBrace"/>
     </rule>
 
     <!-- Include the whole PSR-12 standard -->
     <rule ref="PSR12">
-        <!-- Until things have been cleaned up a bit, these violations are allowed -->
+        <!-- Allow lines longer than 120 chars -->
         <exclude name="Generic.Files.LineLength.TooLong"/>
+        <!-- Assignment operators should NOT be aligned to avoid commit noise -->
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
-        <exclude name="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma"/>
-        <exclude name="Generic.WhiteSpace.DisallowTabIndent.NonIndentTabsUsed"/>
-        <exclude name="Generic.WhiteSpace.DisallowTabIndent.TabsUsed"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.Incorrect"/>
-        <exclude name="Generic.WhiteSpace.ScopeIndent.IncorrectExact"/>
-        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
-        <exclude name="PSR12.Files.FileHeader.SpacingInsideBlock"/>
-        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceAfter"/>
-        <exclude name="PSR12.Operators.OperatorSpacing.NoSpaceBefore"/>
-        <exclude name="PSR2.Classes.ClassDeclaration.CloseBraceAfterBody"/>
-        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
-        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterKeyword"/>
-        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceAfterEquals"/>
-        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceBeforeEquals"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
-        <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.Indent"/>
-        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
     </rule>
 
     <!-- Have 12 chars padding maximum and always show as errors -->
@@ -60,28 +41,79 @@
             <property name="error" value="true"/>
         </properties>
     </rule>
+
     <!-- Original PHP function should be used rather than an alias -->
+    <!-- For the full list see https://www.php.net/manual/aliases.php -->
     <rule ref="Generic.PHP.ForbiddenFunctions">
         <properties>
             <property name="forbiddenFunctions" type="array">
+                <!-- Base syntax Extension-->
                 <element key="chop" value="rtrim"/>
+                <element key="close" value="closedir"/>
                 <element key="doubleval" value="floatval"/>
                 <element key="fputs" value="fwrite"/>
                 <element key="ini_alter" value="ini_set"/>
+                <element key="is_double" value="is_float"/>
                 <element key="is_integer" value="is_int"/>
+                <element key="is_long" value="is_int"/>
                 <element key="is_real" value="is_float"/>
                 <element key="is_writeable" value="is_writable"/>
                 <element key="join" value="implode"/>
                 <element key="key_exists" value="array_key_exists"/>
                 <element key="pos" value="current"/>
-                <element key="posix_errno" value="posix_get_last_error"/>
-                <element key="recode" value="recode_string"/>
-                <element key="session_commit" value="session_write_close"/>
-                <element key="set_file_buffer" value="stream_set_write_buffer"/>
                 <element key="show_source" value="highlight_file"/>
                 <element key="sizeof" value="count"/>
                 <element key="strchr" value="strstr"/>
-                <element key="user_error" value="trigger_error"/>
+                <!-- Filesystem Extension-->
+                <element key="diskfreespace" value="disk_free_space"/>
+                <!-- Miscellaneous functions Extension-->
+                <element key="die" value="exit"/>
+                <!-- Multi-bytes Strings Extension-->
+                <element key="i18n_convert" value="mb_convert_encoding"/>
+                <element key="i18n_discover_encoding" value="mb_detect_encoding"/>
+                <element key="i18n_http_input" value="mb_http_input"/>
+                <element key="i18n_http_output" value="mb_http_output"/>
+                <element key="i18n_internal_encoding" value="mb_internal_encoding"/>
+                <element key="i18n_ja_jp_hantozen" value="mb_convert_kana"/>
+                <element key="i18n_mime_header_decode" value="mb_decode_mimeheader"/>
+                <element key="i18n_mime_header_encode" value="mb_encode_mimeheader"/>
+                <element key="mbstrcut" value="mb_strcut"/>
+                <element key="mbstrlen" value="mb_strlen"/>
+                <element key="mbstrpos" value="mb_strpos"/>
+                <element key="mbstrrpos" value="mb_strrpos"/>
+                <element key="mbsubstr" value="mb_substr"/>
+                <!-- MySQL Extension-->
+                <element key="mysql" value="mysql_db_query"/>
+                <element key="mysql_createdb" value="mysql_create_db"/>
+                <element key="mysql_db_name" value="mysql_result"/>
+                <element key="mysql_dbname" value="mysql_result"/>
+                <element key="mysql_dropdb" value="mysql_drop_db"/>
+                <element key="mysql_fieldflags" value="mysql_field_flags"/>
+                <element key="mysql_fieldlen" value="mysql_field_len"/>
+                <element key="mysql_fieldname" value="mysql_field_name"/>
+                <element key="mysql_fieldtable" value="mysql_field_table"/>
+                <element key="mysql_fieldtype" value="mysql_field_type"/>
+                <element key="mysql_freeresult" value="mysql_free_result"/>
+                <element key="mysql_listdbs" value="mysql_list_dbs"/>
+                <element key="mysql_listfields" value="mysql_list_fields"/>
+                <element key="mysql_listtables" value="mysql_list_tables"/>
+                <element key="mysql_numfields" value="mysql_num_fields"/>
+                <element key="mysql_numrows" value="mysql_num_rows"/>
+                <element key="mysql_selectdb" value="mysql_select_db"/>
+                <element key="mysql_tablename" value="mysql_result"/>
+                <!-- ODBC Extension-->
+                <element key="odbc_do" value="odbc_exec"/>
+                <element key="odbc_field_precision" value="odbc_field_len"/>
+                <!-- PostgreSQL Extension-->
+                <element key="pg_clientencoding" value="pg_client_encoding"/>
+                <element key="pg_exec" value="pg_query"/>
+                <element key="pg_setclientencoding" value="pg_set_client_encoding"/>
+                <!-- Recode Extension-->
+                <element key="recode" value="recode_string"/>
+                <!-- SNMP Extension-->
+                <element key="snmpwalkoid" value="snmprealwalk"/>
+                <!-- Zlib Extension-->
+                <element key="gzputs" value="gzwrite"/>
             </property>
         </properties>
     </rule>

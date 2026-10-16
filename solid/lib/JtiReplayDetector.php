@@ -45,7 +45,7 @@ class JtiReplayDetector implements ReplayDetectorInterface
         $cursor = $queryBuilder->select('*')
             ->from($this->table)
             ->where(
-                $queryBuilder->expr()->eq('jti', $queryBuilder->createNamedParameter($jti,IQueryBuilder::PARAM_STR))
+                $queryBuilder->expr()->eq('jti', $queryBuilder->createNamedParameter($jti, IQueryBuilder::PARAM_STR))
             )
             ->andWhere(
                 $queryBuilder->expr()->eq('uri', $queryBuilder->createNamedParameter($uri, IQueryBuilder::PARAM_STR))

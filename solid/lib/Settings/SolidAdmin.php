@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;
@@ -7,12 +8,14 @@ use OCP\IL10N;
 use OCP\Settings\ISettings;
 use OCA\Solid\BaseServerConfig;
 
-class SolidAdmin implements ISettings {
+class SolidAdmin implements ISettings
+{
     private IL10N $l;
     private IConfig $config;
     private BaseServerConfig $serverConfig;
 
-    public function __construct(IConfig $config, IL10N $l) {
+    public function __construct(IConfig $config, IL10N $l)
+    {
         $this->config = $config;
         $this->l = $l;
         $this->serverConfig = new BaseServerConfig($config);
@@ -21,7 +24,8 @@ class SolidAdmin implements ISettings {
     /**
      * @return TemplateResponse
      */
-    public function getForm() {
+    public function getForm()
+    {
         $allClients = $this->serverConfig->getClients();
 
         $parameters = [
@@ -34,7 +38,8 @@ class SolidAdmin implements ISettings {
         return new TemplateResponse('solid', 'admin', $parameters, '');
     }
 
-    public function getSection() {
+    public function getSection()
+    {
         return 'solid'; // Name of the previously created section.
     }
 
@@ -45,7 +50,8 @@ class SolidAdmin implements ISettings {
      *
      * E.g.: 70
      */
-    public function getPriority() {
+    public function getPriority()
+    {
         return 70;
     }
 }

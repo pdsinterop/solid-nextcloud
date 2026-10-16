@@ -2,5 +2,6 @@
 
 namespace OCA\Solid\Service;
 
-class SolidWebhookNotFound extends \Exception {
+class SolidWebhookNotFound extends \Exception
+{
 }

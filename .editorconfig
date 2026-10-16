@@ -1,0 +1,112 @@
+# ==============================================================================
+# This file is for unifying the coding style for different editors and IDEs
+#
+# For full details see: http://editorconfig.org/
+#
+# An explanation of all available properties can be found at:
+#   https://github.com/editorconfig/editorconfig/wiki/EditorConfig-Properties
+#
+# Values are case insensitive. They will be lowercased by the core library.
+#
+# This file uses version 0.17.2 of the specification https://spec.editorconfig.org/
+# ==============================================================================
+
+
+# ==============================================================================
+# Is this the top-most EditorConfig file you are looking for?
+# ------------------------------------------------------------------------------
+root = true
+# ==============================================================================
+
+
+# ==============================================================================
+# Defaults for anything that is not specifically listed
+# ------------------------------------------------------------------------------
+[*]
+
+# ------------------------------------------------------------------------------
+# Widely Supported by Editors
+# ------------------------------------------------------------------------------
+# File character encoding: `latin1`, `utf-8`, `utf-16be`, `utf-16le`
+charset = utf-8
+
+# Line ending file format (Unix, DOS, Mac): `lf`, `crlf`, `cr`
+end_of_line = lf
+
+# Indentation Size (in single-spaced characters): a positive integer or `tab`
+indent_size = 4
+
+# Indentation Style: `space`, `tab`
+indent_style = space
+
+# Whether file should end with a newline: true, false
+insert_final_newline = true
+
+# Width of a single tabstop character: a positive integer
+tab_width = 4
+
+# Remove any whitespace characters preceding newline characters: true, false
+trim_trailing_whitespace = true
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Supported By A Limited Number of Editors
+# ------------------------------------------------------------------------------
+# Forces hard line wrapping: positive integers or `unset` (to use the editor's settings)
+max_line_length = 120
+
+# The natural language that should be used for spell checking. Only one language can be specified.
+spelling_language = en-US
+# ==============================================================================
+
+
+# ==============================================================================
+# Settings for specific file types
+# ------------------------------------------------------------------------------
+[*.{bash,sh}]
+max_line_length = 80
+
+# ------------------------------------------------------------------------------
+[*.md]
+max_line_length = 80
+
+# ------------------------------------------------------------------------------
+[*.neon]
+indent_size = 2
+
+# ------------------------------------------------------------------------------
+[*.{yaml,yml}]
+indent_size = 2
+# ==============================================================================
+
+
+# ==============================================================================
+# Settings for exact files
+# ------------------------------------------------------------------------------
+[COMMIT_EDITMSG]
+max_line_length = 0
+
+# ------------------------------------------------------------------------------
+[Makefile]
+indent_style = tab
+
+# ------------------------------------------------------------------------------
+[.remarkrc]
+indent_size = 2
+# ==============================================================================
+
+
+# ==============================================================================
+# Unset settings for vendor directories
+# ------------------------------------------------------------------------------
+[{node_modules,vendor}/**]
+charset = unset
+end_of_line = unset
+indent_size = unset
+indent_style = unset
+insert_final_newline = unset
+max_line_length = unset
+spelling_language = unset
+tab_width = unset
+trim_trailing_whitespace = unset
+# ==============================================================================

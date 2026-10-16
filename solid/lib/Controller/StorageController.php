@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\BearerFactoryTrait;
@@ -6,7 +7,6 @@ use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\Notifications\SolidNotifications;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\ServerConfig;
-
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\EmptyContentSecurityPolicy;
@@ -17,79 +17,81 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class StorageController extends Controller
 {
-	use BearerFactoryTrait;
-	use DpopFactoryTrait;
-	use GetStorageUrlTrait;
+    use BearerFactoryTrait;
+    use DpopFactoryTrait;
+    use GetStorageUrlTrait;
 
-	protected ServerConfig $config;
-	protected IURLGenerator $urlGenerator;
+    protected ServerConfig $config;
+    protected IURLGenerator $urlGenerator;
 
-	/* @var ISession */
-	private $session;
+    /* @var ISession */
+    private $session;
 
-	public function __construct(
-		$AppName,
-		IRootFolder $rootFolder,
-		IRequest $request,
-		ISession $session,
-		IUserManager $userManager,
-		IURLGenerator $urlGenerator,
-		$userId,
-		IConfig $config,
-		\OCA\Solid\Service\UserService $UserService,
-		IDBConnection $connection,
-	) {
-		parent::__construct($AppName, $request);
-		require_once(__DIR__.'/../../vendor/autoload.php');
-		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
-		$this->rootFolder = $rootFolder;
-		$this->request     = $request;
-		$this->urlGenerator = $urlGenerator;
-		$this->session = $session;
+    public function __construct(
+        $AppName,
+        IRootFolder $rootFolder,
+        IRequest $request,
+        ISession $session,
+        IUserManager $userManager,
+        IURLGenerator $urlGenerator,
+        $userId,
+        IConfig $config,
+        \OCA\Solid\Service\UserService $UserService,
+        IDBConnection $connection,
+    ) {
+        parent::__construct($AppName, $request);
+        require_once(__DIR__ . '/../../vendor/autoload.php');
+        $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
+        $this->rootFolder = $rootFolder;
+        $this->request     = $request;
+        $this->urlGenerator = $urlGenerator;
+        $this->session = $session;
 
-		$this->setJtiStorage($connection);
-	}
+        $this->setJtiStorage($connection);
+    }
 
-	private function getFileSystem() {
-		// Create the Nextcloud Adapter
-		$adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
-		$graph = new \EasyRdf\Graph();
+    private function getFileSystem()
+    {
+        // Create the Nextcloud Adapter
+        $adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
+        $graph = new \EasyRdf\Graph();
 
-		// Create Formats objects
-		$formats = new \Pdsinterop\Rdf\Formats();
+        // Create Formats objects
+        $formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverParams = $this->rawRequest->getServerParams();
-		$scheme = $serverParams['REQUEST_SCHEME'];
-		$domain = $serverParams['SERVER_NAME'];
-		$path = $serverParams['REQUEST_URI'];
-		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
+        $serverParams = $this->rawRequest->getServerParams();
+        $scheme = $serverParams['REQUEST_SCHEME'];
+        $domain = $serverParams['SERVER_NAME'];
+        $path = $serverParams['REQUEST_URI'];
+        $serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
 
-		// Create the RDF Adapter
-		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
-			$adapter,
-			$graph,
-			$formats,
-			$serverUri
-		);
+        // Create the RDF Adapter
+        $rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
+            $adapter,
+            $graph,
+            $formats,
+            $serverUri
+        );
 
-		$this->adapter = $rdfAdapter;
-		$filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
+        $this->adapter = $rdfAdapter;
+        $filesystem = new \League\Flysystem\Filesystem($rdfAdapter);
 
-		return $filesystem;
-	}
+        return $filesystem;
+    }
 
-	private function getUserProfile($userId) {
-		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
-	}
+    private function getUserProfile($userId)
+    {
+        return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
+    }
 
-	private function generateDefaultAcl($userId) {
-		$defaultAcl = <<< EOF
+    private function generateDefaultAcl($userId)
+    {
+        $defaultAcl = <<< EOF
 # Root ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -116,13 +118,14 @@ class StorageController extends Controller
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
-		$profileUri = $this->getUserProfile($userId);
-		$defaultAcl = str_replace("{user-profile-uri}", $profileUri, $defaultAcl);
-		return $defaultAcl;
-	}
+        $profileUri = $this->getUserProfile($userId);
+        $defaultAcl = str_replace("{user-profile-uri}", $profileUri, $defaultAcl);
+        return $defaultAcl;
+    }
 
-	private function generatePublicAppendAcl($userId) {
-		$publicAppendAcl = <<< EOF
+    private function generatePublicAppendAcl($userId)
+    {
+        $publicAppendAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -147,13 +150,14 @@ EOF;
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
-		$profileUri = $this->getUserProfile($userId);
-		$publicAppendAcl = str_replace("{user-profile-uri}", $profileUri, $publicAppendAcl);
-		return $publicAppendAcl;
-	}
+        $profileUri = $this->getUserProfile($userId);
+        $publicAppendAcl = str_replace("{user-profile-uri}", $profileUri, $publicAppendAcl);
+        return $publicAppendAcl;
+    }
 
-	private function generatePublicReadAcl($userId) {
-		$publicReadAcl = <<< EOF
+    private function generatePublicReadAcl($userId)
+    {
+        $publicReadAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
@@ -178,13 +182,14 @@ EOF;
 		acl:Read, acl:Write, acl:Control.
 EOF;
 
-		$profileUri = $this->getUserProfile($userId);
-		$publicReadAcl = str_replace("{user-profile-uri}", $profileUri, $publicReadAcl);
-		return $publicReadAcl;
-	}
+        $profileUri = $this->getUserProfile($userId);
+        $publicReadAcl = str_replace("{user-profile-uri}", $profileUri, $publicReadAcl);
+        return $publicReadAcl;
+    }
 
-	private function generateDefaultPublicTypeIndex() {
-		$publicTypeIndex = <<< EOF
+    private function generateDefaultPublicTypeIndex()
+    {
+        $publicTypeIndex = <<< EOF
 # Public type index
 @prefix : <#>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
@@ -193,11 +198,12 @@ EOF;
 	a solid:ListedDocument, solid:TypeIndex.
 EOF;
 
-		return $publicTypeIndex;
-	}
+        return $publicTypeIndex;
+    }
 
-	private function generateDefaultPrivateTypeIndex() {
-		$privateTypeIndex = <<< EOF
+    private function generateDefaultPrivateTypeIndex()
+    {
+        $privateTypeIndex = <<< EOF
 # Private type index
 @prefix : <#>.
 @prefix solid: <http://www.w3.org/ns/solid/terms#>.
@@ -206,10 +212,11 @@ EOF;
 	a solid:UnlistedDocument, solid:TypeIndex.
 EOF;
 
-		return $privateTypeIndex;
-	}
-	private function generateDefaultPreferences($userId) {
-		$preferences = <<< EOF
+        return $privateTypeIndex;
+    }
+    private function generateDefaultPreferences($userId)
+    {
+        $preferences = <<< EOF
 # Preferences
 @prefix : <#>.
 @prefix sp: <http://www.w3.org/ns/pim/space#>.
@@ -227,230 +234,239 @@ profile:me
 	solid:publicTypeIndex <publicTypeIndex.ttl>.
 EOF;
 
-		$profileUri = $this->getUserProfile($userId);
-		$preferences = str_replace("{user-profile-uri}", $profileUri, $preferences);
-		return $preferences;
-	}
-	private function initializeStorage($userId) {
-		$this->userFolder = $this->rootFolder->getUserFolder($userId);
-		if (!$this->userFolder->nodeExists("solid")) {
-			$this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
-		}
-		$this->solidFolder = $this->userFolder->get("solid");
+        $profileUri = $this->getUserProfile($userId);
+        $preferences = str_replace("{user-profile-uri}", $profileUri, $preferences);
+        return $preferences;
+    }
+    private function initializeStorage($userId)
+    {
+        $this->userFolder = $this->rootFolder->getUserFolder($userId);
+        if (!$this->userFolder->nodeExists("solid")) {
+            $this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
+        }
+        $this->solidFolder = $this->userFolder->get("solid");
 
-		$this->filesystem = $this->getFileSystem();
+        $this->filesystem = $this->getFileSystem();
 
-		// Make sure the root folder has an acl file, as is required by the spec;
-		// Generate a default file granting the owner full access if there is nothing there.
-		if (!$this->filesystem->fileExists("/.acl")) {
-			$defaultAcl = $this->generateDefaultAcl($userId);
-			$this->filesystem->write("/.acl", $defaultAcl);
-		}
+        // Make sure the root folder has an acl file, as is required by the spec;
+        // Generate a default file granting the owner full access if there is nothing there.
+        if (!$this->filesystem->fileExists("/.acl")) {
+            $defaultAcl = $this->generateDefaultAcl($userId);
+            $this->filesystem->write("/.acl", $defaultAcl);
+        }
 
-		// Generate default folders and ACLs:
-		if (!$this->filesystem->fileExists("/inbox")) {
-			$this->filesystem->createDirectory("/inbox");
-		}
-		if (!$this->filesystem->fileExists("/inbox/.acl")) {
-			$inboxAcl = $this->generatePublicAppendAcl($userId);
-			$this->filesystem->write("/inbox/.acl", $inboxAcl);
-		}
-		if (!$this->filesystem->fileExists("/settings")) {
-			$this->filesystem->createDirectory("/settings");
-		}
-		if (!$this->filesystem->fileExists("/settings/privateTypeIndex.ttl")) {
-			$privateTypeIndex = $this->generateDefaultPrivateTypeIndex();
-			$this->filesystem->write("/settings/privateTypeIndex.ttl", $privateTypeIndex);
-		}
-		if (!$this->filesystem->fileExists("/settings/publicTypeIndex.ttl")) {
-			$publicTypeIndex = $this->generateDefaultPublicTypeIndex();
-			$this->filesystem->write("/settings/publicTypeIndex.ttl", $publicTypeIndex);
-		}
-		if (!$this->filesystem->fileExists("/settings/preferences.ttl")) {
-			$preferences = $this->generateDefaultPreferences($userId);
-			$this->filesystem->write("/settings/preferences.ttl", $preferences);
-		}
-		if (!$this->filesystem->fileExists("/public")) {
-			$this->filesystem->createDirectory("/public");
-		}
-		if (!$this->filesystem->fileExists("/public/.acl")) {
-			$publicAcl = $this->generatePublicReadAcl($userId);
-			$this->filesystem->write("/public/.acl", $publicAcl);
-		}
-		if (!$this->filesystem->fileExists("/private")) {
-			$this->filesystem->createDirectory("/private");
-		}
-	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handleRequest($userId, $path) {
-		$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
-		$this->response = new \Laminas\Diactoros\Response();
+        // Generate default folders and ACLs:
+        if (!$this->filesystem->fileExists("/inbox")) {
+            $this->filesystem->createDirectory("/inbox");
+        }
+        if (!$this->filesystem->fileExists("/inbox/.acl")) {
+            $inboxAcl = $this->generatePublicAppendAcl($userId);
+            $this->filesystem->write("/inbox/.acl", $inboxAcl);
+        }
+        if (!$this->filesystem->fileExists("/settings")) {
+            $this->filesystem->createDirectory("/settings");
+        }
+        if (!$this->filesystem->fileExists("/settings/privateTypeIndex.ttl")) {
+            $privateTypeIndex = $this->generateDefaultPrivateTypeIndex();
+            $this->filesystem->write("/settings/privateTypeIndex.ttl", $privateTypeIndex);
+        }
+        if (!$this->filesystem->fileExists("/settings/publicTypeIndex.ttl")) {
+            $publicTypeIndex = $this->generateDefaultPublicTypeIndex();
+            $this->filesystem->write("/settings/publicTypeIndex.ttl", $publicTypeIndex);
+        }
+        if (!$this->filesystem->fileExists("/settings/preferences.ttl")) {
+            $preferences = $this->generateDefaultPreferences($userId);
+            $this->filesystem->write("/settings/preferences.ttl", $preferences);
+        }
+        if (!$this->filesystem->fileExists("/public")) {
+            $this->filesystem->createDirectory("/public");
+        }
+        if (!$this->filesystem->fileExists("/public/.acl")) {
+            $publicAcl = $this->generatePublicReadAcl($userId);
+            $this->filesystem->write("/public/.acl", $publicAcl);
+        }
+        if (!$this->filesystem->fileExists("/private")) {
+            $this->filesystem->createDirectory("/private");
+        }
+    }
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handleRequest($userId, $path)
+    {
+        $this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
+        $this->response = new \Laminas\Diactoros\Response();
 
-		$this->initializeStorage($userId);
+        $this->initializeStorage($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);
-		$this->WAC = new WAC($this->filesystem, $this->adapter);
+        $this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);
+        $this->WAC = new WAC($this->filesystem, $this->adapter);
 
-		$request = $this->rawRequest;
-		$baseUrl = $this->getStorageUrl($userId);
-		$this->resourceServer->setBaseUrl($baseUrl);
-		$this->WAC->setBaseUrl($baseUrl);
+        $request = $this->rawRequest;
+        $baseUrl = $this->getStorageUrl($userId);
+        $this->resourceServer->setBaseUrl($baseUrl);
+        $this->WAC->setBaseUrl($baseUrl);
 
-		$notifications = new SolidNotifications();
-		$this->resourceServer->setNotifications($notifications);
+        $notifications = new SolidNotifications();
+        $this->resourceServer->setNotifications($notifications);
 
-		$dpop = $this->getDpop();
+        $dpop = $this->getDpop();
 
-		$error = false;
-		try {
-			$webId = $dpop->getWebId($request);
-		} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
-			$error = $e;
-		}
+        $error = false;
+        try {
+            $webId = $dpop->getWebId($request);
+        } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+            $error = $e;
+        }
 
-		if (!isset($webId)) {
-			$bearer = $this->getBearer();
-			try {
-				$webId = $bearer->getWebId($request);
-			} catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
-				$error = $e;
-			}
-		}
+        if (!isset($webId)) {
+            $bearer = $this->getBearer();
+            try {
+                $webId = $bearer->getWebId($request);
+            } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+                $error = $e;
+            }
+        }
 
-		if (!isset($webId)) {
-			$response = $this->resourceServer->getResponse()
-				->withStatus(Http::STATUS_CONFLICT, "Invalid token");
-			return $this->respond($response);
-		}
+        if (!isset($webId)) {
+            $response = $this->resourceServer->getResponse()
+                ->withStatus(Http::STATUS_CONFLICT, "Invalid token");
+            return $this->respond($response);
+        }
 
-		$origin = $request->getHeaderLine("Origin");
-		$allowedClients = $this->config->getAllowedClients($userId);
-		$allowedOrigins = array();
-		foreach ($allowedClients as $clientId) {
-			$clientRegistration = $this->config->getClientRegistration($clientId);
-			if (isset($clientRegistration['client_name'])) {
-				$allowedOrigins[] = $clientRegistration['client_name'];
-			}
-			if (isset($clientRegistration['origin'])) {
-				$allowedOrigins[] = $clientRegistration['origin'];
-			}
-		}
-		if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
-			$response = $this->resourceServer->getResponse()
-			->withStatus(403, "Access denied");
-			return $this->respond($response);
-		}
-		$response = $this->resourceServer->respondToRequest($request);
-		$response = $this->WAC->addWACHeaders($request, $response, $webId);
-		return $this->respond($response);
-	}
+        $origin = $request->getHeaderLine("Origin");
+        $allowedClients = $this->config->getAllowedClients($userId);
+        $allowedOrigins = array();
+        foreach ($allowedClients as $clientId) {
+            $clientRegistration = $this->config->getClientRegistration($clientId);
+            if (isset($clientRegistration['client_name'])) {
+                $allowedOrigins[] = $clientRegistration['client_name'];
+            }
+            if (isset($clientRegistration['origin'])) {
+                $allowedOrigins[] = $clientRegistration['origin'];
+            }
+        }
+        if (!$this->WAC->isAllowed($request, $webId, $origin, $allowedOrigins)) {
+            $response = $this->resourceServer->getResponse()
+            ->withStatus(403, "Access denied");
+            return $this->respond($response);
+        }
+        $response = $this->resourceServer->respondToRequest($request);
+        $response = $this->WAC->addWACHeaders($request, $response, $webId);
+        return $this->respond($response);
+    }
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handleGet($userId, $path) {
-		return $this->handleRequest($userId, $path);
-	}
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handleGet($userId, $path)
+    {
+        return $this->handleRequest($userId, $path);
+    }
 
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handlePost($userId, $path) {
-		return $this->handleRequest($userId, $path);
-	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handlePut() { // $userId, $path) {
-		// FIXME: Adding the correct variables in the function name will make nextcloud
-		// throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handlePost($userId, $path)
+    {
+        return $this->handleRequest($userId, $path);
+    }
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handlePut() // $userId, $path) {
+    {
+        // FIXME: Adding the correct variables in the function name will make nextcloud
+        // throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
 
-		// because we got here, the request uri should look like:
-		// - if we have user subdomains enabled:
-		//    /index.php/apps/solid/storage{path}
-		// and otherwise:
-		//   index.php/apps/solid/~{userId}/storage{path}
-		// In the first case, we'll get the username from the SERVER_NAME. In the latter, it will come from the URL;
-		if ($this->config->getUserSubDomainsEnabled()) {
-			$pathInfo = explode("storage/", $_SERVER['REQUEST_URI']);
-			$path = $pathInfo[1];
-			$userId = explode(".", $_SERVER['SERVER_NAME'])[0];
-		} else {
-			$pathInfo = explode("~", $_SERVER['REQUEST_URI']);
-			$pathInfo = explode("/", $pathInfo[1], 2);
-			$userId = $pathInfo[0];
-			$path = $pathInfo[1];
-			$path = preg_replace("/^storage/", "", $path);
-		}
+        // because we got here, the request uri should look like:
+        // - if we have user subdomains enabled:
+        //    /index.php/apps/solid/storage{path}
+        // and otherwise:
+        //   index.php/apps/solid/~{userId}/storage{path}
+        // In the first case, we'll get the username from the SERVER_NAME. In the latter, it will come from the URL;
+        if ($this->config->getUserSubDomainsEnabled()) {
+            $pathInfo = explode("storage/", $_SERVER['REQUEST_URI']);
+            $path = $pathInfo[1];
+            $userId = explode(".", $_SERVER['SERVER_NAME'])[0];
+        } else {
+            $pathInfo = explode("~", $_SERVER['REQUEST_URI']);
+            $pathInfo = explode("/", $pathInfo[1], 2);
+            $userId = $pathInfo[0];
+            $path = $pathInfo[1];
+            $path = preg_replace("/^storage/", "", $path);
+        }
 
-		return $this->handleRequest($userId, $path);
-	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handleDelete($userId, $path) {
-		return $this->handleRequest($userId, $path);
-	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handleHead($userId, $path) {
-		return $this->handleRequest($userId, $path);
-	}
-	/**
-	 * @PublicPage
-	 * @NoAdminRequired
-	 * @NoCSRFRequired
-	 */
-	public function handlePatch($userId, $path) {
-		return $this->handleRequest($userId, $path);
-	}
+        return $this->handleRequest($userId, $path);
+    }
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handleDelete($userId, $path)
+    {
+        return $this->handleRequest($userId, $path);
+    }
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handleHead($userId, $path)
+    {
+        return $this->handleRequest($userId, $path);
+    }
+    /**
+     * @PublicPage
+     * @NoAdminRequired
+     * @NoCSRFRequired
+     */
+    public function handlePatch($userId, $path)
+    {
+        return $this->handleRequest($userId, $path);
+    }
 
-	private function respond($response) {
-		$statusCode = $response->getStatusCode();
-		$response->getBody()->rewind();
-		$headers = $response->getHeaders();
+    private function respond($response)
+    {
+        $statusCode = $response->getStatusCode();
+        $response->getBody()->rewind();
+        $headers = $response->getHeaders();
 
-		$body = $response->getBody()->getContents();
+        $body = $response->getBody()->getContents();
 
-		$result = new PlainResponse($body);
+        $result = new PlainResponse($body);
 
-		foreach ($headers as $header => $values) {
-			$result->addHeader($header, implode(", ", $values));
-		}
+        foreach ($headers as $header => $values) {
+            $result->addHeader($header, implode(", ", $values));
+        }
 
-//		$origin = $_SERVER['HTTP_ORIGIN'];
-//		$result->addHeader('Access-Control-Allow-Credentials', 'true');
-//		$result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//		$result->addHeader('Access-Control-Allow-Origin', $origin);
+//      $origin = $_SERVER['HTTP_ORIGIN'];
+//      $result->addHeader('Access-Control-Allow-Credentials', 'true');
+//      $result->addHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//      $result->addHeader('Access-Control-Allow-Origin', $origin);
 
-		$policy = new EmptyContentSecurityPolicy();
-		$policy->addAllowedStyleDomain("*");
-		$policy->addAllowedStyleDomain("data:");
-		$policy->addAllowedScriptDomain("*");
-		$policy->addAllowedImageDomain("*");
-		$policy->addAllowedFontDomain("*");
-		$policy->addAllowedConnectDomain("*");
-		$policy->allowInlineStyle(true);
-		// $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
-		// $policy->allowEvalScript(true); - removed, this function no longer exists in NC34
-		$result->setContentSecurityPolicy($policy);
+        $policy = new EmptyContentSecurityPolicy();
+        $policy->addAllowedStyleDomain("*");
+        $policy->addAllowedStyleDomain("data:");
+        $policy->addAllowedScriptDomain("*");
+        $policy->addAllowedImageDomain("*");
+        $policy->addAllowedFontDomain("*");
+        $policy->addAllowedConnectDomain("*");
+        $policy->allowInlineStyle(true);
+        // $policy->allowInlineScript(true); - removed, this function no longer exists in NC28
+        // $policy->allowEvalScript(true); - removed, this function no longer exists in NC34
+        $result->setContentSecurityPolicy($policy);
 
-		$result->setStatus($statusCode);
-		return $result;
-	}
+        $result->setStatus($statusCode);
+        return $result;
+    }
 }
