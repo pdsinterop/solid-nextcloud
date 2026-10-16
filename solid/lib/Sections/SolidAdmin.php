@@ -29,5 +29,4 @@ class SolidAdmin implements IIconSection {
     public function getPriority(): int {
         return 98;
     }
-
 }

@@ -47,5 +47,4 @@ class PageControllerTest extends TestCase
         $this->assertEquals('index', $result->getTemplateName());
         $this->assertTrue($result instanceof TemplateResponse);
     }
-
 }

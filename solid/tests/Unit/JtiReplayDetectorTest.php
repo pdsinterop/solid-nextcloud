@@ -100,5 +100,4 @@ class JtiReplayDetectorTest extends TestCase
 
         $this->assertFalse($result);
     }
-
 }
