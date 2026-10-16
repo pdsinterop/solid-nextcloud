@@ -10,7 +10,8 @@
     /**
      * @package OCA\Solid
      */
-class ServerConfig extends BaseServerConfig {
+class ServerConfig extends BaseServerConfig
+{
     private IUrlGenerator $urlGenerator;
     private IUserManager $userManager;
 

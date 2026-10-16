@@ -5,7 +5,8 @@ namespace OCA\Solid\Db;
 use JsonSerializable;
 use OCP\AppFramework\Db\Entity;
 
-class SolidWebhook extends Entity implements JsonSerializable {
+class SolidWebhook extends Entity implements JsonSerializable
+{
     public $id;
     public $topic;
     public $webId;

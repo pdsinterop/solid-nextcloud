@@ -12,7 +12,8 @@ use OCP\Http\WellKnown\IHandler;
 use OCP\Http\WellKnown\IRequestContext;
 use OCP\Http\WellKnown\IResponse;
 
-class SolidHandler implements IHandler {
+class SolidHandler implements IHandler
+{
     /* @var IURLGenerator */
     private $urlGenerator;
 

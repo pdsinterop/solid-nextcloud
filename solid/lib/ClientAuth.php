@@ -31,7 +31,8 @@
     /**
      * @package OCA\Solid
      */
-class ClientAuth extends ABackend implements ICheckPasswordBackend {
+class ClientAuth extends ABackend implements ICheckPasswordBackend
+{
     public function __construct()
     {
     }

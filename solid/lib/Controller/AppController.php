@@ -14,7 +14,8 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
 
-class AppController extends Controller {
+class AppController extends Controller
+{
     use GetStorageUrlTrait;
 
     protected ServerConfig $config;

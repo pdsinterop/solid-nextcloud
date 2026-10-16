@@ -19,7 +19,8 @@ use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
-class ProfileController extends Controller {
+class ProfileController extends Controller
+{
     use DpopFactoryTrait;
     use GetStorageUrlTrait;
 

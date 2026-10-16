@@ -19,7 +19,8 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\Server;
 
-class Application extends App implements IBootstrap {
+class Application extends App implements IBootstrap
+{
     public const APP_ID = 'solid';
     public static $userSubDomainsEnabled;
 

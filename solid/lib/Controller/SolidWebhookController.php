@@ -19,7 +19,8 @@ use OCP\IURLGenerator;
 use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
-class SolidWebhookController extends Controller {
+class SolidWebhookController extends Controller
+{
     use DpopFactoryTrait;
     use GetStorageUrlTrait;
 

@@ -5,7 +5,8 @@ namespace OCA\Solid;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Response;
 
-class PlainResponse extends Response {
+class PlainResponse extends Response
+{
     // FIXME: We might as well add a PSRResponse class to handle those;
 
     /**

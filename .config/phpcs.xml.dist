@@ -32,7 +32,6 @@
         <!-- Until things have been cleaned up a bit, these violations are allowed -->
         <exclude name="Generic.Files.LineLength.TooLong"/>
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
-        <exclude name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine"/>
     </rule>
 
     <!-- Have 12 chars padding maximum and always show as errors -->

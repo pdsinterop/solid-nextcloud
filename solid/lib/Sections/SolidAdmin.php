@@ -6,7 +6,8 @@ use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
 
-class SolidAdmin implements IIconSection {
+class SolidAdmin implements IIconSection
+{
     private IL10N $l;
     private IURLGenerator $urlGenerator;
 

@@ -7,7 +7,8 @@
     use OCP\IResponse;
     use OCP\IRequest;
 
-class SolidCorsMiddleware extends Middleware {
+class SolidCorsMiddleware extends Middleware
+{
     private $request;
 
     public function __construct(IRequest $request)

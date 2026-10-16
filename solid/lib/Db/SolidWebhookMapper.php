@@ -8,7 +8,8 @@ use OCP\AppFramework\Db\QBMapper;
 use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
-class SolidWebhookMapper extends QBMapper {
+class SolidWebhookMapper extends QBMapper
+{
     public function __construct(IDBConnection $db)
     {
         parent::__construct($db, 'solid_webhooks', SolidWebhook::class);

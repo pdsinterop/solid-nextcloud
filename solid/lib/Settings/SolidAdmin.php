@@ -8,7 +8,8 @@ use OCP\IL10N;
 use OCP\Settings\ISettings;
 use OCA\Solid\BaseServerConfig;
 
-class SolidAdmin implements ISettings {
+class SolidAdmin implements ISettings
+{
     private IL10N $l;
     private IConfig $config;
     private BaseServerConfig $serverConfig;

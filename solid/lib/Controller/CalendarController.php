@@ -17,7 +17,8 @@ use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
-class CalendarController extends Controller {
+class CalendarController extends Controller
+{
     use DpopFactoryTrait;
 
     /* @var IURLGenerator */

@@ -14,7 +14,8 @@ use OCP\Http\WellKnown\IHandler;
 use OCP\Http\WellKnown\IRequestContext;
 use OCP\Http\WellKnown\IResponse;
 
-class OpenIdConfigurationHandler implements IHandler {
+class OpenIdConfigurationHandler implements IHandler
+{
     /* @var IUserManager */
     private $userManager;
 

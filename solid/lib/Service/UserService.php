@@ -4,7 +4,8 @@ namespace OCA\Solid\Service;
 
 use OCP\IUserSession;
 
-class UserService {
+class UserService
+{
     private IUserSession $userSession;
 
     public function __construct(IUserSession $userSession)

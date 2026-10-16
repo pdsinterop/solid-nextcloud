@@ -8,7 +8,8 @@ use OCP\AppFramework\Db\MultipleObjectsReturnedException;
 use OCA\Solid\Db\SolidWebhook;
 use OCA\Solid\Db\SolidWebhookMapper;
 
-class SolidWebhookService {
+class SolidWebhookService
+{
     /** @var SolidWebhookMapper */
     private $mapper;
 

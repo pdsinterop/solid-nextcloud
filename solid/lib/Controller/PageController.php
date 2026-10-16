@@ -13,7 +13,8 @@ use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
 
-class PageController extends Controller {
+class PageController extends Controller
+{
     private $userId;
     private $userManager;
     private $urlGenerator;
