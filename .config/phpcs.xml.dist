@@ -6,9 +6,9 @@
 >
     <description>PHP coding standards for PDS Interop projects</description>
 
-    <!-- Show sniff codes in all reports, and progress when running -->
+    <!-- Show sniff codes in all reports and progress when running -->
     <arg value="sp"/>
-    <!-- Strip the filepaths down to the relevant bit. -->
+    <!-- Strip the file paths down to the relevant bit. -->
     <arg name="basepath" value="../solid/"/>
     <arg name="extensions" value="php"/>
     <arg name="colors"/>
@@ -28,8 +28,9 @@
 
     <!-- Include the whole PSR-12 standard -->
     <rule ref="PSR12">
-        <!-- Until things have been cleaned up a bit, these violations are allowed -->
+        <!-- Allow lines longer than 120 chars -->
         <exclude name="Generic.Files.LineLength.TooLong"/>
+        <!-- Assignment operators should NOT be aligned to avoid commit noise -->
         <exclude name="Generic.Formatting.MultipleStatementAlignment.NotSame"/>
     </rule>
 
