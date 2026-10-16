@@ -1,9 +1,9 @@
 <?php
     namespace OCA\Solid\Notifications;
-    
+
     use OCA\Solid\Service\SolidWebhookService;
     use Pdsinterop\Solid\SolidNotifications\SolidNotificationsInterface;
-    
+
     class SolidWebhook implements SolidNotificationsInterface
     {
         public function __construct() {
@@ -68,7 +68,7 @@
             //    "state" : $state
                 "published" => $published
             ];
-            
+
             return json_encode($payload);
         }
     }

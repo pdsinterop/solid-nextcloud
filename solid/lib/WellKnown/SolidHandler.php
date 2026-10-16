@@ -15,8 +15,8 @@ use OCP\Http\WellKnown\IResponse;
 class SolidHandler implements IHandler {
 	/* @var IURLGenerator */
 	private $urlGenerator;
-	
-	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager) 
+
+	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager)
 	{
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->urlGenerator = $urlGenerator;

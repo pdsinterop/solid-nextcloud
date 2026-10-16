@@ -67,16 +67,16 @@
 						<template data-simply-template="0">
 							<button
 									data-simply-command="allowAndLaunch"
-									data-simply-field="launchUrl" 
-									data-simply-content="attributes" 
+									data-simply-field="launchUrl"
+									data-simply-content="attributes"
 									data-simply-attributes="data-solid-url"
 								>Allow and Launch</button>
 						</template>
 						<template data-simply-template="1">
 							<button
 								data-simply-command="launch"
-								data-simply-field="launchUrl" 
-								data-simply-content="attributes" 
+								data-simply-field="launchUrl"
+								data-simply-content="attributes"
 								data-simply-attributes="data-solid-url"
 							>Launch</button>
 						</template>

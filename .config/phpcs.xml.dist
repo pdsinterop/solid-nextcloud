@@ -50,7 +50,6 @@
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
         <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.Indent"/>
-        <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
     </rule>
 
     <!-- Have 12 chars padding maximum and always show as errors -->

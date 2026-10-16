@@ -5,7 +5,7 @@
 	use OCP\IUserManager;
 	use OCP\IUrlGenerator;
 	use OCA\Solid\BaseServerConfig;
-	
+
 	/**
 	 * @package OCA\Solid
 	 */
@@ -46,7 +46,7 @@
 		}
 		public function setProfileData($userId, $profileData) {
 			$this->config->setUserValue($userId, "solid", "profileData", $profileData);
-			
+
 			if ($this->userManager->userExists($userId)) {
 				$graph = new \EasyRdf\Graph();
 				$graph->parse($profileData, 'turtle');

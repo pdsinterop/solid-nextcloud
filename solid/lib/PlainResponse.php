@@ -6,7 +6,7 @@ use OCP\AppFramework\Http\Response;
 
 class PlainResponse extends Response {
     // FIXME: We might as well add a PSRResponse class to handle those;
-    
+
     /**
      * response data
      * @var array|object

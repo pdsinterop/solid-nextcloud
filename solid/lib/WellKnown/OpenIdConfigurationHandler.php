@@ -29,16 +29,16 @@ class OpenIdConfigurationHandler implements IHandler {
 
 	/* @var Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory */
 	private $authServerFactory;
-	
-	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager) 
+
+	public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager)
 	{
 		require_once(__DIR__.'/../../vendor/autoload.php');
 		$this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
 		$this->request     = $request;
 		$this->urlGenerator = $urlGenerator;
 
-		$this->authServerConfig = $this->createAuthServerConfig(); 
-		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();		
+		$this->authServerConfig = $this->createAuthServerConfig();
+		$this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
 	}
 
 	private function getOpenIdEndpoints() {
@@ -53,10 +53,10 @@ class OpenIdConfigurationHandler implements IHandler {
 			"registration_endpoint" => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.register"))
 		];
 	}
-	
+
 	private function getKeys() {
 		$encryptionKey = $this->config->getEncryptionKey();
-		$privateKey    = $this->config->getPrivateKey();		
+		$privateKey    = $this->config->getPrivateKey();
 		$key           = openssl_pkey_get_private($privateKey);
 		$publicKey     = openssl_pkey_get_details($key)['key'];
 		return [
@@ -65,7 +65,7 @@ class OpenIdConfigurationHandler implements IHandler {
 			"publicKey"     => $publicKey
 		];
 	}
-	
+
 	private function createAuthServerConfig() {
 		$keys = $this->getKeys();
 		try {
@@ -110,7 +110,7 @@ class OpenIdConfigurationHandler implements IHandler {
 			$body = 'ok';
 		}
 		$result = new JSONResponse($body);
-		
+
 		foreach ($headers as $header => $values) {
 			foreach ($values as $value) {
 				$result->addHeader($header, $value);

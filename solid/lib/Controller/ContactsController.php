@@ -27,7 +27,7 @@ class ContactsController extends Controller
 
 	/* @var ISession */
 	private $session;
-	
+
 	public function __construct(
 		$AppName,
 		IRequest $request,
@@ -129,11 +129,11 @@ EOF;
 
 		$this->filesystem = $this->getFileSystem($userId);
 
-		$this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);		
+		$this->resourceServer = new ResourceServer($this->filesystem, $this->adapter, $this->response);
 		$this->WAC = new WAC($this->filesystem, $this->adapter);
 
 		$request = $this->rawRequest;
-		$baseUrl = $this->getContactsUrl($userId);		
+		$baseUrl = $this->getContactsUrl($userId);
 		$this->resourceServer->setBaseUrl($baseUrl);
 		$this->WAC->setBaseUrl($baseUrl);
 		$notifications = new SolidNotifications();
@@ -148,26 +148,26 @@ EOF;
 				->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
 			return $this->respond($response);
 		}
-		
+
 		if (!$this->WAC->isAllowed($request, $webId)) {
 			$response = $this->resourceServer->getResponse()->withStatus(403, "Access denied");
 			return $this->respond($response);
 		}
 
-		$response = $this->resourceServer->respondToRequest($request);	
+		$response = $this->resourceServer->respondToRequest($request);
 		$response = $this->WAC->addWACHeaders($request, $response, $webId);
 		return $this->respond($response);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
 	 * @NoCSRFRequired
 	 */
-	public function handleGet($userId, $path) {	
+	public function handleGet($userId, $path) {
 		return $this->handleRequest($userId, $path);
 	}
-	
+
 	/**
 	 * @PublicPage
 	 * @NoAdminRequired
