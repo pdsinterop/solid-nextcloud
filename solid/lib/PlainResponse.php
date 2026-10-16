@@ -19,7 +19,7 @@ class PlainResponse extends Response {
      * @param array|object $data the object or array that should be transformed
      * @param int $statusCode the Http status code, defaults to 200
      */
-    public function __construct($data='', $statusCode=Http::STATUS_OK) {
+    public function __construct($data = '', $statusCode = Http::STATUS_OK) {
         parent::__construct();
         $this->data = $data;
         $this->setStatus($statusCode);
