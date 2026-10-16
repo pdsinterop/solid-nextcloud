@@ -24,26 +24,26 @@
         $this->urlGenerator = $urlGenerator;
 
         parent::__construct($config);
-        }
+    }
 
     public function getAllowedClients($userId) {
         return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
-        }
+    }
 
     public function addAllowedClient($userId, $clientId) {
         $allowedClients = $this->getAllowedClients($userId);
         $allowedClients[] = $clientId;
         $this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
-        }
+    }
     public function removeAllowedClient($userId, $clientId) {
         $allowedClients = $this->getAllowedClients($userId);
         $allowedClients = array_diff($allowedClients, array($clientId));
         $this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
-        }
+    }
 
     public function getProfileData($userId) {
         return $this->config->getUserValue($userId, "solid", "profileData", "");
-        }
+    }
     public function setProfileData($userId, $profileData) {
         $this->config->setUserValue($userId, "solid", "profileData", $profileData);
 
@@ -60,6 +60,6 @@
             // and write them to the user;
             $user = $this->userManager->get($userId);
             $user->setDisplayName($fields['name']);
-            }
         }
+    }
     }

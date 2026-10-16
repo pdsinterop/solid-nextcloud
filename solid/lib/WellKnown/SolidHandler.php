@@ -25,7 +25,7 @@ class SolidHandler implements IHandler {
         public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
         if ($service !== 'solid') {
                 return $previousResponse;
-            }
+        }
         $webhooksRegisterEndpoint = $this->urlGenerator->linkToRoute('solid.solidWebhook.register');
         // FIXME: this shouldn't happen:
         if (strlen($webhooksRegisterEndpoint) == 0) {
@@ -60,5 +60,5 @@ class SolidHandler implements IHandler {
         $result->addHeader("Access-Control-Allow-Origin", "*");
         $result->setStatus(200);
         return new GenericResponse($result);
-    }
+        }
 }

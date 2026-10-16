@@ -15,7 +15,7 @@
 
     public function __construct(IConfig $config) {
         $this->config = $config;
-        }
+    }
 
     /**
      * @return string
@@ -27,30 +27,30 @@
             $keys = $this->generateKeySet();
             $this->config->setAppValue('solid','privateKey',$keys['privateKey']);
             $this->config->setAppValue('solid','encryptionKey',$keys['encryptionKey']);
-            }
-        return $this->config->getAppValue('solid','privateKey');
         }
+        return $this->config->getAppValue('solid','privateKey');
+    }
 
     /**
      * @param string $privateKey
      */
     public function setPrivateKey($privateKey) {
         $this->config->setAppValue('solid','privateKey',$privateKey);
-        }
+    }
 
     /**
      * @return string
      */
     public function getEncryptionKey() {
         return $this->config->getAppValue('solid','encryptionKey');
-        }
+    }
 
     /**
      * @param string $publicKey
      */
     public function setEncryptionKey($publicKey) {
         $this->config->setAppValue('solid','encryptionKey',$publicKey);
-        }
+    }
 
     private function generateKeySet() {
         $config = array(
@@ -69,7 +69,7 @@
             "encryptionKey" => $encryptionKey
         );
         return $result;
-        }
+    }
 
     /**
      * @param string $clientId
@@ -79,9 +79,9 @@
         $clients = (array)$this->config->getAppValue('solid','clients');
         if (array_key_exists($clientId, $clients)) {
             return $clients[$clientId];
-            }
-        return null;
         }
+        return null;
+    }
 
     /**
      * @return array|null
@@ -97,10 +97,10 @@
                     "clientName" => $clientRegistration['client_name'],
                     "clientBlocked" => $clientRegistration['blocked'] ?? false,
                 ];
-                }
             }
-        return $clients;
         }
+        return $clients;
+    }
 
     /**
      * @param array $clientConfig
@@ -111,7 +111,7 @@
         $clients[$clientId] = $clientConfig;
         $this->config->setAppValue('solid','clients', $clients);
         return $clientId;
-        }
+    }
 
     /**
      * @param string $clientId
@@ -121,7 +121,7 @@
         $clientScopes = $this->getClientScopes($clientId);
         $clientScopes = array_unique(array_merge($clientScopes, $scopes));
         $this->setClientScopes($clientId, $clientScopes);
-        }
+    }
 
     /**
      * @param string $clientId
@@ -131,7 +131,7 @@
         $clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         $clientScopes[$clientId] = $scopes;
         $this->config->setAppValue('solid', 'clientScopes', $clientScopes);
-        }
+    }
 
     /**
      * @param string $clientId
@@ -141,9 +141,9 @@
         $clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         if (array_key_exists($clientId, $clientScopes)) {
             return $clientScopes[$clientId];
-            }
-        return [];
         }
+        return [];
+    }
 
     /**
      * @param string $clientId
@@ -155,7 +155,7 @@
         $scopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         unset($scopes[$clientId]);
         $this->config->setAppValue('solid', 'clientScopes', $scopes);
-        }
+    }
 
     public function saveClientRegistration($clientData)
     {
@@ -166,14 +166,14 @@
             $existingRegistration = $this->getClientRegistration($generatedClientId);
             if ($existingRegistration['client_id'] ?? false) {
                 $generatedClientId = bin2hex(random_bytes(16));
-                } else {
+            } else {
                 break;
-                }
             }
+        }
 
         if ($existingRegistration['client_id'] ?? false) {
             throw new \Exception("Could not generate unique client ID");
-            }
+        }
 
         $generatedClientSecret = bin2hex(random_bytes(32)); // and 64 chars for the client secret
 
@@ -182,40 +182,40 @@
 
         if (!isset($clientData['client_name'])) {
             $clientData['client_name'] = "Client $generatedClientId";
-            }
+        }
 
         $this->config->setAppValue('solid', "client-" . $generatedClientId, json_encode($clientData));
 
         return $clientData;
-        }
+    }
 
     public function removeClientRegistration($clientId) {
         $this->config->deleteAppValue('solid', "client-" . $clientId);
-        }
+    }
 
     public function getClientRegistration($clientId) {
         $data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
         return json_decode($data, true);
-        }
+    }
 
     public function getTrustedApps()
     {
         $appValue = $this->config->getAppValue('solid', 'trustedApps', '[]');
 
         return json_decode($appValue, true, 512, JSON_THROW_ON_ERROR);
-        }
+    }
 
     public function getUserSubDomainsEnabled() {
         $value = $this->config->getAppValue('solid', 'userSubDomainsEnabled', false);
 
         return $this->castToBool($value);
-        }
+    }
 
     public function setUserSubDomainsEnabled($enabled) {
         $value = $this->castToBool($enabled);
 
         $this->config->setAppValue('solid', 'userSubDomainsEnabled', $value);
-        }
+    }
 
     ////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -225,36 +225,36 @@
 
         if ($type === 'boolean' || $type === 'NULL' || $type === 'integer') {
             $value = (bool) $mixedValue;
-            } else {
+        } else {
             if ($type === 'string') {
                 $mixedValue = strtolower($mixedValue);
                 if ($mixedValue === 'true' || $mixedValue === '1') {
                     $value = true;
-                    } elseif ($mixedValue === 'false' || $mixedValue === '0' || $mixedValue === '') {
+                } elseif ($mixedValue === 'false' || $mixedValue === '0' || $mixedValue === '') {
                     $value = false;
-                    } else {
+                } else {
                     $error = [
                     'invalid' => 'value',
                     'for' => 'userSubDomainsEnabled',
                     'received' => $mixedValue,
                     'expected' => implode(',', ['true', 'false', '1', '0'])
                     ];
-                    }
-                } else {
+                }
+            } else {
                 $error = [
                 'invalid' => 'type',
                 'for' => 'userSubDomainsEnabled',
                 'received' => $type,
                 'expected' => implode(',', ['boolean', 'NULL', 'integer', 'string'])
                 ];
-                }
             }
+        }
 
         if (isset($error)) {
             $errorMessage = vsprintf(self::ERROR_INVALID_ARGUMENT, $error);
             throw new InvalidArgumentException($errorMessage);
-            }
+        }
 
         return $value;
-        }
+    }
     }

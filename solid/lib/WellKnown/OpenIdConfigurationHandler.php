@@ -84,7 +84,7 @@ class OpenIdConfigurationHandler implements IHandler {
         public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
         if ($service !== 'openid-configuration') {
                 return $previousResponse;
-            }
+        }
 
         $response = new \Laminas\Diactoros\Response();
         $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
