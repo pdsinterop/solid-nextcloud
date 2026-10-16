@@ -1,4 +1,5 @@
 <?php
+
     namespace OCA\Solid\Middleware;
 
     use OCP\AppFramework\Middleware;

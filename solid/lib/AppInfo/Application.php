@@ -6,12 +6,10 @@ namespace OCA\Solid\AppInfo;
 
 use OC;
 use OC\AppConfig;
-
 use OCA\Solid\Service\SolidWebhookService;
 use OCA\Solid\Db\SolidWebhookMapper;
 use OCA\Solid\Middleware\SolidCorsMiddleware;
 use OCA\Solid\ClientAuth;
-
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;

@@ -3,12 +3,10 @@
 namespace OCA\Solid\Controller;
 
 use Closure;
-
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\ServerConfig;
 use OCA\Solid\Service\SolidWebhookService;
-
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -19,7 +17,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {

@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Sections;
 
 use OCP\IL10N;

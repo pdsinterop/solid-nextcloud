@@ -1,11 +1,11 @@
 <?php
+
 namespace OCA\Solid\WellKnown;
 
 use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\IConfig;
-
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\Http\WellKnown\GenericResponse;
 use OCP\Http\WellKnown\IHandler;

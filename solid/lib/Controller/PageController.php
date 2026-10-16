@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
@@ -6,7 +7,6 @@ use OCP\IRequest;
 use OCP\IUserManager;
 use OCP\IURLGenerator;
 use OCP\IConfig;
-
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Controller;

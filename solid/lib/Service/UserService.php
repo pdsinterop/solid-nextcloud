@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Service;
 
 use OCP\IUserSession;

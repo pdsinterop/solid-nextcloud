@@ -3,10 +3,8 @@
 namespace OCA\Solid\Service;
 
 use Exception;
-
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Db\MultipleObjectsReturnedException;
-
 use OCA\Solid\Db\SolidWebhook;
 use OCA\Solid\Db\SolidWebhookMapper;
 

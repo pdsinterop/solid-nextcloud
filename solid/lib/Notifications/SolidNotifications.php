@@ -1,4 +1,5 @@
 <?php
+
     namespace OCA\Solid\Notifications;
 
     use OCA\Solid\Notifications\SolidPubSub;

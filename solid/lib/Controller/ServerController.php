@@ -1,10 +1,10 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\ServerConfig;
 use OCA\Solid\Service\UserService;
-
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\DataResponse;
@@ -15,7 +15,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;

@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid;
 
 use OCP\AppFramework\Http;

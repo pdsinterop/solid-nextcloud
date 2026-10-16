@@ -1,11 +1,11 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\DpopFactoryTrait;
 use OCA\Solid\PlainResponse;
 use OCA\Solid\Notifications\SolidNotifications;
 use OCA\Solid\ServerConfig;
-
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -16,7 +16,6 @@ use OCP\IRequest;
 use OCP\ISession;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
-
 use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 

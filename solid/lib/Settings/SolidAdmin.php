@@ -1,4 +1,5 @@
 <?php
+
 namespace OCA\Solid\Settings;
 
 use OCP\AppFramework\Http\TemplateResponse;

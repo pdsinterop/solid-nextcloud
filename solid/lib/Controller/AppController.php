@@ -1,8 +1,8 @@
 <?php
+
 namespace OCA\Solid\Controller;
 
 use OCA\Solid\ServerConfig;
-
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\ContentSecurityPolicy;
