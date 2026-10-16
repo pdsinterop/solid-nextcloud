@@ -187,7 +187,8 @@ EOF;
      * @NoCSRFRequired
      */
     public function handlePut()
-    { // $userId, $path) {
+    {
+ // $userId, $path) {
         // FIXME: Adding the correct variables in the function name will make nextcloud
         // throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
 
