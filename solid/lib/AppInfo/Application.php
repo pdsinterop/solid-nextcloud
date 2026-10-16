@@ -49,29 +49,29 @@ class Application extends App implements IBootstrap {
          * Core class wrappers
          */
 
-        $context->registerService('UserService', function($c) {
+        $context->registerService('UserService', function ($c) {
             return new \OCA\Solid\Service\UserService(
                 $c->query('UserSession')
             );
         });
-        $context->registerService('UserSession', function($c) {
+        $context->registerService('UserSession', function ($c) {
             return $c->query('ServerContainer')->getUserSession();
         });
 
         // currently logged in user, userId can be gotten by calling the
         // getUID() method on it
-        $context->registerService('User', function($c) {
+        $context->registerService('User', function ($c) {
             return $c->query('UserSession')->getUser();
         });
 
         /* webhook DB services */
-        $context->registerService(SolidWebhookService::class, function($c): SolidWebhookService {
+        $context->registerService(SolidWebhookService::class, function ($c): SolidWebhookService {
             return new SolidWebhookService(
                 $c->query(SolidWebhookMapper::class)
             );
         });
 
-        $context->registerService(SolidWebhookMapper::class, function($c): SolidWebhookMapper {
+        $context->registerService(SolidWebhookMapper::class, function ($c): SolidWebhookMapper {
             return new SolidWebhookMapper(
                 $c->get(\OCP\IDBConnection::class)
             );

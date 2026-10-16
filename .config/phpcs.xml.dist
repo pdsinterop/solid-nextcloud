@@ -48,7 +48,6 @@
         <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpaceBeforeEquals"/>
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
         <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace"/>
-        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
         <exclude name="Squiz.WhiteSpace.ScopeClosingBrace.Indent"/>
     </rule>
 
