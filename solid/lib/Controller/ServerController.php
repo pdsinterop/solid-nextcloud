@@ -63,7 +63,7 @@ class ServerController extends Controller
         IDBConnection $connection,
     ) {
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->userId = $userId;
         $this->userManager = $userManager;
@@ -128,7 +128,7 @@ class ServerController extends Controller
                 $keys['publicKey'],
                 $this->getOpenIdEndpoints()
             ))->create();
-        } catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             // var_dump($e);
             return null;
         }
@@ -170,7 +170,7 @@ class ServerController extends Controller
             try {
                 $token = $jwtConfig->parser()->parse($_GET['request']);
                 $this->session->set("nonce", $token->claims()->get('nonce'));
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->session->set("nonce", $_GET['nonce']);
             }
         }
@@ -191,7 +191,7 @@ class ServerController extends Controller
             }
             try {
                 $getVars['redirect_uri'] = $token->claims()->get("redirect_uri");
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $result = new JSONResponse('Bad request, missing redirect uri');
                 $result->setStatus(400);
                 return $result;

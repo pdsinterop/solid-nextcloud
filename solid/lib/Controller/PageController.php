@@ -21,7 +21,7 @@ class PageController extends Controller {
 
     public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->userId = $userId;
         $this->userManager = $userManager;
         $this->request     = $request;

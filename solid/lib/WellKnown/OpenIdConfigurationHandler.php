@@ -32,7 +32,7 @@ class OpenIdConfigurationHandler implements IHandler {
 
     public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager)
     {
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->request     = $request;
         $this->urlGenerator = $urlGenerator;
@@ -76,7 +76,7 @@ class OpenIdConfigurationHandler implements IHandler {
                 $keys['publicKey'],
                 $this->getOpenIdEndpoints()
             ))->create();
-        } catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             return null;
         }
     }

@@ -18,7 +18,7 @@ class SolidHandler implements IHandler {
 
     public function __construct(IRequest $request, IURLGenerator $urlGenerator, IConfig $config, IUserManager $userManager)
     {
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->urlGenerator = $urlGenerator;
     }
 

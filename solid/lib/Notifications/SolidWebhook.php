@@ -16,7 +16,7 @@
             foreach ($webhooks as $webhook) {
                 try {
                     $this->postUpdate($webhook->{'target'}, $topic, $type);
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     // FIXME: add retry code here?
                 }
             }

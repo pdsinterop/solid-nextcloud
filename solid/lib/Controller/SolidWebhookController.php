@@ -48,7 +48,7 @@ class SolidWebhookController extends Controller {
         IDBConnection $connection,
     ) {
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->rootFolder = $rootFolder;
         $this->request     = $request;
@@ -62,7 +62,7 @@ class SolidWebhookController extends Controller {
             $this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
             $this->webId = $this->DPop->getWebId($this->rawRequest);
             // FIXME: Should we handle webhooks for 'public'?
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return new PlainResponse("Invalid token", 409);
         }
     }

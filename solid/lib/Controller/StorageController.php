@@ -46,7 +46,7 @@ class StorageController extends Controller
         IDBConnection $connection,
     ) {
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->rootFolder = $rootFolder;
         $this->request     = $request;
@@ -308,7 +308,7 @@ EOF;
         $error = false;
         try {
             $webId = $dpop->getWebId($request);
-        } catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+        } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
             $error = $e;
         }
 
@@ -316,7 +316,7 @@ EOF;
             $bearer = $this->getBearer();
             try {
                 $webId = $bearer->getWebId($request);
-            } catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+            } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
                 $error = $e;
             }
         }

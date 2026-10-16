@@ -43,7 +43,7 @@ class ProfileController extends Controller {
         IDBConnection $connection,
     ) {
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->request     = $request;
         $this->urlGenerator = $urlGenerator;
@@ -157,7 +157,7 @@ EOF;
         if ($request->getHeaderLine("DPop")) {
             try {
                 $webId = $dpop->getWebId($request);
-            } catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+            } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
                 $response = $this->resourceServer->getResponse()
                     ->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
                 return $this->respond($response);
@@ -280,11 +280,11 @@ EOF;
             $user = $this->userManager->get($userId);
             $addressBooks = $this->contactsManager->getUserAddressBooks();
             $friends = [];
-            foreach($addressBooks as $k => $v) {
+            foreach ($addressBooks as $k => $v) {
                 $results = $addressBooks[$k]->search('', ['FN'], ['types' => true]);
-                foreach($results as $found) {
+                foreach ($results as $found) {
                     if (isset($found['URL']) && is_array($found['URL'])) {
-                        foreach($found['URL'] as $i => $obj) {
+                        foreach ($found['URL'] as $i => $obj) {
                             array_push($friends, $obj['value']);
                         }
                     }

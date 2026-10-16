@@ -39,7 +39,7 @@ class CalendarController extends Controller {
         IDBConnection $connection,
     ) {
         parent::__construct($AppName, $request);
-        require_once(__DIR__.'/../../vendor/autoload.php');
+        require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->config = new \OCA\Solid\ServerConfig($config, $urlGenerator, $userManager);
         $this->request     = $request;
         $this->urlGenerator = $urlGenerator;
@@ -142,7 +142,7 @@ EOF;
 
         try {
             $webId = $dpop->getWebId($request);
-        } catch(\Pdsinterop\Solid\Auth\Exception\Exception $e) {
+        } catch (\Pdsinterop\Solid\Auth\Exception\Exception $e) {
             $response = $this->resourceServer->getResponse()
                 ->withStatus(Http::STATUS_CONFLICT, "Invalid token " . $e->getMessage());
             return $this->respond($response);
