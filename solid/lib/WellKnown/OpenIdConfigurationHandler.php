@@ -87,7 +87,7 @@ class OpenIdConfigurationHandler implements IHandler {
             }
 
         $response = new \Laminas\Diactoros\Response();
-        $server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+        $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
         $response = $server->respondToOpenIdMetadataRequest();
 
         return new GenericResponse($this->respond($response));

@@ -277,7 +277,7 @@ class ServerController extends Controller
 
         $request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $getVars, $_POST, $_COOKIE, $_FILES);
         $response = new \Laminas\Diactoros\Response();
-        $server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+        $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
         $response = $server->respondToAuthorizationRequest($request, $user, $approval);
         $response = $this->tokenGenerator->addIdTokenToResponse(
@@ -371,7 +371,7 @@ class ServerController extends Controller
         $httpDpop = $request->getServerParams()['HTTP_DPOP'] ?? null;
 
         $response = new \Laminas\Diactoros\Response();
-        $server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+        $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
         $response = $server->respondToAccessTokenRequest($request);
 
         if ($userId) {
@@ -466,7 +466,7 @@ class ServerController extends Controller
      */
     public function jwks() {
         $response = new \Laminas\Diactoros\Response();
-        $server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
+        $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
         $response = $server->respondToJwksMetadataRequest();
         return $this->respond($response);
     }
