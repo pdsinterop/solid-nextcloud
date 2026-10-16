@@ -115,7 +115,7 @@ class ServerController extends Controller
         $clientId = null;
         if (isset($_GET['client_id'])) {
             $clientId = $_GET['client_id'];
-        } else if (isset($_POST['client_id'])) {
+        } elseif (isset($_POST['client_id'])) {
             if (isset($_POST['refresh_token'])) { // FIXME: Why does the test suite break without this?
                 $clientId = $_POST['client_id'];
             }
