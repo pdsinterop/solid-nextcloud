@@ -510,7 +510,7 @@ class ServerController extends Controller
                 $clientRegistration['client_name']
             );
         } else {
-            return new \Pdsinterop\Solid\Auth\Config\Client('','',array(),'');
+            return new \Pdsinterop\Solid\Auth\Config\Client('', '', array(), '');
         }
     }
 }

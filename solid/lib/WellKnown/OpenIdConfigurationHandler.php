@@ -70,7 +70,7 @@ class OpenIdConfigurationHandler implements IHandler {
         $keys = $this->getKeys();
         try {
             return (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
-                new \Pdsinterop\Solid\Auth\Config\Client('','',array(),''),
+                new \Pdsinterop\Solid\Auth\Config\Client('', '', array(), ''),
                 $keys['encryptionKey'],
                 $keys['privateKey'],
                 $keys['publicKey'],

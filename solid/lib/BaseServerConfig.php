@@ -21,35 +21,35 @@
      * @return string
      */
     public function getPrivateKey() {
-        $result = $this->config->getAppValue('solid','privateKey');
+        $result = $this->config->getAppValue('solid', 'privateKey');
         if (!$result) {
             // generate and save a new set if we don't have a private key;
             $keys = $this->generateKeySet();
-            $this->config->setAppValue('solid','privateKey',$keys['privateKey']);
-            $this->config->setAppValue('solid','encryptionKey',$keys['encryptionKey']);
+            $this->config->setAppValue('solid', 'privateKey', $keys['privateKey']);
+            $this->config->setAppValue('solid', 'encryptionKey', $keys['encryptionKey']);
         }
-        return $this->config->getAppValue('solid','privateKey');
+        return $this->config->getAppValue('solid', 'privateKey');
     }
 
     /**
      * @param string $privateKey
      */
     public function setPrivateKey($privateKey) {
-        $this->config->setAppValue('solid','privateKey',$privateKey);
+        $this->config->setAppValue('solid', 'privateKey', $privateKey);
     }
 
     /**
      * @return string
      */
     public function getEncryptionKey() {
-        return $this->config->getAppValue('solid','encryptionKey');
+        return $this->config->getAppValue('solid', 'encryptionKey');
     }
 
     /**
      * @param string $publicKey
      */
     public function setEncryptionKey($publicKey) {
-        $this->config->setAppValue('solid','encryptionKey',$publicKey);
+        $this->config->setAppValue('solid', 'encryptionKey', $publicKey);
     }
 
     private function generateKeySet() {
@@ -76,7 +76,7 @@
      * @return array|null
      */
     public function getClientConfigById($clientId) {
-        $clients = (array)$this->config->getAppValue('solid','clients');
+        $clients = (array)$this->config->getAppValue('solid', 'clients');
         if (array_key_exists($clientId, $clients)) {
             return $clients[$clientId];
         }
@@ -109,7 +109,7 @@
     public function saveClientConfig($clientId, $clientConfig) {
         $clients = (array)$this->config->getAppValue('solid', 'clients');
         $clients[$clientId] = $clientConfig;
-        $this->config->setAppValue('solid','clients', $clients);
+        $this->config->setAppValue('solid', 'clients', $clients);
         return $clientId;
     }
 
@@ -151,7 +151,7 @@
     public function removeClientConfig($clientId) {
         $clients = (array)$this->config->getAppValue('solid', 'clients');
         unset($clients[$clientId]);
-        $this->config->setAppValue('solid','clients', $clients);
+        $this->config->setAppValue('solid', 'clients', $clients);
         $scopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         unset($scopes[$clientId]);
         $this->config->setAppValue('solid', 'clientScopes', $scopes);
