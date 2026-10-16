@@ -38,7 +38,8 @@ class Application extends App implements IBootstrap {
         parent::__construct(self::APP_ID, $urlParams);
     }
 
-    public function register(IRegistrationContext $context): void {
+    public function register(IRegistrationContext $context): void
+    {
         $context->registerWellKnownHandler(\OCA\Solid\WellKnown\OpenIdConfigurationHandler::class);
         $context->registerWellKnownHandler(\OCA\Solid\WellKnown\SolidHandler::class);
         $context->registerMiddleware(SolidCorsMiddleware::class);
@@ -76,7 +77,8 @@ class Application extends App implements IBootstrap {
         });
     }
 
-    public function boot(IBootContext $context): void {
+    public function boot(IBootContext $context): void
+    {
         self::$userSubDomainsEnabled = OC::$server->get(AppConfig::class)->getValueBool(self::APP_ID, 'userSubDomainsEnabled');
         require_once(__DIR__ . '/../../vendor/autoload.php');
     }

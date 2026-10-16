@@ -8,11 +8,13 @@
 class SolidPubSub implements SolidNotificationsInterface
 {
     private $pubsub;
-    public function __construct($pubsubUrl) {
+    public function __construct($pubsubUrl)
+    {
         $this->pubsub = $pubsubUrl;
     }
 
-    public function send($path, $type) {
+    public function send($path, $type)
+    {
         $pubsub = str_replace(["https://", "http://"], "wss://", $this->pubsub);
 
         $client = new Client($pubsub);

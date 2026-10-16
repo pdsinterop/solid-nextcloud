@@ -53,7 +53,8 @@ class ProfileController extends Controller {
         $this->setJtiStorage($connection);
     }
 
-    private function getFileSystem($userId) {
+    private function getFileSystem($userId)
+    {
         // Make sure the root folder has an acl file, as is required by the spec;
         // Generate a default file granting the owner full access.
         $defaultAcl = $this->generateDefaultAcl($userId);
@@ -85,7 +86,8 @@ class ProfileController extends Controller {
         return $filesystem;
     }
 
-    private function generateDefaultAcl($userId) {
+    private function generateDefaultAcl($userId)
+    {
         $defaultAcl = <<< EOF
 # Root ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -119,10 +121,12 @@ EOF;
         return $defaultAcl;
     }
 
-    private function getUserProfileUri($userId) {
+    private function getUserProfileUri($userId)
+    {
         return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
     }
-    private function getProfileUrl($userId) {
+    private function getProfileUrl($userId)
+    {
         $profileUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleHead", array("userId" => $userId, "path" => "foo")));
         $profileUrl = preg_replace('/foo$/', '', $profileUrl);
         return $profileUrl;
@@ -133,7 +137,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleRequest($userId, $path) {
+    public function handleRequest($userId, $path)
+    {
         $this->userId = $userId;
 
         $this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
@@ -180,7 +185,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleGet($userId, $path) {
+    public function handleGet($userId, $path)
+    {
         //TODO: check that the $userId matches the userDomain, if enabled.
         return $this->handleRequest($userId, $path);
     }
@@ -190,7 +196,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePost($userId, $path) {
+    public function handlePost($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -198,7 +205,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePut() { // $userId, $path) {
+    public function handlePut()
+    { // $userId, $path) {
         // FIXME: Adding the correct variables in the function name will make nextcloud
         // throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
 
@@ -227,7 +235,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleDelete($userId, $path) {
+    public function handleDelete($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -235,7 +244,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleHead($userId, $path) {
+    public function handleHead($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -243,11 +253,13 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePatch($userId, $path) {
+    public function handlePatch($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
 
-    private function respond($response) {
+    private function respond($response)
+    {
         $statusCode = $response->getStatusCode();
         $response->getBody()->rewind();
         $headers = $response->getHeaders();
@@ -274,7 +286,8 @@ EOF;
         return $result;
     }
 
-    private function getUserProfile($userId) {
+    private function getUserProfile($userId)
+    {
         if ($this->userManager->userExists($userId)) {
             $user = $this->userManager->get($userId);
             $addressBooks = $this->contactsManager->getUserAddressBooks();
@@ -309,7 +322,8 @@ EOF;
         return false;
     }
 
-    private function generateTurtleProfile($userId) {
+    private function generateTurtleProfile($userId)
+    {
         $profile = $this->getUserProfile($userId);
         if (!$profile) {
             return "";

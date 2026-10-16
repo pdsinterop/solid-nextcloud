@@ -12,19 +12,23 @@ class SolidWebhookService {
     /** @var SolidWebhookMapper */
     private $mapper;
 
-    public function __construct(SolidWebhookMapper $mapper) {
+    public function __construct(SolidWebhookMapper $mapper)
+    {
         $this->mapper = $mapper;
     }
 
-    public function findAll(string $webId): array {
+    public function findAll(string $webId): array
+    {
         return $this->mapper->findAll($webId);
     }
 
-    public function findByTopic(string $topic): array {
+    public function findByTopic(string $topic): array
+    {
         return $this->mapper->findByTopic($topic);
     }
 
-    private function handleException(Exception $e): void {
+    private function handleException(Exception $e): void
+    {
         if (
             $e instanceof DoesNotExistException ||
             $e instanceof MultipleObjectsReturnedException
@@ -35,7 +39,8 @@ class SolidWebhookService {
         }
     }
 
-    public function find($webId, $topic) {
+    public function find($webId, $topic)
+    {
         try {
             return $this->mapper->find($webId, $topic);
         } catch (Exception $e) {
@@ -43,7 +48,8 @@ class SolidWebhookService {
         }
     }
 
-    public function create($webId, $topic, $target) {
+    public function create($webId, $topic, $target)
+    {
         $webhook = new SolidWebhook();
         $webhook->setWebId($webId);
         $webhook->setTopic($topic);
@@ -51,7 +57,8 @@ class SolidWebhookService {
         return $this->mapper->insert($webhook);
     }
 
-    public function delete($webId, $topic) {
+    public function delete($webId, $topic)
+    {
         try {
             $webhook = $this->mapper->find($webId, $topic);
             $this->mapper->delete($webhook);

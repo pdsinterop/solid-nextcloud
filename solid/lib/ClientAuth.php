@@ -32,32 +32,41 @@
      * @package OCA\Solid
      */
 class ClientAuth extends ABackend implements ICheckPasswordBackend {
-    public function __construct() {
+    public function __construct()
+    {
     }
 
-    public function checkPassword(string $username, string $password) {
+    public function checkPassword(string $username, string $password)
+    {
         return true;
     }
 
-    public function getBackendName() {
+    public function getBackendName()
+    {
         return "Solid";
     }
-    public function deleteUser($uid) {
+    public function deleteUser($uid)
+    {
         return false;
     }
-    public function getUsers($search = "", $limit = null, $offset = null, $callback = null) {
+    public function getUsers($search = "", $limit = null, $offset = null, $callback = null)
+    {
         return [];
     }
-    public function userExists($uid) {
+    public function userExists($uid)
+    {
         return true;
     }
-    public function getDisplayName($uid) {
+    public function getDisplayName($uid)
+    {
         return "Solid client";
     }
-    public function getDisplayNames($search = "", $limit = null, $offset = null) {
+    public function getDisplayNames($search = "", $limit = null, $offset = null)
+    {
         return [];
     }
-    public function hasUserListings() {
+    public function hasUserListings()
+    {
         return false;
     }
 }

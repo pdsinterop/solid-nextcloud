@@ -55,7 +55,8 @@ class StorageController extends Controller
         $this->setJtiStorage($connection);
     }
 
-    private function getFileSystem() {
+    private function getFileSystem()
+    {
         // Create the Nextcloud Adapter
         $adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
         $graph = new \EasyRdf\Graph();
@@ -83,11 +84,13 @@ class StorageController extends Controller
         return $filesystem;
     }
 
-    private function getUserProfile($userId) {
+    private function getUserProfile($userId)
+    {
         return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
     }
 
-    private function generateDefaultAcl($userId) {
+    private function generateDefaultAcl($userId)
+    {
         $defaultAcl = <<< EOF
 # Root ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -120,7 +123,8 @@ EOF;
         return $defaultAcl;
     }
 
-    private function generatePublicAppendAcl($userId) {
+    private function generatePublicAppendAcl($userId)
+    {
         $publicAppendAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -151,7 +155,8 @@ EOF;
         return $publicAppendAcl;
     }
 
-    private function generatePublicReadAcl($userId) {
+    private function generatePublicReadAcl($userId)
+    {
         $publicReadAcl = <<< EOF
 # Inbox ACL resource for the user account
 @prefix acl: <http://www.w3.org/ns/auth/acl#>.
@@ -182,7 +187,8 @@ EOF;
         return $publicReadAcl;
     }
 
-    private function generateDefaultPublicTypeIndex() {
+    private function generateDefaultPublicTypeIndex()
+    {
         $publicTypeIndex = <<< EOF
 # Public type index
 @prefix : <#>.
@@ -195,7 +201,8 @@ EOF;
         return $publicTypeIndex;
     }
 
-    private function generateDefaultPrivateTypeIndex() {
+    private function generateDefaultPrivateTypeIndex()
+    {
         $privateTypeIndex = <<< EOF
 # Private type index
 @prefix : <#>.
@@ -207,7 +214,8 @@ EOF;
 
         return $privateTypeIndex;
     }
-    private function generateDefaultPreferences($userId) {
+    private function generateDefaultPreferences($userId)
+    {
         $preferences = <<< EOF
 # Preferences
 @prefix : <#>.
@@ -230,7 +238,8 @@ EOF;
         $preferences = str_replace("{user-profile-uri}", $profileUri, $preferences);
         return $preferences;
     }
-    private function initializeStorage($userId) {
+    private function initializeStorage($userId)
+    {
         $this->userFolder = $this->rootFolder->getUserFolder($userId);
         if (!$this->userFolder->nodeExists("solid")) {
             $this->userFolder->newFolder("solid"); // Create the Solid directory for storage if it doesn't exist.
@@ -285,7 +294,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleRequest($userId, $path) {
+    public function handleRequest($userId, $path)
+    {
         $this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
         $this->response = new \Laminas\Diactoros\Response();
 
@@ -353,7 +363,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleGet($userId, $path) {
+    public function handleGet($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
 
@@ -362,7 +373,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePost($userId, $path) {
+    public function handlePost($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -370,7 +382,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePut() { // $userId, $path) {
+    public function handlePut()
+    { // $userId, $path) {
         // FIXME: Adding the correct variables in the function name will make nextcloud
         // throw an error about accessing put twice, so we will find out the userId and path from $_SERVER instead;
 
@@ -399,7 +412,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleDelete($userId, $path) {
+    public function handleDelete($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -407,7 +421,8 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleHead($userId, $path) {
+    public function handleHead($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
     /**
@@ -415,11 +430,13 @@ EOF;
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handlePatch($userId, $path) {
+    public function handlePatch($userId, $path)
+    {
         return $this->handleRequest($userId, $path);
     }
 
-    private function respond($response) {
+    private function respond($response)
+    {
         $statusCode = $response->getStatusCode();
         $response->getBody()->rewind();
         $headers = $response->getHeaders();

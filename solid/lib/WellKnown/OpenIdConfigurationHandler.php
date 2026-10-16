@@ -41,7 +41,8 @@ class OpenIdConfigurationHandler implements IHandler {
         $this->authServerFactory = (new \Pdsinterop\Solid\Auth\Factory\AuthorizationServerFactory($this->authServerConfig))->create();
     }
 
-    private function getOpenIdEndpoints() {
+    private function getOpenIdEndpoints()
+    {
         return [
             'issuer' => $this->urlGenerator->getBaseURL(),
             'authorization_endpoint' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.authorize")),
@@ -54,7 +55,8 @@ class OpenIdConfigurationHandler implements IHandler {
         ];
     }
 
-    private function getKeys() {
+    private function getKeys()
+    {
         $encryptionKey = $this->config->getEncryptionKey();
         $privateKey    = $this->config->getPrivateKey();
         $key           = openssl_pkey_get_private($privateKey);
@@ -66,7 +68,8 @@ class OpenIdConfigurationHandler implements IHandler {
         ];
     }
 
-    private function createAuthServerConfig() {
+    private function createAuthServerConfig()
+    {
         $keys = $this->getKeys();
         try {
             return (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
@@ -81,7 +84,8 @@ class OpenIdConfigurationHandler implements IHandler {
         }
     }
 
-    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
+    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse
+    {
         if ($service !== 'openid-configuration') {
                 return $previousResponse;
         }
@@ -93,7 +97,8 @@ class OpenIdConfigurationHandler implements IHandler {
         return new GenericResponse($this->respond($response));
     }
 
-    private function respond($response) {
+    private function respond($response)
+    {
         $statusCode = $response->getStatusCode();
         $response->getBody()->rewind();
         $headers = $response->getHeaders();

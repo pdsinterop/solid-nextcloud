@@ -69,7 +69,8 @@ class SolidWebhookController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function listWebhooks(): DataResponse {
+    public function listWebhooks(): DataResponse
+    {
         return new DataResponse($this->webhookService->findAll($this->webId));
     }
 
@@ -78,7 +79,8 @@ class SolidWebhookController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function register(string $topic, string $target): DataResponse {
+    public function register(string $topic, string $target): DataResponse
+    {
         if (!$this->isValidWebhookTarget($target)) {
             return new DataResponse("Error: invalid webhook target", 422);
         }
@@ -95,20 +97,23 @@ class SolidWebhookController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function unregister(string $topic): DataResponse {
+    public function unregister(string $topic): DataResponse
+    {
         return $this->handleNotFound(function () use ($topic) {
             return $this->webhookService->delete($this->webId, $topic);
         });
     }
 
-    private function isValidWebhookTarget($target) {
+    private function isValidWebhookTarget($target)
+    {
         if (!preg_match("|^https://|", $target)) {
             return false;
         }
         return true;
     }
 
-    private function getFileSystem() {
+    private function getFileSystem()
+    {
         // Create the Nextcloud Adapter
         $adapter = new \Pdsinterop\Flysystem\Adapter\Nextcloud($this->solidFolder);
         $graph = new \EasyRdf\Graph();
@@ -132,17 +137,20 @@ class SolidWebhookController extends Controller {
         return $filesystem;
     }
 
-    private function getAppBaseUrl() {
+    private function getAppBaseUrl()
+    {
         $appBaseUrl = $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.app.appLauncher"));
         return $appBaseUrl;
     }
-    private function initializeStorage($userId) {
+    private function initializeStorage($userId)
+    {
         $this->userFolder = $this->rootFolder->getUserFolder($userId);
         $this->solidFolder = $this->userFolder->get("solid");
         $this->filesystem = $this->getFileSystem();
     }
 
-    private function parseTopic($topic) {
+    private function parseTopic($topic)
+    {
         // topic = https://nextcloud.server/solid/~alice/storage/foo/bar
         $appBaseUrl = $this->getAppBaseUrl(); //  https://nextcloud.server/solid/
         $internalUrl = str_replace($appBaseUrl, '', $topic); // ~alice/storage/foo/bar
@@ -157,7 +165,8 @@ class SolidWebhookController extends Controller {
         );
     }
 
-    private function createGetRequest($topic) {
+    private function createGetRequest($topic)
+    {
         $serverParams = [];
         $fileParams = [];
         $method = "GET";
@@ -174,7 +183,8 @@ class SolidWebhookController extends Controller {
         );
     }
 
-    private function checkReadAccess($topic) {
+    private function checkReadAccess($topic)
+    {
         // split out $topic into $userId and $path https://nextcloud.server/solid/~alice/storage/foo/bar
         // - userId in this case is the pod owner (not the one doing the request). (alice)
         // - path is the path within the storage pod (/foo/bar)
@@ -198,7 +208,8 @@ class SolidWebhookController extends Controller {
         return true;
     }
 
-    private function handleNotFound(Closure $callback): DataResponse {
+    private function handleNotFound(Closure $callback): DataResponse
+    {
         try {
             return new DataResponse($callback());
         } catch (SolidWebhookNotFound $e) {

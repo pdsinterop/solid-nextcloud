@@ -14,14 +14,16 @@ class BaseServerConfig {
 
     //////////////////////////////// PUBLIC API \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    public function __construct(IConfig $config) {
+    public function __construct(IConfig $config)
+    {
         $this->config = $config;
     }
 
     /**
      * @return string
      */
-    public function getPrivateKey() {
+    public function getPrivateKey()
+    {
         $result = $this->config->getAppValue('solid', 'privateKey');
         if (!$result) {
             // generate and save a new set if we don't have a private key;
@@ -35,25 +37,29 @@ class BaseServerConfig {
     /**
      * @param string $privateKey
      */
-    public function setPrivateKey($privateKey) {
+    public function setPrivateKey($privateKey)
+    {
         $this->config->setAppValue('solid', 'privateKey', $privateKey);
     }
 
     /**
      * @return string
      */
-    public function getEncryptionKey() {
+    public function getEncryptionKey()
+    {
         return $this->config->getAppValue('solid', 'encryptionKey');
     }
 
     /**
      * @param string $publicKey
      */
-    public function setEncryptionKey($publicKey) {
+    public function setEncryptionKey($publicKey)
+    {
         $this->config->setAppValue('solid', 'encryptionKey', $publicKey);
     }
 
-    private function generateKeySet() {
+    private function generateKeySet()
+    {
         $config = array(
             "digest_alg" => "sha256",
             "private_key_bits" => 2048,
@@ -76,7 +82,8 @@ class BaseServerConfig {
      * @param string $clientId
      * @return array|null
      */
-    public function getClientConfigById($clientId) {
+    public function getClientConfigById($clientId)
+    {
         $clients = (array)$this->config->getAppValue('solid', 'clients');
         if (array_key_exists($clientId, $clients)) {
             return $clients[$clientId];
@@ -87,7 +94,8 @@ class BaseServerConfig {
     /**
      * @return array|null
      */
-    public function getClients() {
+    public function getClients()
+    {
         $configKeys = (array)$this->config->getAppKeys('solid');
         $clients = [];
         foreach ($configKeys as $key) {
@@ -107,7 +115,8 @@ class BaseServerConfig {
      * @param array $clientConfig
      * @return string
      */
-    public function saveClientConfig($clientId, $clientConfig) {
+    public function saveClientConfig($clientId, $clientConfig)
+    {
         $clients = (array)$this->config->getAppValue('solid', 'clients');
         $clients[$clientId] = $clientConfig;
         $this->config->setAppValue('solid', 'clients', $clients);
@@ -118,7 +127,8 @@ class BaseServerConfig {
      * @param string $clientId
      * @param array $scopes
      */
-    public function addScopesToClient($clientId, $scopes) {
+    public function addScopesToClient($clientId, $scopes)
+    {
         $clientScopes = $this->getClientScopes($clientId);
         $clientScopes = array_unique(array_merge($clientScopes, $scopes));
         $this->setClientScopes($clientId, $clientScopes);
@@ -128,7 +138,8 @@ class BaseServerConfig {
      * @param string $clientId
      * @param array $scopes
      */
-    public function setClientScopes($clientId, $scopes) {
+    public function setClientScopes($clientId, $scopes)
+    {
         $clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         $clientScopes[$clientId] = $scopes;
         $this->config->setAppValue('solid', 'clientScopes', $clientScopes);
@@ -138,7 +149,8 @@ class BaseServerConfig {
      * @param string $clientId
      * @return array
      */
-    public function getClientScopes($clientId) {
+    public function getClientScopes($clientId)
+    {
         $clientScopes = (array)$this->config->getAppValue('solid', 'clientScopes');
         if (array_key_exists($clientId, $clientScopes)) {
             return $clientScopes[$clientId];
@@ -149,7 +161,8 @@ class BaseServerConfig {
     /**
      * @param string $clientId
      */
-    public function removeClientConfig($clientId) {
+    public function removeClientConfig($clientId)
+    {
         $clients = (array)$this->config->getAppValue('solid', 'clients');
         unset($clients[$clientId]);
         $this->config->setAppValue('solid', 'clients', $clients);
@@ -190,11 +203,13 @@ class BaseServerConfig {
         return $clientData;
     }
 
-    public function removeClientRegistration($clientId) {
+    public function removeClientRegistration($clientId)
+    {
         $this->config->deleteAppValue('solid', "client-" . $clientId);
     }
 
-    public function getClientRegistration($clientId) {
+    public function getClientRegistration($clientId)
+    {
         $data = $this->config->getAppValue('solid', "client-" . $clientId, "{}");
         return json_decode($data, true);
     }
@@ -206,13 +221,15 @@ class BaseServerConfig {
         return json_decode($appValue, true, 512, JSON_THROW_ON_ERROR);
     }
 
-    public function getUserSubDomainsEnabled() {
+    public function getUserSubDomainsEnabled()
+    {
         $value = $this->config->getAppValue('solid', 'userSubDomainsEnabled', false);
 
         return $this->castToBool($value);
     }
 
-    public function setUserSubDomainsEnabled($enabled) {
+    public function setUserSubDomainsEnabled($enabled)
+    {
         $value = $this->castToBool($enabled);
 
         $this->config->setAppValue('solid', 'userSubDomainsEnabled', $value);

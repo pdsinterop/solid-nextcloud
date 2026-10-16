@@ -10,11 +10,13 @@
 class SolidCorsMiddleware extends Middleware {
     private $request;
 
-    public function __construct(IRequest $request) {
+    public function __construct(IRequest $request)
+    {
         $this->request = $request;
     }
 
-    public function afterController($controller, $methodName, Response $response) {
+    public function afterController($controller, $methodName, Response $response)
+    {
         $corsMethods = "GET, PUT, POST, OPTIONS, DELETE, PATCH";
         $corsAllowedHeaders = "*, allow, accept, authorization, content-type, dpop, slug, link";
         $corsMaxAge = "1728000";

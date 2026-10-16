@@ -22,7 +22,8 @@ class SolidHandler implements IHandler {
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse {
+    public function handle(string $service, IRequestContext $context, ?IResponse $previousResponse): ?IResponse
+    {
         if ($service !== 'solid') {
                 return $previousResponse;
         }

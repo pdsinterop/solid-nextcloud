@@ -7,12 +7,14 @@
 
 class SolidWebhook implements SolidNotificationsInterface
 {
-    public function __construct() {
+    public function __construct()
+    {
         $app = new \OCP\AppFramework\App('solid');
         $this->webhookService = $app->getContainer()->get(SolidWebhookService::class);
     }
 
-    public function send($topic, $type) {
+    public function send($topic, $type)
+    {
         $webhooks = $this->getWebhooks($topic);
         foreach ($webhooks as $webhook) {
             try {
@@ -22,11 +24,13 @@ class SolidWebhook implements SolidNotificationsInterface
             }
         }
     }
-    private function getWebhooks($topic) {
+    private function getWebhooks($topic)
+    {
         $urls = $this->webhookService->findByTopic($topic);
         return $urls;
     }
-    private function postUpdate($webhookUrl, $topic, $type) {
+    private function postUpdate($webhookUrl, $topic, $type)
+    {
         try {
             $postData = $this->createUpdatePayload($topic, $type);
             $opts = array(
@@ -46,7 +50,8 @@ class SolidWebhook implements SolidNotificationsInterface
             throw new Exception('Could not write to webhook server', 502, $exception);
         }
     }
-    private function createUpdatePayload($topic, $type) {
+    private function createUpdatePayload($topic, $type)
+    {
         //$updateId = "urn:uuid:<uuid>";
         //$actor = "<WebID>";
         $object = [

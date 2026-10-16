@@ -10,24 +10,29 @@ class SolidAdmin implements IIconSection {
     private IL10N $l;
     private IURLGenerator $urlGenerator;
 
-    public function __construct(IL10N $l, IURLGenerator $urlGenerator) {
+    public function __construct(IL10N $l, IURLGenerator $urlGenerator)
+    {
         $this->l = $l;
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function getIcon(): string {
+    public function getIcon(): string
+    {
         return $this->urlGenerator->imagePath('solid', 'app-dark.svg');
     }
 
-    public function getID(): string {
+    public function getID(): string
+    {
         return 'solid';
     }
 
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->l->t('Solid');
     }
 
-    public function getPriority(): int {
+    public function getPriority(): int
+    {
         return 98;
     }
 }

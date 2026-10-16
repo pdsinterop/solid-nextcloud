@@ -23,7 +23,8 @@ class AppController extends Controller {
     private $userId;
     private $userManager;
 
-    public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId) {
+    public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IManager $contactsManager, IURLGenerator $urlGenerator, $userId)
+    {
         parent::__construct($AppName, $request);
         $this->userId = $userId;
         $this->userManager = $userManager;
@@ -33,7 +34,8 @@ class AppController extends Controller {
         $this->config = new ServerConfig($config, $urlGenerator, $userManager);
     }
 
-    private function getUserApps($userId) {
+    private function getUserApps($userId)
+    {
         $userApps = [];
         if ($this->userManager->userExists($userId)) {
             $allowedClients = $this->config->getAllowedClients($userId);
@@ -45,7 +47,8 @@ class AppController extends Controller {
         return $userApps;
     }
 
-    private function getAppsList() {
+    private function getAppsList()
+    {
         $path = __DIR__ . "/../solid-app-list.json";
         $appsListJson = file_get_contents($path);
         $appsList = json_decode($appsListJson, true);
@@ -64,7 +67,8 @@ class AppController extends Controller {
         return $appsList;
     }
 
-    private function getProfilePage() {
+    private function getProfilePage()
+    {
         return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
     }
 
@@ -72,7 +76,8 @@ class AppController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function appLauncher() {
+    public function appLauncher()
+    {
         $appsList = $this->getAppsList();
         if (!$appsList) {
             return new JSONResponse(array(), Http::STATUS_NOT_FOUND);

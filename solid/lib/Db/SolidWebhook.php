@@ -11,7 +11,8 @@ class SolidWebhook extends Entity implements JsonSerializable {
     public $webId;
     public $target;
 
-    public function jsonSerialize(): array {
+    public function jsonSerialize(): array
+    {
         return [
             'id' => $this->id,
             'webId' => $this->webId,

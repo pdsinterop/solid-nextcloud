@@ -7,15 +7,18 @@ use OCP\IUserSession;
 class UserService {
     private IUserSession $userSession;
 
-    public function __construct(IUserSession $userSession){
+    public function __construct(IUserSession $userSession)
+    {
         $this->userSession = $userSession;
     }
 
-    public function login($userId, $password) {
+    public function login($userId, $password)
+    {
         return $this->userSession->login($userId, $password);
     }
 
-    public function logout() {
+    public function logout()
+    {
         $this->userSession->logout();
     }
 }

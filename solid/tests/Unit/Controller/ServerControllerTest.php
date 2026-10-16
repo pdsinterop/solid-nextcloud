@@ -525,7 +525,8 @@ class ServerControllerTest extends TestCase
      *
      * @covers ::logout
      */
-    public function testLogout() {
+    public function testLogout()
+    {
         $parameters = $this->createMockConstructorParameters();
         $index = self::provideConstructorParameterIndex();
         $mockUserService = $parameters[$index['userService'][0]];

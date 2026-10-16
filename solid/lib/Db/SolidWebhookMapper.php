@@ -9,7 +9,8 @@ use OCP\DB\QueryBuilder\IQueryBuilder;
 use OCP\IDBConnection;
 
 class SolidWebhookMapper extends QBMapper {
-    public function __construct(IDBConnection $db) {
+    public function __construct(IDBConnection $db)
+    {
         parent::__construct($db, 'solid_webhooks', SolidWebhook::class);
     }
 
@@ -20,7 +21,8 @@ class SolidWebhookMapper extends QBMapper {
      * @throws \OCP\AppFramework\Db\MultipleObjectsReturnedException
      * @throws DoesNotExistException
      */
-    public function find(string $webId, string $topic): SolidWebhook {
+    public function find(string $webId, string $topic): SolidWebhook
+    {
         /* @var $qb IQueryBuilder */
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
@@ -34,7 +36,8 @@ class SolidWebhookMapper extends QBMapper {
      * @param string $webId
      * @return array
      */
-    public function findAll(string $webId): array {
+    public function findAll(string $webId): array
+    {
         /* @var $qb IQueryBuilder */
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')
@@ -47,7 +50,8 @@ class SolidWebhookMapper extends QBMapper {
      * @param string $topic
      * @return array
      */
-    public function findByTopic(string $topic): array {
+    public function findByTopic(string $topic): array
+    {
         /* @var $qb IQueryBuilder */
         $qb = $this->db->getQueryBuilder();
         $qb->select('*')

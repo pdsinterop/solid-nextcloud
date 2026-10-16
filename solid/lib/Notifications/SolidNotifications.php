@@ -9,7 +9,8 @@
 class SolidNotifications implements SolidNotificationsInterface
 {
     private $notifications;
-    public function __construct() {
+    public function __construct()
+    {
 
         $notifications = [
             new SolidWebhook(),
@@ -24,7 +25,8 @@ class SolidNotifications implements SolidNotificationsInterface
         $this->notifications = $notifications;
     }
 
-    public function send($path, $type) {
+    public function send($path, $type)
+    {
         foreach ($this->notifications as $notification) {
             $notification->send($path, $type);
         }

@@ -19,7 +19,8 @@ class ServerConfig extends BaseServerConfig {
      * @param IUrlGenerator $urlGenerator
      * @param IUserManager $userManager
      */
-    public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager) {
+    public function __construct(IConfig $config, IUrlGenerator $urlGenerator, IUserManager $userManager)
+    {
         $this->config = $config;
         $this->userManager = $userManager;
         $this->urlGenerator = $urlGenerator;
@@ -27,25 +28,30 @@ class ServerConfig extends BaseServerConfig {
         parent::__construct($config);
     }
 
-    public function getAllowedClients($userId) {
+    public function getAllowedClients($userId)
+    {
         return json_decode($this->config->getUserValue($userId, 'solid', "allowedClients", "[]"), true);
     }
 
-    public function addAllowedClient($userId, $clientId) {
+    public function addAllowedClient($userId, $clientId)
+    {
         $allowedClients = $this->getAllowedClients($userId);
         $allowedClients[] = $clientId;
         $this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
     }
-    public function removeAllowedClient($userId, $clientId) {
+    public function removeAllowedClient($userId, $clientId)
+    {
         $allowedClients = $this->getAllowedClients($userId);
         $allowedClients = array_diff($allowedClients, array($clientId));
         $this->config->setUserValue($userId, "solid", "allowedClients", json_encode($allowedClients));
     }
 
-    public function getProfileData($userId) {
+    public function getProfileData($userId)
+    {
         return $this->config->getUserValue($userId, "solid", "profileData", "");
     }
-    public function setProfileData($userId, $profileData) {
+    public function setProfileData($userId, $profileData)
+    {
         $this->config->setUserValue($userId, "solid", "profileData", $profileData);
 
         if ($this->userManager->userExists($userId)) {

@@ -83,7 +83,8 @@ class ServerController extends Controller
         );
     }
 
-    private function getOpenIdEndpoints() {
+    private function getOpenIdEndpoints()
+    {
         return [
             'issuer' => $this->urlGenerator->getBaseURL(),
             'authorization_endpoint' => $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.server.authorize")),
@@ -96,7 +97,8 @@ class ServerController extends Controller
         ];
     }
 
-    private function getKeys() {
+    private function getKeys()
+    {
         $encryptionKey = $this->config->getEncryptionKey();
         $privateKey    = $this->config->getPrivateKey();
         $key           = openssl_pkey_get_private($privateKey);
@@ -108,7 +110,8 @@ class ServerController extends Controller
         ];
     }
 
-    private function createAuthServerConfig() {
+    private function createAuthServerConfig()
+    {
         $clientId = null;
         if (isset($_GET['client_id'])) {
             $clientId = $_GET['client_id'];
@@ -138,7 +141,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function cors($path) {
+    public function cors($path)
+    {
         $origin = $_SERVER['HTTP_ORIGIN'];
         return (new DataResponse('OK'));
 //      ->addHeader('Access-Control-Allow-Origin', $origin)
@@ -151,7 +155,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function authorize() {
+    public function authorize()
+    {
         // Create a request
         if (!$this->userManager->userExists($this->userId)) {
             $result = new JSONResponse('Authorization required');
@@ -309,11 +314,13 @@ class ServerController extends Controller
         return $approved;
     }
 
-    private function getProfilePage() {
+    private function getProfilePage()
+    {
         return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
     }
 
-    private function getResponseType() {
+    private function getResponseType()
+    {
         $responseTypes = explode(" ", $_GET['response_type']);
         foreach ($responseTypes as $responseType) {
             switch ($responseType) {
@@ -333,7 +340,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function session() {
+    public function session()
+    {
         return new JSONResponse("ok");
     }
 
@@ -342,7 +350,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function token() {
+    public function token()
+    {
         $request = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 
         $grantType = $request->getParsedBody()['grant_type'] ?? null;
@@ -392,7 +401,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function userinfo() {
+    public function userinfo()
+    {
         return new JSONResponse("ok");
     }
 
@@ -401,7 +411,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function logout() {
+    public function logout()
+    {
         $this->userService->logout();
         return new JSONResponse("ok");
     }
@@ -411,7 +422,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function register() {
+    public function register()
+    {
         $postData = file_get_contents('php://input');
         $clientData = json_decode($postData, true);
 
@@ -452,7 +464,8 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function registeredClient($clientId) {
+    public function registeredClient($clientId)
+    {
         $clientRegistration = $this->config->getClientRegistration($clientId);
         unset($clientRegistration['client_secret']);
         return new JSONResponse($clientRegistration);
@@ -463,14 +476,16 @@ class ServerController extends Controller
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function jwks() {
+    public function jwks()
+    {
         $response = new \Laminas\Diactoros\Response();
         $server = new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
         $response = $server->respondToJwksMetadataRequest();
         return $this->respond($response);
     }
 
-    private function respond($response) {
+    private function respond($response)
+    {
         $statusCode = $response->getStatusCode();
         $response->getBody()->rewind();
         $headers = $response->getHeaders();
@@ -498,7 +513,8 @@ class ServerController extends Controller
         return $result;
     }
 
-    private function getClient($clientId) {
+    private function getClient($clientId)
+    {
         $clientRegistration = $this->config->getClientRegistration($clientId);
 
         if ($clientId && count($clientRegistration)) {

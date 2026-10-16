@@ -31,7 +31,8 @@ trait GetStorageUrlTrait
      * @FIXME: Add check for bob.nextcloud.local/solid/alice to throw 404
      * @TODO: Use route without `~alice` in /apps/solid/~alice/profile/card#me when user-domains are enabled
      */
-    public function getStorageUrl($userId) {
+    public function getStorageUrl($userId)
+    {
         $routeUrl = $this->urlGenerator->linkToRoute(
             'solid.storage.handleHead',
             ['userId' => $userId, 'path' => 'foo']
@@ -55,7 +56,8 @@ trait GetStorageUrlTrait
         return $storageUrl;
     }
 
-    public function validateUrl(RequestInterface $request): bool {
+    public function validateUrl(RequestInterface $request): bool
+    {
         $isValid = false;
 
         $host = $request->getUri()->getHost();
@@ -77,7 +79,8 @@ trait GetStorageUrlTrait
 
     ////////////////////////////// UTILITY METHODS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-    private function buildUrl(array $parts) {
+    private function buildUrl(array $parts)
+    {
         // @FIXME: Replace with existing more robust URL builder
         return (isset($parts['scheme']) ? "{$parts['scheme']}:" : '') .
             (isset($parts['host']) ? "//{$parts['host']}" : '') .

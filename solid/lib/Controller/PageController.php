@@ -19,7 +19,8 @@ class PageController extends Controller {
     private $urlGenerator;
     private $config;
 
-    public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId){
+    public function __construct($AppName, IRequest $request, IConfig $config, IUserManager $userManager, IURLGenerator $urlGenerator, $userId)
+    {
         parent::__construct($AppName, $request);
         require_once(__DIR__ . '/../../vendor/autoload.php');
         $this->userId = $userId;
@@ -39,11 +40,13 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function index() {
+    public function index()
+    {
         return new TemplateResponse('solid', 'index');  // templates/index.php
     }
 
-    private function getUserProfile($userId) {
+    private function getUserProfile($userId)
+    {
         if ($this->userManager->userExists($userId)) {
             $user = $this->userManager->get($userId);
             if ($user !== null) {
@@ -67,7 +70,8 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function profile($userId) {
+    public function profile($userId)
+    {
         // header("Access-Control-Allow-Headers: *, authorization, accept, content-type");
         // header("Access-Control-Allow-Credentials: true");
         $profile = $this->getUserProfile($userId);
@@ -86,7 +90,8 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function approval($clientId) {
+    public function approval($clientId)
+    {
         $clientRegistration = $this->config->getClientRegistration($clientId);
         $params = array(
             "clientId" => $clientId,
@@ -113,7 +118,8 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function customscheme() {
+    public function customscheme()
+    {
         $templateResponse = new TemplateResponse('solid', 'customscheme');
         return $templateResponse;
     }
@@ -123,7 +129,8 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleApproval($clientId) {
+    public function handleApproval($clientId)
+    {
         $approval = $_POST['approval'];
         if ($approval == "allow") {
             $this->config->addAllowedClient($this->userId, $clientId);
@@ -143,7 +150,8 @@ class PageController extends Controller {
      * @NoAdminRequired
      * @NoCSRFRequired
      */
-    public function handleRevoke($clientId) {
+    public function handleRevoke($clientId)
+    {
         $this->config->removeAllowedClient($this->userId, $clientId);
         $result = new JSONResponse("ok");
         return $result;
