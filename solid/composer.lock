@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "810d62b35b9afa921782c76fe07ce8d3",
+    "content-hash": "c2ff8dec9cc76f5ee6db4d9ba8805b80",
     "packages": [
         {
             "name": "brick/math",
@@ -211,16 +211,16 @@
         },
         {
             "name": "laminas/laminas-diactoros",
-            "version": "3.8.0",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laminas/laminas-diactoros.git",
-                "reference": "60c182916b2749480895601649563970f3f12ec4"
+                "reference": "4ab9fe10869ac0cd46fa78e641b6d0f4389bc6b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-diactoros/zipball/60c182916b2749480895601649563970f3f12ec4",
-                "reference": "60c182916b2749480895601649563970f3f12ec4",
+                "url": "https://api.github.com/repos/laminas/laminas-diactoros/zipball/4ab9fe10869ac0cd46fa78e641b6d0f4389bc6b4",
+                "reference": "4ab9fe10869ac0cd46fa78e641b6d0f4389bc6b4",
                 "shasum": ""
             },
             "require": {
@@ -236,6 +236,7 @@
                 "psr/http-message-implementation": "^1.1 || ^2.0"
             },
             "require-dev": {
+                "boundwize/structarmed": "^0.17.7",
                 "ext-curl": "*",
                 "ext-dom": "*",
                 "ext-gd": "*",
@@ -291,11 +292,11 @@
             },
             "funding": [
                 {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
+                    "url": "https://crowdfunding.linuxfoundation.org/initiatives/laminas-project",
+                    "type": "custom"
                 }
             ],
-            "time": "2025-10-12T15:31:36+00:00"
+            "time": "2026-10-08T08:19:47+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -767,20 +768,21 @@
         },
         {
             "name": "league/uri",
-            "version": "7.8.1",
+            "version": "7.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "08cf38e3924d4f56238125547b5720496fac8fd4"
+                "reference": "40403f5c3141457a61f7f1aba6706e8fa4a0ece5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/08cf38e3924d4f56238125547b5720496fac8fd4",
-                "reference": "08cf38e3924d4f56238125547b5720496fac8fd4",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/40403f5c3141457a61f7f1aba6706e8fa4a0ece5",
+                "reference": "40403f5c3141457a61f7f1aba6706e8fa4a0ece5",
                 "shasum": ""
             },
             "require": {
-                "league/uri-interfaces": "^7.8.1",
+                "ext-mbstring": "*",
+                "league/uri-interfaces": "^7.9.1",
                 "php": "^8.1",
                 "psr/http-factory": "^1"
             },
@@ -853,7 +855,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
-                "source": "https://github.com/thephpleague/uri/tree/7.8.1"
+                "source": "https://github.com/thephpleague/uri/tree/7.9.1"
             },
             "funding": [
                 {
@@ -861,20 +863,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-15T20:22:25+00:00"
+            "time": "2026-10-27T07:14:23+00:00"
         },
         {
             "name": "league/uri-interfaces",
-            "version": "7.8.1",
+            "version": "7.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri-interfaces.git",
-                "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928"
+                "reference": "994300a79e17f179112dc259f8df0c4de982f736"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/85d5c77c5d6d3af6c54db4a78246364908f3c928",
-                "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928",
+                "url": "https://api.github.com/repos/thephpleague/uri-interfaces/zipball/994300a79e17f179112dc259f8df0c4de982f736",
+                "reference": "994300a79e17f179112dc259f8df0c4de982f736",
                 "shasum": ""
             },
             "require": {
@@ -937,7 +939,7 @@
                 "docs": "https://uri.thephpleague.com",
                 "forum": "https://thephpleague.slack.com",
                 "issues": "https://github.com/thephpleague/uri-src/issues",
-                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.8.1"
+                "source": "https://github.com/thephpleague/uri-interfaces/tree/7.9.1"
             },
             "funding": [
                 {
@@ -945,7 +947,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-03-08T20:05:35+00:00"
+            "time": "2026-10-27T07:14:23+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -1077,16 +1079,16 @@
         },
         {
             "name": "pdsinterop/flysystem-nextcloud",
-            "version": "v0.4.0",
+            "version": "dev-feature/flysystem-3-adapter",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-nextcloud.git",
-                "reference": "8dfba7efd8f05d3c328ab3de33db3b0de168a974"
+                "reference": "09b11a246ba43f4a0582e116d9a75650caa5ead0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/8dfba7efd8f05d3c328ab3de33db3b0de168a974",
-                "reference": "8dfba7efd8f05d3c328ab3de33db3b0de168a974",
+                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/09b11a246ba43f4a0582e116d9a75650caa5ead0",
+                "reference": "09b11a246ba43f4a0582e116d9a75650caa5ead0",
                 "shasum": ""
             },
             "require": {
@@ -1111,9 +1113,9 @@
             "description": "Flysystem adapter for the Nextcloud filesystem.",
             "support": {
                 "issues": "https://github.com/pdsinterop/flysystem-nextcloud/issues",
-                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/v0.4.0"
+                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/feature/flysystem-3-adapter"
             },
-            "time": "2026-10-06T09:11:33+00:00"
+            "time": "2026-10-30T14:39:37+00:00"
         },
         {
             "name": "pdsinterop/flysystem-rdf",
@@ -1159,16 +1161,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "v0.15.0",
+            "version": "dev-fix/flysystem-3-mpss",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "55d82119d588f34f167b879a69b2cf213ba53691"
+                "reference": "ff4a812e7316b3e70c4584868cd9b63ce22a75cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/55d82119d588f34f167b879a69b2cf213ba53691",
-                "reference": "55d82119d588f34f167b879a69b2cf213ba53691",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/ff4a812e7316b3e70c4584868cd9b63ce22a75cf",
+                "reference": "ff4a812e7316b3e70c4584868cd9b63ce22a75cf",
                 "shasum": ""
             },
             "require": {
@@ -1202,22 +1204,22 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.15.0"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/fix/flysystem-3-mpss"
             },
-            "time": "2026-10-06T09:03:10+00:00"
+            "time": "2026-10-06T20:42:29+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "v0.9.0",
+            "version": "dev-fix/flysystem-3-mpss",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "6f1d44445ac70f7901400df89d195d6555eb12a9"
+                "reference": "a46f9740f703db4dbe2f3319a79e00970e44f039"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/6f1d44445ac70f7901400df89d195d6555eb12a9",
-                "reference": "6f1d44445ac70f7901400df89d195d6555eb12a9",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/a46f9740f703db4dbe2f3319a79e00970e44f039",
+                "reference": "a46f9740f703db4dbe2f3319a79e00970e44f039",
                 "shasum": ""
             },
             "require": {
@@ -1249,9 +1251,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.9.0"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/fix/flysystem-3-mpss"
             },
-            "time": "2026-10-05T09:39:10+00:00"
+            "time": "2026-10-30T16:07:52+00:00"
         },
         {
             "name": "phrity/comparison",
@@ -1597,16 +1599,16 @@
         },
         {
             "name": "phrity/util-interpolator",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirn-se/phrity-util-interpolator.git",
-                "reference": "18b0362d2aff60984c530808333c5e64c80c3e50"
+                "reference": "44cef5cca373d10d479eaea4654428170f5eaa1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirn-se/phrity-util-interpolator/zipball/18b0362d2aff60984c530808333c5e64c80c3e50",
-                "reference": "18b0362d2aff60984c530808333c5e64c80c3e50",
+                "url": "https://api.github.com/repos/sirn-se/phrity-util-interpolator/zipball/44cef5cca373d10d479eaea4654428170f5eaa1a",
+                "reference": "44cef5cca373d10d479eaea4654428170f5eaa1a",
                 "shasum": ""
             },
             "require": {
@@ -1616,9 +1618,9 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.0",
-                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0 || ^13.0",
                 "robiningelbrecht/phpunit-coverage-tools": "^1.9",
-                "squizlabs/php_codesniffer": "^3.5 || ^4.0"
+                "squizlabs/php_codesniffer": "^4.0"
             },
             "type": "library",
             "autoload": {
@@ -1645,9 +1647,9 @@
             ],
             "support": {
                 "issues": "https://github.com/sirn-se/phrity-util-interpolator/issues",
-                "source": "https://github.com/sirn-se/phrity-util-interpolator/tree/1.1.1"
+                "source": "https://github.com/sirn-se/phrity-util-interpolator/tree/1.1.2"
             },
-            "time": "2025-12-05T21:35:25+00:00"
+            "time": "2026-10-25T12:14:18+00:00"
         },
         {
             "name": "phrity/util-transformer",
@@ -4314,7 +4316,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "pdsinterop/flysystem-nextcloud": 20,
+        "pdsinterop/solid-auth": 20,
+        "pdsinterop/solid-crud": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

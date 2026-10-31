@@ -248,14 +248,14 @@ EOF;
 		}
 
 		// Generate default folders and ACLs:
-		if (!$this->filesystem->fileExists("/inbox")) {
+		if (!$this->filesystem->directoryExists("/inbox")) {
 			$this->filesystem->createDirectory("/inbox");
 		}
 		if (!$this->filesystem->fileExists("/inbox/.acl")) {
 			$inboxAcl = $this->generatePublicAppendAcl($userId);
 			$this->filesystem->write("/inbox/.acl", $inboxAcl);
 		}
-		if (!$this->filesystem->fileExists("/settings")) {
+		if (!$this->filesystem->directoryExists("/settings")) {
 			$this->filesystem->createDirectory("/settings");
 		}
 		if (!$this->filesystem->fileExists("/settings/privateTypeIndex.ttl")) {
@@ -270,14 +270,14 @@ EOF;
 			$preferences = $this->generateDefaultPreferences($userId);
 			$this->filesystem->write("/settings/preferences.ttl", $preferences);
 		}
-		if (!$this->filesystem->fileExists("/public")) {
+		if (!$this->filesystem->directoryExists("/public")) {
 			$this->filesystem->createDirectory("/public");
 		}
 		if (!$this->filesystem->fileExists("/public/.acl")) {
 			$publicAcl = $this->generatePublicReadAcl($userId);
 			$this->filesystem->write("/public/.acl", $publicAcl);
 		}
-		if (!$this->filesystem->fileExists("/private")) {
+		if (!$this->filesystem->directoryExists("/private")) {
 			$this->filesystem->createDirectory("/private");
 		}
 	}
