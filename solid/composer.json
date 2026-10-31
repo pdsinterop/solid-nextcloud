@@ -28,10 +28,10 @@
         "ext-openssl": "*",
         "laminas/laminas-diactoros": "^3.8",
         "lcobucci/jwt": "^4.1",
-        "pdsinterop/flysystem-nextcloud": "^0.4",
+        "pdsinterop/flysystem-nextcloud": "dev-feature/flysystem-3-adapter",
         "pdsinterop/flysystem-rdf": "^0.7",
-        "pdsinterop/solid-auth": "^0.15",
-        "pdsinterop/solid-crud": "^0.9",
+        "pdsinterop/solid-auth": "dev-fix/flysystem-3-mpss",
+        "pdsinterop/solid-crud": "dev-fix/flysystem-3-mpss",
         "phrity/websocket": "^3.5",
         "sweetrdf/easyrdf": ">=1.15.0 <1.16.0"
     },
