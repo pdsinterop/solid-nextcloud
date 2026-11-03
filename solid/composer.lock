@@ -1083,12 +1083,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-nextcloud.git",
-                "reference": "0e4ecf037e5c93c003136cb08983a12d54afba36"
+                "reference": "6b5024718cf8df55f0e8cb2f864efb6b25928f3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/0e4ecf037e5c93c003136cb08983a12d54afba36",
-                "reference": "0e4ecf037e5c93c003136cb08983a12d54afba36",
+                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/6b5024718cf8df55f0e8cb2f864efb6b25928f3a",
+                "reference": "6b5024718cf8df55f0e8cb2f864efb6b25928f3a",
                 "shasum": ""
             },
             "require": {
@@ -1116,7 +1116,7 @@
                 "issues": "https://github.com/pdsinterop/flysystem-nextcloud/issues",
                 "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/main"
             },
-            "time": "2026-11-03T10:45:46+00:00"
+            "time": "2026-11-03T11:12:08+00:00"
         },
         {
             "name": "pdsinterop/flysystem-rdf",
