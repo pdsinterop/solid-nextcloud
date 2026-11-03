@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c2ff8dec9cc76f5ee6db4d9ba8805b80",
+    "content-hash": "a764e86988e81315c55de4563083b9e2",
     "packages": [
         {
             "name": "brick/math",
@@ -1079,16 +1079,16 @@
         },
         {
             "name": "pdsinterop/flysystem-nextcloud",
-            "version": "dev-feature/flysystem-3-adapter",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-nextcloud.git",
-                "reference": "09b11a246ba43f4a0582e116d9a75650caa5ead0"
+                "reference": "0e4ecf037e5c93c003136cb08983a12d54afba36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/09b11a246ba43f4a0582e116d9a75650caa5ead0",
-                "reference": "09b11a246ba43f4a0582e116d9a75650caa5ead0",
+                "url": "https://api.github.com/repos/pdsinterop/flysystem-nextcloud/zipball/0e4ecf037e5c93c003136cb08983a12d54afba36",
+                "reference": "0e4ecf037e5c93c003136cb08983a12d54afba36",
                 "shasum": ""
             },
             "require": {
@@ -1100,6 +1100,7 @@
                 "nextcloud/server": "*",
                 "phpunit/phpunit": "^9"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1113,9 +1114,9 @@
             "description": "Flysystem adapter for the Nextcloud filesystem.",
             "support": {
                 "issues": "https://github.com/pdsinterop/flysystem-nextcloud/issues",
-                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/feature/flysystem-3-adapter"
+                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/main"
             },
-            "time": "2026-10-30T14:39:37+00:00"
+            "time": "2026-11-03T10:45:46+00:00"
         },
         {
             "name": "pdsinterop/flysystem-rdf",
@@ -1161,16 +1162,16 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "dev-fix/flysystem-3-mpss",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
-                "reference": "ff4a812e7316b3e70c4584868cd9b63ce22a75cf"
+                "reference": "94cea51a8379987270a464abdf1b742644e5e7f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/ff4a812e7316b3e70c4584868cd9b63ce22a75cf",
-                "reference": "ff4a812e7316b3e70c4584868cd9b63ce22a75cf",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-auth/zipball/94cea51a8379987270a464abdf1b742644e5e7f9",
+                "reference": "94cea51a8379987270a464abdf1b742644e5e7f9",
                 "shasum": ""
             },
             "require": {
@@ -1188,6 +1189,7 @@
                 "ext-xml": "*",
                 "phpunit/phpunit": "^9"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -1204,22 +1206,22 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/fix/flysystem-3-mpss"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/main"
             },
-            "time": "2026-10-06T20:42:29+00:00"
+            "time": "2026-11-03T10:47:34+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "dev-fix/flysystem-3-mpss",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
-                "reference": "a46f9740f703db4dbe2f3319a79e00970e44f039"
+                "reference": "4a4f927a43880242bfefe1793d4fd7a43be8871a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/a46f9740f703db4dbe2f3319a79e00970e44f039",
-                "reference": "a46f9740f703db4dbe2f3319a79e00970e44f039",
+                "url": "https://api.github.com/repos/pdsinterop/php-solid-crud/zipball/4a4f927a43880242bfefe1793d4fd7a43be8871a",
+                "reference": "4a4f927a43880242bfefe1793d4fd7a43be8871a",
                 "shasum": ""
             },
             "require": {
@@ -1237,6 +1239,7 @@
                 "ext-xml": "*",
                 "phpunit/phpunit": "^9.5"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1251,9 +1254,9 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/fix/flysystem-3-mpss"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/main"
             },
-            "time": "2026-10-30T16:07:52+00:00"
+            "time": "2026-11-03T10:48:35+00:00"
         },
         {
             "name": "phrity/comparison",
