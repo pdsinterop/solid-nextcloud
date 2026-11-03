@@ -27,8 +27,13 @@ class ProfileController extends Controller {
 	protected ServerConfig $config;
 	protected IURLGenerator $urlGenerator;
 
-	/* @var ISession */
-	private $session;
+	private ISession $session;
+	private \League\Flysystem\Filesystem $filesystem;
+	private \Pdsinterop\Rdf\Flysystem\Adapter\Rdf $adapter;
+	private \Laminas\Diactoros\Response $response;
+	private \Laminas\Diactoros\ServerRequest $rawRequest;
+	private ResourceServer $resourceServer;
+	private WAC $WAC;
 
 	public function __construct(
 		$AppName,

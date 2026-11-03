@@ -29,11 +29,16 @@ class SolidWebhookController extends Controller {
 	protected ServerConfig $config;
 	protected IURLGenerator $urlGenerator;
 
-	/* @var ISession */
-	private $session;
-
-	/** @var SolidWebhookService */
-	private $webhookService;
+	private ISession $session;
+	private SolidWebhookService $webhookService;
+	private string $webId;
+	private \Pdsinterop\Solid\Auth\Utils\DPop $DPop;
+        private \League\Flysystem\Filesystem $filesystem;
+        private \Pdsinterop\Rdf\Flysystem\Adapter\Rdf $adapter;
+        private \Laminas\Diactoros\Response $response;
+        private \Laminas\Diactoros\ServerRequest $rawRequest;
+        private ResourceServer $resourceServer;
+        private WAC $WAC;
 
 	public function __construct(
 		$AppName,
@@ -57,7 +62,7 @@ class SolidWebhookController extends Controller {
 		$this->webhookService = $webhookService;
 
 		$this->setJtiStorage($connection);
-		$this->DPop = $this->getDpop();
+		$this->DPop = $this->getDPop();
 		try {
 			$this->rawRequest = \Laminas\Diactoros\ServerRequestFactory::fromGlobals($_SERVER, $_GET, $_POST, $_COOKIE, $_FILES);
 			$this->webId = $this->DPop->getWebId($this->rawRequest);
