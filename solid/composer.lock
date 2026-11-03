@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a764e86988e81315c55de4563083b9e2",
+    "content-hash": "613a5e0b3294ebc2a7c22b82325b60c7",
     "packages": [
         {
             "name": "brick/math",
@@ -1079,7 +1079,7 @@
         },
         {
             "name": "pdsinterop/flysystem-nextcloud",
-            "version": "dev-main",
+            "version": "v0.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/flysystem-nextcloud.git",
@@ -1100,7 +1100,6 @@
                 "nextcloud/server": "*",
                 "phpunit/phpunit": "^9"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1114,7 +1113,7 @@
             "description": "Flysystem adapter for the Nextcloud filesystem.",
             "support": {
                 "issues": "https://github.com/pdsinterop/flysystem-nextcloud/issues",
-                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/main"
+                "source": "https://github.com/pdsinterop/flysystem-nextcloud/tree/v0.5.0"
             },
             "time": "2026-11-03T11:12:08+00:00"
         },
@@ -1162,7 +1161,7 @@
         },
         {
             "name": "pdsinterop/solid-auth",
-            "version": "dev-main",
+            "version": "v0.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-auth.git",
@@ -1189,7 +1188,6 @@
                 "ext-xml": "*",
                 "phpunit/phpunit": "^9"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -1206,13 +1204,13 @@
             "description": "OAuth2, OpenID and OIDC for Solid Server implementations.",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-auth/issues",
-                "source": "https://github.com/pdsinterop/php-solid-auth/tree/main"
+                "source": "https://github.com/pdsinterop/php-solid-auth/tree/v0.16.0"
             },
             "time": "2026-11-03T10:47:34+00:00"
         },
         {
             "name": "pdsinterop/solid-crud",
-            "version": "dev-main",
+            "version": "v0.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdsinterop/php-solid-crud.git",
@@ -1239,7 +1237,6 @@
                 "ext-xml": "*",
                 "phpunit/phpunit": "^9.5"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -1254,7 +1251,7 @@
             "description": "Solid HTTPS REST API specification compliant implementation for handling Resource CRUD",
             "support": {
                 "issues": "https://github.com/pdsinterop/php-solid-crud/issues",
-                "source": "https://github.com/pdsinterop/php-solid-crud/tree/main"
+                "source": "https://github.com/pdsinterop/php-solid-crud/tree/v0.10.0"
             },
             "time": "2026-11-03T10:48:35+00:00"
         },
@@ -4319,11 +4316,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "pdsinterop/flysystem-nextcloud": 20,
-        "pdsinterop/solid-auth": 20,
-        "pdsinterop/solid-crud": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
