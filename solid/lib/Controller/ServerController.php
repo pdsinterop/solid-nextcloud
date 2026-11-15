@@ -118,6 +118,12 @@ class ServerController extends Controller
 				$clientId = $_POST['client_id'];
 			}
 		}
+
+		if ($clientId === null) {
+			// A confidential client may authenticate with HTTP Basic (client_secret_basic),
+			// in which case the client_id is not in the request body.
+			$clientId = $this->getBasicAuthClientId();
+		}
 		$client = $this->getClient($clientId);
 		$keys = $this->getKeys();
 		try {
@@ -310,6 +316,31 @@ class ServerController extends Controller
 		return $approved;
 	}
 
+	/**
+	 * Returns the client_id from an HTTP Basic Authorization header, if present.
+	 *
+	 * Per RFC 6749 section 2.3.1 the client_id and client_secret are
+	 * form-urlencoded before they are joined and base64 encoded.
+	 */
+	private function getBasicAuthClientId(): ?string {
+		$header = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+
+		if (stripos($header, 'Basic ') !== 0) {
+			return null;
+		}
+
+		$decoded = base64_decode(substr($header, 6), true);
+
+		if ($decoded === false || strpos($decoded, ':') === false) {
+			return null;
+		}
+
+		[$clientId] = explode(':', $decoded, 2);
+		$clientId = urldecode($clientId);
+
+		return $clientId === '' ? null : $clientId;
+	}
+
 	private function getProfilePage() {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
@@ -366,7 +397,7 @@ class ServerController extends Controller
 			break;
 		}
 
-		$clientId = $request->getParsedBody()['client_id'] ?? null;
+		$clientId = $request->getParsedBody()['client_id'] ?? $this->getBasicAuthClientId();
 
 		$httpDpop = $request->getServerParams()['HTTP_DPOP'] ?? null;
 
