@@ -443,7 +443,7 @@ class ServerController extends Controller
 			'origin' => $clientData['origin'],
 		);
 		$registration = $this->tokenGenerator->respondToRegistration($registration, $this->config->getPrivateKey());
-		return (new JSONResponse($registration));
+		return new JSONResponse($registration, Http::STATUS_CREATED);
 //		->addHeader('Access-Control-Allow-Origin', $origin)
 //		->addHeader('Access-Control-Allow-Methods', 'POST');
 	}
