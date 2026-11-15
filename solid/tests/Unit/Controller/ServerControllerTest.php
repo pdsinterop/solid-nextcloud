@@ -568,6 +568,87 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should bind a client_credentials token to the WebID of the user who created the credentials
+	 *
+	 * @covers ::token
+	 */
+	public function testTokenWithBoundClientCredentials()
+	{
+		$this->assertSame(
+			'https://mock.server/apps/solid/~agent/profile/card#me',
+			$this->requestClientCredentialsToken(['solid_user_id' => 'agent', 'grant_types' => ['client_credentials']], true)
+		);
+	}
+
+	/**
+	 * @testdox ServerController should not bind a client_credentials token to a WebID for a client that no user created
+	 *
+	 * @covers ::token
+	 * @dataProvider provideUnboundRegistrations
+	 */
+	public function testTokenWithUnboundClientCredentials(array $registration, bool $userExists)
+	{
+		$this->assertNull($this->requestClientCredentialsToken($registration, $userExists));
+	}
+
+	public static function provideUnboundRegistrations(): array
+	{
+		return [
+			'dynamic registration' => [['grant_types' => ['client_credentials']], true],
+			'bound user without the client_credentials grant' => [['solid_user_id' => 'agent'], true],
+			'bound user that no longer exists' => [['solid_user_id' => 'agent', 'grant_types' => ['client_credentials']], false],
+		];
+	}
+
+	/**
+	 * Requests a client_credentials token and returns the subject passed to the token generator, or null
+	 */
+	private function requestClientCredentialsToken(array $registration, bool $userExists): ?string
+	{
+		$_POST = ['grant_type' => 'client_credentials'];
+		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic ' . base64_encode(self::MOCK_CLIENT_ID . ':mock secret');
+
+		$clientData = json_encode(array_merge([
+			'client_id' => self::MOCK_CLIENT_ID,
+			'client_name' => 'Mock Client',
+			'client_secret' => 'mock secret',
+			'redirect_uris' => [],
+		], $registration));
+
+		$parameters = $this->createMockConstructorParameters($clientData);
+		$this->mockUserManager->method('userExists')->willReturn($userExists);
+		$this->mockURLGenerator->method('linkToRoute')->willReturnCallback(
+			fn ($route, $params = []) => isset($params['userId'])
+				? '/apps/solid/~' . $params['userId'] . '/profile' . $params['path']
+				: '/apps/solid/' . $route
+		);
+		$this->mockURLGenerator->method('getAbsoluteURL')->willReturnCallback(fn ($url) => 'https://mock.server' . $url);
+
+		$subject = null;
+		$mockTokenGenerator = $this->createMock(\Pdsinterop\Solid\Auth\TokenGenerator::class);
+		$mockTokenGenerator->method('addIdTokenToResponse')->willReturnCallback(
+			function ($response, $clientId, $userId) use (&$subject) {
+				$subject = $userId;
+				return $response;
+			}
+		);
+
+		try {
+			$controller = new ServerController(...$parameters);
+
+			$reflectionProperty = (new \ReflectionObject($controller))->getProperty('tokenGenerator');
+			$reflectionProperty->setValue($controller, $mockTokenGenerator);
+
+			$controller->token();
+		} finally {
+			$_POST = [];
+			unset($_SERVER['HTTP_AUTHORIZATION']);
+		}
+
+		return $subject;
+	}
+
+	/**
 	 * @testdox ServerController should return an OK when asked to logout
 	 *
 	 * @covers ::logout

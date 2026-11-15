@@ -32,6 +32,10 @@ $routes = [
 	['name' => 'server#register', 'url' => '/register', 'verb' => 'POST'],
 	['name' => 'server#registeredClient', 'url' => '/register/{clientId}', 'verb' => 'GET'],
 
+	['name' => 'clientCredentials#index', 'url' => '/client-credentials', 'verb' => 'GET'],
+	['name' => 'clientCredentials#create', 'url' => '/client-credentials', 'verb' => 'POST'],
+	['name' => 'clientCredentials#destroy', 'url' => '/client-credentials/{clientId}', 'verb' => 'DELETE'],
+
 	['name' => 'solidWebhook#listWebhooks', 'url' => '/webhook/list', 'verb' => 'GET'],
 	['name' => 'solidWebhook#register', 'url' => '/webhook/register', 'verb' => 'POST'],
 	['name' => 'solidWebhook#unregister', 'url' => '/webhook/unregister', 'verb' => 'POST'],

@@ -341,6 +341,33 @@ class ServerController extends Controller
 		return $clientId === '' ? null : $clientId;
 	}
 
+	/**
+	 * Returns the WebID that client credentials are bound to, or false.
+	 */
+	private function getClientCredentialsWebId(?string $clientId) {
+		if ($clientId === null || $clientId === '') {
+			return false;
+		}
+
+		$registration = $this->config->getClientRegistration($clientId) ?? [];
+		$boundUserId = $registration[ClientCredentialsController::USER_KEY] ?? null;
+		$grantTypes = $registration['grant_types'] ?? [];
+
+		if (
+			!is_string($boundUserId)
+			|| !in_array(ClientCredentialsController::GRANT_TYPE, $grantTypes, true)
+			|| !$this->userManager->userExists($boundUserId)
+		) {
+			return false;
+		}
+
+		return $this->getProfilePageForUser($boundUserId);
+	}
+
+	private function getProfilePageForUser(string $userId): string {
+		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $userId, "path" => "/card"))) . "#me";
+	}
+
 	private function getProfilePage() {
 		return $this->urlGenerator->getAbsoluteURL($this->urlGenerator->linkToRoute("solid.profile.handleGet", array("userId" => $this->userId, "path" => "/card"))) . "#me";
 	}
@@ -386,6 +413,14 @@ class ServerController extends Controller
 				// FIXME: because this is a public page, the nonce from the session is not available here.
 				$codeInfo = $this->tokenGenerator->getCodeInfo($code);
 				$userId = $codeInfo['user_id'];
+			break;
+			case "client_credentials":
+				// Only credentials that a user created for themselves (see
+				// ClientCredentialsController) are bound to a WebID. The client
+				// secret itself is validated by the authorization server below.
+				$userId = $this->getClientCredentialsWebId(
+					$request->getParsedBody()['client_id'] ?? $this->getBasicAuthClientId()
+				);
 			break;
 			case "refresh_token":
 				$refreshToken = $request->getParsedBody()['refresh_token'];
