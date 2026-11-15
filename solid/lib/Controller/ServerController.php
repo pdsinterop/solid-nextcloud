@@ -280,13 +280,21 @@ class ServerController extends Controller
 		$server	= new \Pdsinterop\Solid\Auth\Server($this->authServerFactory, $this->authServerConfig, $response);
 
 		$response = $server->respondToAuthorizationRequest($request, $user, $approval);
-		$response = $this->tokenGenerator->addIdTokenToResponse(
-			$response,
-			$clientId,
-			$this->getProfilePage(),
-			$this->session->get("nonce"),
-			$this->config->getPrivateKey()
-		);
+
+		// In the authorization code flow the ID token is issued by the token
+		// endpoint, not in the redirect. Clients pass the redirect URI they
+		// were called back on (minus code, state and iss) to the token
+		// endpoint, so an extra `id_token` query parameter makes that URI
+		// differ from the registered one and the code exchange fails.
+		if ($getVars['response_type'] !== 'code') {
+			$response = $this->tokenGenerator->addIdTokenToResponse(
+				$response,
+				$clientId,
+				$this->getProfilePage(),
+				$this->session->get("nonce"),
+				$this->config->getPrivateKey()
+			);
+		}
 
 		return $this->respond($response); // ->addHeader('Access-Control-Allow-Origin', '*');
 	}
