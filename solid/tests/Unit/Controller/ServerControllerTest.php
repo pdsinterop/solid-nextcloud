@@ -289,6 +289,53 @@ class ServerControllerTest extends TestCase
 		$this->assertEquals($expected, $actual);
 	}
 
+	/**
+	 * @testdox ServerController should not add an ID token to the redirect URI in the authorization code flow
+	 *
+	 * @covers ::authorize
+	 */
+	public function testAuthorizeWithCodeResponseTypeOmitsIdToken()
+	{
+		$_GET = [
+			'client_id' => self::MOCK_CLIENT_ID,
+			'code_challenge' => 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
+			'code_challenge_method' => 'S256',
+			'nonce' => 'mock-nonce',
+			'redirect_uri' => 'https://mock.client/redirect',
+			'response_type' => 'code',
+			'state' => 'mock-state',
+		];
+		$_SERVER['REQUEST_URI'] = '/apps/solid/authorize';
+
+		$clientData = json_encode(['client_name' => 'Mock Client', 'redirect_uris' => ['https://mock.client/redirect']]);
+
+		$parameters = $this->createMockConstructorParameters($clientData);
+
+		$this->mockConfig->method('getUserValue')
+			->with(self::MOCK_USER_ID, Application::APP_ID, 'allowedClients', '[]')
+			->willReturn(json_encode([self::MOCK_CLIENT_ID]));
+
+		$this->mockUserManager->method('userExists')->willReturn(true);
+
+		$controller = new ServerController(...$parameters);
+
+		try {
+			$response = $controller->authorize();
+		} finally {
+			$_GET = [];
+		}
+
+		$this->assertEquals(Http::STATUS_FOUND, $response->getStatus());
+
+		$location = parse_url($response->getHeaders()['Location'] ?? '');
+		parse_str($location['query'] ?? '', $query);
+
+		$this->assertEquals('https://mock.client/redirect', "{$location['scheme']}://{$location['host']}{$location['path']}");
+		$this->assertArrayHasKey('code', $query);
+		$this->assertEquals('mock-state', $query['state']);
+		$this->assertArrayNotHasKey('id_token', $query);
+	}
+
     /**
      * @testdox ServerController should return a 302 redirect when asked to authorize client that has been approved
      *
