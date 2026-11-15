@@ -21,6 +21,7 @@ use Pdsinterop\Solid\Auth\WAC;
 use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class ProfileController extends Controller {
+	use GetServerUriTrait;
 	use DpopFactoryTrait;
 	use GetStorageUrlTrait;
 
@@ -67,11 +68,7 @@ class ProfileController extends Controller {
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverParams = $this->rawRequest->getServerParams();
-		$scheme = $serverParams['REQUEST_SCHEME'];
-		$domain = $serverParams['SERVER_NAME'];
-		$path = $serverParams['REQUEST_URI'];
-		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
+		$serverUri = $this->getServerUri($this->request);
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(

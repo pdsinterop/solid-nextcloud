@@ -23,6 +23,7 @@ use OCP\IUserManager;
 use Pdsinterop\Solid\Auth\WAC as WAC;
 
 class SolidWebhookController extends Controller {
+	use GetServerUriTrait;
 	use DpopFactoryTrait;
 	use GetStorageUrlTrait;
 
@@ -119,7 +120,7 @@ class SolidWebhookController extends Controller {
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverUri = "https://" . $this->rawRequest->getServerParams()["SERVER_NAME"] . $this->rawRequest->getServerParams()["REQUEST_URI"]; // FIXME: doublecheck that this is the correct url;
+		$serverUri = $this->getServerUri($this->request);
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
