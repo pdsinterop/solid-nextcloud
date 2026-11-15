@@ -23,6 +23,7 @@ use Pdsinterop\Solid\Resources\Server as ResourceServer;
 
 class StorageController extends Controller
 {
+	use GetServerUriTrait;
 	use BearerFactoryTrait;
 	use DpopFactoryTrait;
 	use GetStorageUrlTrait;
@@ -64,11 +65,7 @@ class StorageController extends Controller
 		// Create Formats objects
 		$formats = new \Pdsinterop\Rdf\Formats();
 
-		$serverParams = $this->rawRequest->getServerParams();
-		$scheme = $serverParams['REQUEST_SCHEME'];
-		$domain = $serverParams['SERVER_NAME'];
-		$path = $serverParams['REQUEST_URI'];
-		$serverUri = "{$scheme}://{$domain}{$path}"; // FIXME: doublecheck that this is the correct url;
+		$serverUri = $this->getServerUri($this->request);
 
 		// Create the RDF Adapter
 		$rdfAdapter = new \Pdsinterop\Rdf\Flysystem\Adapter\Rdf(
