@@ -394,7 +394,7 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
-	 * @testdox ServerController should return a 200 with client data when asked to register with valid redirect URIs
+	 * @testdox ServerController should return a 201 with client data when asked to register with valid redirect URIs
 	 *
 	 * @covers ::register
 	 */
@@ -421,7 +421,7 @@ class ServerControllerTest extends TestCase
 			'response_types' => ['id_token token'],
 			'token_endpoint_auth_method' => 'client_secret_basic',
 		];
-		$expected = $this->createExpectedResponse(Http::STATUS_OK, $data);
+		$expected = $this->createExpectedResponse(Http::STATUS_CREATED, $data);
 
 		$actualData = $response->getData();
 		$this->assertArrayHasKey('client_id', $actualData);
