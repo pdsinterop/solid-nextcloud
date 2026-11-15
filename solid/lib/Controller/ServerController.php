@@ -118,7 +118,29 @@ class ServerController extends Controller
 				$clientId = $_POST['client_id'];
 			}
 		}
-		$client = $this->getClient($clientId);
+		if (
+			$clientId !== null
+			&& preg_match("/^http(s)?:/", $clientId)
+			&& isset($_GET['redirect_uri'])
+			&& is_string($_GET['redirect_uri'])
+		) {
+			// A Client Identifier Document has no registration under its URL.
+			// Use the registration for this client and redirect URI, but keep
+			// the URL as the client identifier the authorization code is issued to.
+			$registration = $this->config->getClientIdDocumentRegistration(
+				$clientId,
+				$_GET['redirect_uri'],
+				$this->getOrigin($_GET['redirect_uri'])
+			);
+			$client = new \Pdsinterop\Solid\Auth\Config\Client(
+				$clientId,
+				'',
+				$registration['redirect_uris'],
+				$registration['client_name']
+			);
+		} else {
+			$client = $this->getClient($clientId);
+		}
 		$keys = $this->getKeys();
 		try {
 			return (new \Pdsinterop\Solid\Auth\Factory\ConfigFactory(
@@ -200,23 +222,18 @@ class ServerController extends Controller
 		}
 
 		if (preg_match("/^http(s)?:/", $getVars['client_id'])) {
-			$parsedOrigin = parse_url($getVars['redirect_uri']);
-			$origin = $parsedOrigin['scheme'] . '://' . $parsedOrigin['host'];
-			if (isset($parsedOrigin['port'])) {
-				$origin .= ":" . $parsedOrigin['port'];
-			}
-			$clientData = array(
-				"client_id_issued_at" => time(),
-				"client_name" => $getVars['client_id'],
-				"origin" => $origin,
-				"redirect_uris" => array(
-					$getVars['redirect_uri']
-				)
+			$origin = $this->getOrigin($getVars['redirect_uri']);
+			// Use a stable registration for this client and redirect URI. A new
+			// registration on every request meant the user's approval never
+			// applied to the next request, and returning to the redirect URI
+			// after approval sent the user back to the app without a code.
+			$clientRegistration = $this->config->getClientIdDocumentRegistration(
+				$getVars['client_id'],
+				$getVars['redirect_uri'],
+				$origin
 			);
-
-			$clientId = $this->config->saveClientRegistration($clientData)['client_id'];
-			$returnUrl = $getVars['redirect_uri'];
-			$clientRegistration = $this->config->getClientRegistration($clientId);
+			$clientId = $clientRegistration['client_id'];
+			$returnUrl = $_SERVER['REQUEST_URI'];
 			// @FIXME: Implement $clientRegistration = $this->fetchRemoteClientDocument($getVars['client_id'])
 			//        to replace this section of this `if` statement.
 		} else {
@@ -308,6 +325,15 @@ class ServerController extends Controller
 		}
 
 		return $approved;
+	}
+
+	private function getOrigin(string $uri): string {
+		$parsedOrigin = parse_url($uri);
+		$origin = ($parsedOrigin['scheme'] ?? '') . '://' . ($parsedOrigin['host'] ?? '');
+		if (isset($parsedOrigin['port'])) {
+			$origin .= ":" . $parsedOrigin['port'];
+		}
+		return $origin;
 	}
 
 	private function getProfilePage() {

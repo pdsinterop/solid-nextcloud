@@ -161,6 +161,61 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should use the same registration for a Client Identifier Document on every request, and return to the authorization request after approval
+	 *
+	 * @covers ::authorize
+	 * @uses \OCA\Solid\BaseServerConfig::getClientIdDocumentRegistration
+	 */
+	public function testAuthorizeWithClientIdDocumentUsesStableRegistration()
+	{
+		$_GET = [
+			'client_id' => 'https://app.example/id',
+			'redirect_uri' => 'https://app.example/callback',
+			'response_type' => 'code',
+		];
+		$_SERVER['REQUEST_URI'] = '/apps/solid/authorize?client_id=https%3A%2F%2Fapp.example%2Fid';
+
+		$appValues = [];
+		$approvalUrls = [];
+
+		for ($i = 0; $i < 2; $i++) {
+			$parameters = $this->createMockConstructorParameters();
+
+			$config = $this->createMock(IConfig::class);
+			$config->method('getAppValue')->willReturnCallback(
+				function ($app, $key, $default = '') use (&$appValues) {
+					$fixed = ['encryptionKey' => 'mock encryption key', 'privateKey' => self::$privateKey];
+					return $fixed[$key] ?? $appValues[$key] ?? $default;
+				}
+			);
+			$config->method('setAppValue')->willReturnCallback(
+				function ($app, $key, $value) use (&$appValues) { $appValues[$key] = $value; }
+			);
+			$config->method('getUserValue')->willReturnArgument(3);
+			$parameters[self::provideConstructorParameterIndex()['config'][0]] = $config;
+			$this->mockUserManager->method('userExists')->willReturn(true);
+			$this->mockURLGenerator->method('linkToRoute')->willReturnCallback(
+				fn ($route, $params = []) => $route . '?' . http_build_query($params)
+			);
+			$this->mockURLGenerator->method('getAbsoluteURL')->willReturnArgument(0);
+
+			$controller = new ServerController(...$parameters);
+			$response = $controller->authorize();
+
+			$this->assertEquals(Http::STATUS_FOUND, $response->getStatus());
+			$approvalUrls[] = $response->getHeaders()['Location'];
+		}
+
+		$_GET = [];
+
+		$this->assertCount(1, $appValues, 'Only one registration should be created');
+		$this->assertSame($approvalUrls[0], $approvalUrls[1]);
+
+		parse_str(parse_url($approvalUrls[0], PHP_URL_QUERY), $query);
+		$this->assertSame($_SERVER['REQUEST_URI'], $query['returnUrl']);
+	}
+
+	/**
 	 * @testdox ServerController should return a 302 redirect when asked to authorize client that has not been approved
 	 *
 	 * @covers ::authorize
