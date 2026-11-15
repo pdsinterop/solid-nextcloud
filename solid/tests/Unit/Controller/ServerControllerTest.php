@@ -521,6 +521,53 @@ class ServerControllerTest extends TestCase
 	}
 
 	/**
+	 * @testdox ServerController should read the client_id from an HTTP Basic Authorization header when generating a token
+	 *
+	 * @covers ::token
+	 */
+	public function testTokenWithClientSecretBasic()
+	{
+		unset($_POST['client_id']);
+		$_POST['code'] = '';
+		$_POST['grant_type'] = 'authorization_code';
+		$_SERVER['HTTP_AUTHORIZATION'] = 'Basic ' . base64_encode(urlencode(self::MOCK_CLIENT_ID) . ':mock secret');
+		$_SERVER['HTTP_DPOP'] = 'mock dpop';
+		$_SESSION['nonce'] = 'mock nonce';
+
+		$parameters = $this->createMockConstructorParameters();
+
+		$mockTokenGenerator = $this->createMock(\Pdsinterop\Solid\Auth\TokenGenerator::class);
+		$mockTokenGenerator->method('getCodeInfo')->willReturn(['user_id' => self::MOCK_USER_ID]);
+		$mockTokenGenerator->expects($this->once())
+			->method('addIdTokenToResponse')
+			->with(
+				$this->isInstanceOf(Response::class),
+				self::MOCK_CLIENT_ID,
+				self::MOCK_USER_ID,
+				$_SESSION['nonce'],
+				self::$privateKey,
+				$_SERVER['HTTP_DPOP'],
+			)
+			->willReturn(new Response('php://memory', Http::STATUS_IM_A_TEAPOT, [
+				'Content-Type' => 'mock application type'
+			]));
+
+		try {
+			$controller = new ServerController(...$parameters);
+
+			$reflectionObject = new \ReflectionObject($controller);
+			$reflectionProperty = $reflectionObject->getProperty('tokenGenerator');
+			$reflectionProperty->setValue($controller, $mockTokenGenerator);
+
+			$tokenResponse = $controller->token();
+		} finally {
+			unset($_SERVER['HTTP_AUTHORIZATION']);
+		}
+
+		$this->assertEquals(Http::STATUS_IM_A_TEAPOT, $tokenResponse->getStatus());
+	}
+
+	/**
 	 * @testdox ServerController should return an OK when asked to logout
 	 *
 	 * @covers ::logout
