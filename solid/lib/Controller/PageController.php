@@ -102,6 +102,13 @@ class PageController extends Controller {
 		$parsedOrigin = parse_url($clientRegistration['redirect_uris'][0]);
 		$origin = $parsedOrigin['host'];
 		if ($origin) {
+			// The browser follows the redirects after the form POST (back to the
+			// authorize endpoint, then to the client's redirect URI), and
+			// `form-action` applies to every hop. Keep the port, so clients on a
+			// non-default port (such as loopback redirects from RFC 8252) work.
+			if (isset($parsedOrigin['port'])) {
+				$origin .= ':' . $parsedOrigin['port'];
+			}
 			$policy->addAllowedFormActionDomain($parsedOrigin['scheme'] . "://" . $origin);
 			$templateResponse->setContentSecurityPolicy($policy);
 		}
