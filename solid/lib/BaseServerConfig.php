@@ -189,6 +189,36 @@
 			return $clientData;
 		}
 
+		/**
+		 * Returns the registration for a client that identifies itself with a
+		 * Client Identifier Document URL (Solid-OIDC), creating it when needed.
+		 *
+		 * The registration ID is derived from the client_id URL and the redirect
+		 * URI, so the same client gets the same registration on every
+		 * authorization request. A user's approval then sticks, and it is bound
+		 * to that exact redirect URI.
+		 */
+		public function getClientIdDocumentRegistration(string $clientIdUrl, string $redirectUri, string $origin): array
+		{
+			$clientId = substr(hash('sha256', $clientIdUrl . "\n" . $redirectUri), 0, 32);
+
+			$registration = $this->getClientRegistration($clientId);
+			if (($registration['client_id'] ?? null) === $clientId) {
+				return $registration;
+			}
+
+			$registration = [
+				'client_id' => $clientId,
+				'client_id_issued_at' => time(),
+				'client_name' => $clientIdUrl,
+				'origin' => $origin,
+				'redirect_uris' => [$redirectUri],
+			];
+			$this->config->setAppValue('solid', "client-" . $clientId, json_encode($registration));
+
+			return $registration;
+		}
+
 		public function removeClientRegistration($clientId) {
 			$this->config->deleteAppValue('solid', "client-" . $clientId);
 		}
